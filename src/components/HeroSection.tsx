@@ -98,13 +98,13 @@ export function HeroSection() {
         <div className="hero-item relative mx-auto w-full max-w-xl lg:max-w-2xl">
           <div className="hero-glow-ring absolute -inset-4 rounded-3xl opacity-60" aria-hidden />
           <div className="annapurna-frame relative overflow-hidden rounded-2xl border-2 border-[#f5a623]/50 shadow-2xl shadow-[#f5a623]/25 animate-float">
-            <div className="relative aspect-[978/580] w-full overflow-hidden bg-[#0a1628]">
+            <div className="relative aspect-[1000/666] w-full overflow-hidden bg-[#0a1628]">
               <Image
                 src={IMAGES.annapurna}
-                alt="அன்னபூரணி — Goddess Annapurna feeding the world with rice and nourishment"
+                alt="Annapurna — Hindu goddess of nourishment and abundance, feeding the world"
                 fill
                 priority
-                className="object-contain object-center"
+                className="object-cover object-center"
                 sizes="(max-width: 1024px) 95vw, 640px"
               />
               {/* Subtle sparkle overlay like reference art */}
