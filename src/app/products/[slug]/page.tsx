@@ -78,7 +78,7 @@ export default function ProductDetailPage({
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority
           />
-          {prev && (
+          {prev && slug !== "jgl" && (
             <Link
               href={`/products/${prev.slug}`}
               aria-label={`Previous: ${prev.name}`}

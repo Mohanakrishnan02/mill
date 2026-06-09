@@ -1,86 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, ArrowRight, Grid3X3 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
-import { products } from "@/lib/products";
-import type { Product } from "@/types";
+import { getFeaturedProducts } from "@/lib/products";
 
-interface ProductCarouselProps {
-  /** Products to show in the sliding window (defaults to all) */
-  items?: Product[];
-  /** How many cards visible at once on large screens */
-  visibleCount?: number;
-}
+export function ProductCarousel() {
+  const featured = getFeaturedProducts();
+  const [showViewAll, setShowViewAll] = useState(false);
 
-export function ProductCarousel({ items = products, visibleCount: desktopCount = 3 }: ProductCarouselProps) {
-  const [startIndex, setStartIndex] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(desktopCount);
+  if (showViewAll) {
+    return (
+      <div className="relative px-8 sm:px-12">
+        <button
+          type="button"
+          onClick={() => setShowViewAll(false)}
+          aria-label="Back to featured varieties"
+          className="absolute -left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00] sm:-left-5 sm:h-12 sm:w-12"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
 
-  useEffect(() => {
-    const update = () => {
-      if (window.innerWidth < 640) setVisibleCount(1);
-      else if (window.innerWidth < 1024) setVisibleCount(Math.min(2, desktopCount));
-      else setVisibleCount(desktopCount);
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, [desktopCount]);
-
-  useEffect(() => {
-    setStartIndex(0);
-  }, [visibleCount]);
-
-  const maxStart = Math.max(0, items.length - visibleCount);
-
-  const prev = () => setStartIndex((i) => (i <= 0 ? maxStart : i - 1));
-  const next = () => setStartIndex((i) => (i >= maxStart ? 0 : i + 1));
-
-  const visible = items.slice(startIndex, startIndex + visibleCount);
-
-  const gridCols =
-    visibleCount >= 3 ? "sm:grid-cols-2 lg:grid-cols-3" : visibleCount === 2 ? "sm:grid-cols-2" : "grid-cols-1";
+        <Link
+          href="/products"
+          className="group flex min-h-[280px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e07b00]/40 bg-gradient-to-br from-[#fff8f0] to-[#f5ede0] p-8 text-center transition hover:border-[#e07b00] hover:shadow-lg"
+        >
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#e07b00]/15 transition group-hover:scale-110">
+            <Grid3X3 className="h-8 w-8 text-[#e07b00]" />
+          </div>
+          <p
+            className="mt-4 text-xl font-bold text-[#5d3a1a]"
+            style={{ fontFamily: "var(--font-yeseva)" }}
+          >
+            Click here to view all
+          </p>
+          <p className="mt-2 text-sm text-stone-500">
+            See our full rice catalog — JGL, Akshaya, Ponni & more
+          </p>
+          <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#e07b00] px-6 py-2.5 text-sm font-bold text-white transition group-hover:bg-[#f5a623]">
+            Open full product list
+            <ArrowRight className="h-4 w-4" />
+          </span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={prev}
-        aria-label="Previous rice variety"
-        className="absolute -left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00] sm:-left-5 sm:h-12 sm:w-12"
-      >
-        <ChevronLeft className="h-6 w-6" />
-      </button>
-
-      <div className={`grid grid-cols-1 gap-3 sm:gap-5 ${gridCols}`}>
-        {visible.map((product) => (
+    <div className="relative px-8 sm:px-12">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+        {featured.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
       <button
         type="button"
-        onClick={next}
-        aria-label="Next rice variety"
+        onClick={() => setShowViewAll(true)}
+        aria-label="View all rice varieties"
         className="absolute -right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00] sm:-right-5 sm:h-12 sm:w-12"
       >
         <ChevronRight className="h-6 w-6" />
       </button>
-
-      <div className="mt-4 flex justify-center gap-1.5">
-        {Array.from({ length: maxStart + 1 }).map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            aria-label={`Go to slide ${i + 1}`}
-            onClick={() => setStartIndex(i)}
-            className={`h-2 rounded-full transition-all ${
-              startIndex === i ? "w-6 bg-[#e07b00]" : "w-2 bg-stone-300"
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 }

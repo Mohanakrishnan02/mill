@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(MILL.siteUrl),
   title: `${MILL.fullName} | Melur, Madurai`,
   description: "Traditional rice varieties from Melur, Madurai. Order online. No COD. Call: 7339604011",
+  icons: {
+    icon: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 export const viewport: Viewport = {

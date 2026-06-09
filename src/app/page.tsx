@@ -1,14 +1,10 @@
-import Link from "next/link";
 import { ProductCarousel } from "@/components/ProductCarousel";
 import { HeroSection } from "@/components/HeroSection";
 import { JourneySection } from "@/components/JourneySection";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
-import { getFeaturedProducts, products } from "@/lib/products";
 import { DELIVERY } from "@/lib/mill-config";
 
 export default function HomePage() {
-  const featured = getFeaturedProducts();
-
   return (
     <>
       <HeroSection />
@@ -39,27 +35,20 @@ export default function HomePage() {
       {/* Products */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <RevealOnScroll>
-          <div className="flex items-end justify-between border-b-2 border-stone-200 pb-3">
-            <div>
-              <h2 className="text-xl font-bold text-[#5d3a1a]" style={{ fontFamily: "var(--font-yeseva)" }}>
-                Traditional Rice Varieties <span className="text-[#e07b00]">— Direct from Mill</span>
-              </h2>
-              <p className="mt-1 text-sm text-stone-500">
-                Featured: JGL, Akshaya & Ponni Boiled · Cart saved automatically
-              </p>
-            </div>
-            <Link href="/products" className="text-sm font-bold text-[#2874f0] hover:underline">
-              View All {products.length} →
-            </Link>
+          <div className="border-b-2 border-stone-200 pb-3">
+            <h2 className="text-xl font-bold text-[#5d3a1a]" style={{ fontFamily: "var(--font-yeseva)" }}>
+              Traditional Rice Varieties <span className="text-[#e07b00]">— Direct from Mill</span>
+            </h2>
+            <p className="mt-1 text-sm text-stone-500">
+              Featured: JGL, Akshaya & Ponni Boiled · Use → to see full catalog
+            </p>
           </div>
         </RevealOnScroll>
         <RevealOnScroll delay={100}>
-          <ProductCarousel items={products} visibleCount={3} />
+          <div className="mt-8">
+            <ProductCarousel />
+          </div>
         </RevealOnScroll>
-        <p className="mt-6 text-center text-xs text-stone-400">
-          Use ← → arrows to browse all {products.length} varieties ·{" "}
-          {products.length - featured.length} more in full catalog
-        </p>
       </section>
 
       {/* Payment strip */}

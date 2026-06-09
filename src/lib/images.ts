@@ -4,6 +4,7 @@ const pexels = (id: number, w = 800) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
 
 export const IMAGES = {
+  logo: "/images/logo.png",
   annapurna: "/images/annapurna.png",
   heroBg: pexels(1072824, 1920),
 

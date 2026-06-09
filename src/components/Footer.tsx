@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Truck, MapPin, Scale, CreditCard, Package } from "lucide-react";
 import { MILL, DELIVERY } from "@/lib/mill-config";
+import { IMAGES } from "@/lib/images";
 
 const deliveryPolicies = [
   {
@@ -63,9 +64,18 @@ export function Footer() {
 
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 sm:px-6">
         <div>
-          <p className="text-lg font-bold text-[#f5a623]" style={{ fontFamily: "var(--font-yeseva)" }}>
-            {MILL.fullName}
-          </p>
+          <div className="flex items-center gap-3">
+            <Image
+              src={IMAGES.logo}
+              alt="Jayalakshmi Vilas Rice Mill"
+              width={56}
+              height={56}
+              className="rounded-full object-cover ring-2 ring-[#f5a623]/30"
+            />
+            <p className="text-lg font-bold text-[#f5a623]" style={{ fontFamily: "var(--font-yeseva)" }}>
+              {MILL.fullName}
+            </p>
+          </div>
           <p className="mt-2 text-sm leading-relaxed">
             Traditional rice varieties from Melur, Madurai. Stone-milled, hand-sorted — direct from
             our mill to your kitchen.

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +11,7 @@ import { MILL } from "@/lib/mill-config";
 import { searchProducts } from "@/lib/products";
 import { scrollToSection, useActiveSection } from "@/hooks/useActiveSection";
 import { ProductImage } from "./ProductImage";
+import { IMAGES } from "@/lib/images";
 
 type NavItem =
   | { type: "page"; href: string; label: string }
@@ -131,11 +133,21 @@ export function Header() {
 
       <header className="sticky top-0 z-40 bg-[#2e7d32] shadow-md">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-6">
-          <Link href="/" className="shrink-0">
-            <p className="font-serif text-lg font-bold leading-tight text-white" style={{ fontFamily: "var(--font-yeseva)" }}>
-              {MILL.name}
-            </p>
-            <p className="text-[10px] uppercase tracking-widest text-white/60">{MILL.tagline}</p>
+          <Link href="/" className="flex shrink-0 items-center gap-2.5">
+            <Image
+              src={IMAGES.logo}
+              alt="Jayalakshmi Vilas Rice Mill"
+              width={44}
+              height={44}
+              priority
+              className="rounded-full object-cover ring-2 ring-[#f5a623]/40"
+            />
+            <div>
+              <p className="font-serif text-lg font-bold leading-tight text-white" style={{ fontFamily: "var(--font-yeseva)" }}>
+                {MILL.name}
+              </p>
+              <p className="text-[10px] uppercase tracking-widest text-white/60">{MILL.tagline}</p>
+            </div>
           </Link>
 
           <div className="relative hidden flex-1 md:block">
