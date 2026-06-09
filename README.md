@@ -2,7 +2,7 @@
 
 E-commerce website for **Jayalakshmi Vilas Rice Mill**, Melur, Madurai — traditional rice varieties, cart, distance-based delivery, and Razorpay checkout.
 
-**Live site:** [mill-mauve.vercel.app](https://mill-mauve.vercel.app)
+**Live site:** [jayalakshmivilas.vercel.app](https://jayalakshmivilas.vercel.app)
 
 ## Stack
 

@@ -12,6 +12,7 @@ const yeseva = Yeseva_One({ weight: "400", subsets: ["latin"], variable: "--font
 const tamil = Noto_Serif_Tamil({ subsets: ["tamil"], variable: "--font-tamil" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(MILL.siteUrl),
   title: `${MILL.fullName} | Melur, Madurai`,
   description: "Traditional rice varieties from Melur, Madurai. Order online. No COD. Call: 7339604011",
 };

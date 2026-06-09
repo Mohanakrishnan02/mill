@@ -11,7 +11,7 @@ When you finish meaningful changes to this project (features, fixes, content upd
 2. **Commit** — stage relevant files with a clear message (skip `.env*` secrets).
 3. **Push** — `git push origin main` to `https://github.com/Mohanakrishnan02/mill`.
 4. **Deploy** — Vercel auto-deploys from `main`. If push fails or Vercel is disconnected, run `npx vercel deploy --prod --yes`.
-5. **Confirm** — tell the user the live URL: **https://mill-mauve.vercel.app**
+5. **Confirm** — tell the user the live URL: **https://jayalakshmivilas.vercel.app**
 
 GitHub auth: use `gh auth setup-git` if HTTPS push fails.
 

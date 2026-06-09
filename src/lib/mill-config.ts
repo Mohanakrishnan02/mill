@@ -2,6 +2,7 @@ export const MILL = {
   name: "Jayalakshmi Vilas",
   fullName: "Jayalakshmi Vilas Rice Mill",
   tagline: "Rice Mill · Melur, Madurai",
+  siteUrl: "https://jayalakshmivilas.vercel.app",
   phone: "7339604011",
   phoneDisplay: "+91 7339604011",
   whatsapp: "917339604011",

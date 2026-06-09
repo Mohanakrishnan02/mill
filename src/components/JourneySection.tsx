@@ -8,6 +8,7 @@ import {
   journeyStats,
   journeySteps,
 } from "@/lib/journey-content";
+import { useSectionHighlight } from "@/hooks/useSectionHighlight";
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -65,13 +66,17 @@ function AnimatedCounter({
 }
 
 export function JourneySection() {
+  const highlighted = useSectionHighlight("journey");
   const hero = useInView(0.1);
   const story = useInView(0.12);
   const timeline = useInView(0.1);
   const steps = useInView(0.08);
 
   return (
-    <section id="journey" className="relative overflow-hidden bg-[#0a1a08] text-white">
+    <section
+      id="journey"
+      className={`relative scroll-mt-24 overflow-hidden bg-[#0a1a08] text-white transition-shadow duration-500 ${highlighted ? "journey-section-spotlight" : ""}`}
+    >
       {/* Background video */}
       <div className="pointer-events-none absolute inset-0">
         <video

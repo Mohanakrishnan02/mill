@@ -3,7 +3,7 @@ import { MILL } from "@/lib/mill-config";
 
 export function Footer() {
   return (
-    <footer id="contact" className="mt-auto bg-[#1a0f05] text-stone-400">
+    <footer id="contact" className="mt-auto scroll-mt-24 bg-[#1a0f05] text-stone-400">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 sm:px-6">
         <div>
           <p className="text-lg font-bold text-[#f5a623]" style={{ fontFamily: "var(--font-yeseva)" }}>
