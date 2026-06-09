@@ -11,7 +11,7 @@ export const IMAGES = {
 
   journey: {
     fields: "/images/paddy-field.png",
-    harvest: pexels(5980758),
+    harvest: "/images/hand-harvest.png",
     drying: pexels(24991359),
     milling: pexels(4110256),
     sorting: pexels(4110251),
