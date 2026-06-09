@@ -13,6 +13,9 @@ function OrderSuccessContent() {
   const paymentId = params.get("paymentId");
   const orderId = params.get("orderId") || "JV" + Date.now().toString().slice(-8).toUpperCase();
   const phone = params.get("phone") || "";
+  const awb = params.get("awb");
+  const tracking = params.get("tracking");
+
   const isDemo = params.get("demo") === "1";
 
   const waMsg = encodeURIComponent(
@@ -37,6 +40,29 @@ function OrderSuccessContent() {
       {phone && (
         <p className="mt-2 text-xs text-stone-500">
           We will contact <strong>+91 {phone}</strong> to confirm delivery.
+        </p>
+      )}
+
+      {(awb || tracking) && (
+        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-left text-sm">
+          <p className="font-bold text-[#2874f0]">🚚 Ekart Logistics</p>
+          {awb && <p className="mt-1 text-stone-600">AWB / Tracking: <strong>{awb}</strong></p>}
+          {tracking && (
+            <a
+              href={tracking}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-xs font-bold text-[#2874f0] hover:underline"
+            >
+              Track your shipment →
+            </a>
+          )}
+        </div>
+      )}
+
+      {!awb && !tracking && (
+        <p className="mt-3 text-xs text-stone-500">
+          Delivery via Ekart Logistics (Melur hub) or direct mill delivery — tracking shared on WhatsApp.
         </p>
       )}
 

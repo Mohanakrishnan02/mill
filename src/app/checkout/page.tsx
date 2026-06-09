@@ -134,6 +134,35 @@ export default function CheckoutPage() {
     return true;
   };
 
+  const finalizeOrder = async (
+    orderId: string,
+    paymentId?: string,
+  ): Promise<{ trackingUrl?: string; awb?: string; deliveryMessage?: string }> => {
+    try {
+      const res = await fetch("/api/orders/fulfill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          address,
+          items,
+          totalKg: summary.totalKg,
+          total: summary.total,
+          paymentId,
+          deliveryDistanceKm,
+        }),
+      });
+      const data = await res.json();
+      return {
+        trackingUrl: data.trackingUrl,
+        awb: data.awb,
+        deliveryMessage: data.message,
+      };
+    } catch {
+      return { deliveryMessage: "Order placed — delivery will be arranged shortly." };
+    }
+  };
+
   const handlePay = async () => {
     if (items.length === 0) return;
     setLoading(true);
@@ -184,11 +213,18 @@ export default function CheckoutPage() {
           });
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.success) {
+            const fulfillment = await finalizeOrder(orderId, response.razorpay_payment_id);
             clearCart();
             setDeliveryDistanceKm(null);
-            router.push(
-              `/order-success?total=${summary.total}&paymentId=${response.razorpay_payment_id}&orderId=${orderId}&phone=${address.phone}`
-            );
+            const params = new URLSearchParams({
+              total: String(summary.total),
+              paymentId: response.razorpay_payment_id,
+              orderId,
+              phone: address.phone,
+            });
+            if (fulfillment.awb) params.set("awb", fulfillment.awb);
+            if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
+            router.push(`/order-success?${params.toString()}`);
           } else {
             setError("Payment verification failed. Call " + MILL.phone + " if amount was deducted.");
           }
@@ -209,13 +245,20 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleDemoConfirm = () => {
+  const handleDemoConfirm = async () => {
     const orderId = "JV" + Date.now().toString().slice(-8).toUpperCase();
+    const fulfillment = await finalizeOrder(orderId);
     clearCart();
     setDeliveryDistanceKm(null);
-    router.push(
-      `/order-success?total=${summary.total}&orderId=${orderId}&phone=${address.phone}&demo=1`
-    );
+    const params = new URLSearchParams({
+      total: String(summary.total),
+      orderId,
+      phone: address.phone,
+      demo: "1",
+    });
+    if (fulfillment.awb) params.set("awb", fulfillment.awb);
+    if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
+    router.push(`/order-success?${params.toString()}`);
   };
 
   if (!isHydrated) {
@@ -260,6 +303,10 @@ export default function CheckoutPage() {
           {step === 1 && (
             <section className="rounded-lg border border-stone-200 bg-white p-5">
               <h2 className="font-bold text-stone-900">Delivery Address & Verification</h2>
+              <p className="mt-2 rounded border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-900">
+                🚚 Delivered via <strong>Ekart Logistics</strong> for outstation & bulk orders from Melur.
+                Local orders ≤ {DELIVERY.maxKm} km delivered from our mill.
+              </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <input
                   placeholder="First Name *"

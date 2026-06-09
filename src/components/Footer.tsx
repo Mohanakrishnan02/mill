@@ -25,8 +25,9 @@ export function Footer() {
         <div>
           <p className="font-semibold text-white">Delivery Policy</p>
           <ul className="mt-3 space-y-2 text-sm">
-            <li>Free delivery ≤ 5 km</li>
+            <li>Free delivery ≤ 5 km (Melur area)</li>
             <li>₹5/km beyond · up to 25 km</li>
+            <li>Outstation via Ekart Logistics from Melur</li>
             <li>Beyond 25 km: min 50 kg order</li>
             <li>Online payment only — No COD</li>
           </ul>
