@@ -167,9 +167,8 @@ function SearchBox({
     }, 220);
   };
 
-  const inputCls = isMobile
-    ? "w-full rounded-lg border-0 bg-white py-2.5 pl-10 pr-4 text-sm text-stone-900 outline-none shadow-sm"
-    : "w-full max-w-lg rounded border-0 bg-white py-2 pl-10 pr-4 text-sm text-stone-900 outline-none";
+  const inputCls =
+    "header-search-field w-full rounded-lg border-0 bg-white py-2.5 pl-10 pr-4 text-sm text-stone-900 shadow-none outline-none ring-0 placeholder:text-stone-400";
 
   const handleResultPick = (productName?: string) => {
     pickingResultRef.current = false;
@@ -179,9 +178,11 @@ function SearchBox({
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div
+      className={`relative rounded-lg bg-white shadow-md ring-1 ring-black/10 ${className}`}
+    >
       <Search
-        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
       />
       <input
         ref={inputRef}

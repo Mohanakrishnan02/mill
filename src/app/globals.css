@@ -20,6 +20,27 @@ body {
   color: #212121;
 }
 
+/* ── Header search field (solid white on green header) ── */
+.header-search-field {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #ffffff !important;
+  color: #1c1917;
+  caret-color: #1c1917;
+}
+.header-search-field::-webkit-search-decoration,
+.header-search-field::-webkit-search-cancel-button,
+.header-search-field::-webkit-search-results-button {
+  -webkit-appearance: none;
+}
+.header-search-field:-webkit-autofill,
+.header-search-field:-webkit-autofill:hover,
+.header-search-field:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  -webkit-text-fill-color: #1c1917;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+}
+
 /* ── Offer popup animations ── */
 @keyframes offerOverlayIn {
   from { opacity: 0; }
