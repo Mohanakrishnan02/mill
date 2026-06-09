@@ -94,36 +94,37 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Right — Annaporani */}
-        <div className="hero-item relative mx-auto w-full max-w-sm lg:max-w-md">
-          <div className="hero-glow-ring absolute inset-0 rounded-full" aria-hidden />
-          <div className="relative overflow-hidden rounded-2xl border-2 border-[#f5a623]/40 bg-[#1a0f05]/60 p-3 shadow-2xl shadow-[#f5a623]/20 backdrop-blur-md animate-float">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-xl">
+        {/* Right — Annaporani (traditional art) */}
+        <div className="hero-item relative mx-auto w-full max-w-xl lg:max-w-2xl">
+          <div className="hero-glow-ring absolute -inset-4 rounded-3xl opacity-60" aria-hidden />
+          <div className="annapurna-frame relative overflow-hidden rounded-2xl border-2 border-[#f5a623]/50 shadow-2xl shadow-[#f5a623]/25 animate-float">
+            <div className="relative aspect-[978/580] w-full overflow-hidden bg-[#0a1628]">
               <Image
                 src={IMAGES.annapurna}
-                alt="Goddess Annapurna (Annaporani) — Hindu goddess of food and nourishment"
+                alt="அன்னபூரணி — Goddess Annapurna feeding the world with rice and nourishment"
                 fill
                 priority
-                className="object-cover object-top"
-                sizes="(max-width: 1024px) 80vw, 400px"
+                className="object-contain object-center"
+                sizes="(max-width: 1024px) 95vw, 640px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f05]/80 via-transparent to-transparent" />
+              {/* Subtle sparkle overlay like reference art */}
+              <div className="annapurna-sparkles pointer-events-none absolute inset-0" aria-hidden />
             </div>
-            <div className="mt-3 text-center">
+            <div className="border-t border-[#f5a623]/30 bg-gradient-to-r from-[#1a0f05] via-[#0a1628] to-[#1a0f05] px-4 py-3 text-center">
               <p
-                className="text-lg font-bold text-[#f5a623]"
+                className="text-base font-bold text-[#f5a623] sm:text-lg"
                 style={{ fontFamily: "var(--font-yeseva)" }}
               >
                 அன்னபூரணி · Annaporani
               </p>
               <p
-                className="mt-1 text-xs text-white/60"
+                className="mt-1 text-xs text-white/70 sm:text-sm"
                 style={{ fontFamily: "var(--font-tamil)" }}
               >
-                உணவின் தெய்வம் — நெல்லும் அரிசியும் அவள் அருள்
+                உலகத்தை உணவால் நிரப்பும் தெய்வம் — நெல்லும் அரிசியும் அவள் அருள்
               </p>
-              <p className="mt-1 text-[10px] text-white/40">
-                Goddess of nourishment · Blessing every grain we mill
+              <p className="mt-1 text-[10px] text-white/45">
+                The Goddess who feeds the world · Blessing every grain we mill
               </p>
             </div>
           </div>

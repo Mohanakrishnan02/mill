@@ -4,9 +4,8 @@ const pexels = (id: number, w = 800) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
 
 export const IMAGES = {
-  /** Goddess Annapurna (Annaporani) — Wikimedia Commons, CC BY-SA */
-  annapurna:
-    "https://upload.wikimedia.org/wikipedia/commons/8/82/Annapurna_Mata_2015%28A%29.jpg",
+  /** Goddess Annapurna (Annaporani) — traditional devotional art */
+  annapurna: "/images/annapurna.png",
 
   heroBg: pexels(1072824, 1920),
 
