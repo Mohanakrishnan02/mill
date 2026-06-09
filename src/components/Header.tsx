@@ -9,6 +9,7 @@ import { CartDrawer } from "./CartDrawer";
 import { MILL } from "@/lib/mill-config";
 import { searchProducts } from "@/lib/products";
 import { scrollToSection, useActiveSection } from "@/hooks/useActiveSection";
+import { ProductImage } from "./ProductImage";
 
 type NavItem =
   | { type: "page"; href: string; label: string }
@@ -152,7 +153,7 @@ export function Header() {
               className="w-full max-w-lg rounded border-0 py-2 pl-10 pr-4 text-sm outline-none"
             />
             {showDrop && query.trim() && (
-              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-md border border-stone-200 bg-white shadow-xl">
+              <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-lg overflow-hidden rounded-md border border-stone-200 bg-white shadow-xl">
                 {results.length === 0 ? (
                   <p className="p-3 text-sm text-stone-500">No varieties found</p>
                 ) : (
@@ -160,13 +161,22 @@ export function Header() {
                     <Link
                       key={p.id}
                       href={`/products/${p.slug}`}
-                      className="flex gap-3 border-b border-stone-100 p-3 hover:bg-orange-50 last:border-0"
+                      className="flex items-center gap-3 border-b border-stone-100 p-2.5 hover:bg-orange-50 last:border-0"
                       onMouseDown={(e) => e.preventDefault()}
                     >
-                      <span className="text-2xl">{p.image}</span>
-                      <div>
-                        <p className="text-sm font-bold">{p.name}</p>
-                        <p className="text-xs text-stone-500" style={{ fontFamily: "var(--font-tamil)" }}>{p.tamil}</p>
+                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#fdf8f0]">
+                        <ProductImage
+                          src={p.image}
+                          alt={p.name}
+                          className="object-cover"
+                          sizes="44px"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold text-stone-900">{p.name}</p>
+                        <p className="truncate text-xs text-stone-500" style={{ fontFamily: "var(--font-tamil)" }}>
+                          {p.tamil}
+                        </p>
                         <p className="text-xs font-bold text-[#e07b00]">
                           from ₹{Math.min(...p.variants.map((v) => v.price))}
                         </p>
