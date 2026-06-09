@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { ShoppingCart, Search, Menu, X, Phone } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { CartDrawer } from "./CartDrawer";
@@ -129,6 +129,7 @@ function SearchBox({
   onNavigate,
   className = "",
   variant = "header",
+  autoFocus = false,
 }: {
   query: string;
   setQuery: (q: string) => void;
@@ -138,31 +139,82 @@ function SearchBox({
   onNavigate?: () => void;
   className?: string;
   variant?: "header" | "mobile";
+  autoFocus?: boolean;
 }) {
   const isMobile = variant === "mobile";
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pickingResultRef = useRef(false);
+
+  useEffect(() => {
+    if (autoFocus) {
+      const t = setTimeout(() => inputRef.current?.focus(), 80);
+      return () => clearTimeout(t);
+    }
+  }, [autoFocus]);
+
+  const openDrop = () => {
+    if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
+    setShowDrop(true);
+  };
+
+  const scheduleCloseDrop = () => {
+    if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
+    blurTimerRef.current = setTimeout(() => {
+      if (!pickingResultRef.current) setShowDrop(false);
+      pickingResultRef.current = false;
+    }, 220);
+  };
+
   const inputCls = isMobile
     ? "w-full rounded-lg border-0 bg-white py-2.5 pl-10 pr-4 text-sm text-stone-900 outline-none shadow-sm"
     : "w-full max-w-lg rounded border-0 bg-white py-2 pl-10 pr-4 text-sm text-stone-900 outline-none";
 
+  const handleResultPick = () => {
+    pickingResultRef.current = false;
+    onNavigate?.();
+    setShowDrop(false);
+  };
+
   return (
     <div className={`relative ${className}`}>
       <Search
-        className={`absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 ${isMobile ? "text-stone-400" : "text-stone-400"}`}
+        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
       />
       <input
+        ref={inputRef}
         type="search"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
-          setShowDrop(true);
+          openDrop();
         }}
-        onFocus={() => setShowDrop(true)}
-        onBlur={() => setTimeout(() => setShowDrop(false), 180)}
+        onFocus={openDrop}
+        onBlur={scheduleCloseDrop}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            setShowDrop(false);
+            inputRef.current?.blur();
+          }
+          if (e.key === "Enter" && query.trim() && results.length > 0) {
+            router.push(`/products/${results[0].slug}`);
+            handleResultPick();
+          }
+        }}
         placeholder="Search rice… JGL, Akshaya, Ponni…"
         className={inputCls}
+        enterKeyHint="search"
       />
       {showDrop && query.trim() && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-xl">
+        <div
+          className={`absolute left-0 top-full z-[100] mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-xl ${
+            isMobile ? "max-h-[50vh] overflow-y-auto" : ""
+          }`}
+          onPointerDown={() => {
+            pickingResultRef.current = true;
+          }}
+        >
           {results.length === 0 ? (
             <p className="p-3 text-sm text-stone-500">No varieties found</p>
           ) : (
@@ -170,9 +222,12 @@ function SearchBox({
               <Link
                 key={p.id}
                 href={`/products/${p.slug}`}
-                className="flex items-center gap-3 border-b border-stone-100 p-2.5 hover:bg-orange-50 last:border-0"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={onNavigate}
+                className="flex items-center gap-3 border-b border-stone-100 p-2.5 hover:bg-orange-50 active:bg-orange-100 last:border-0"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  pickingResultRef.current = true;
+                }}
+                onClick={handleResultPick}
               >
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#fdf8f0]">
                   <ProductImage
@@ -210,6 +265,7 @@ export function Header() {
   const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
 
   const closeMobileSearch = () => setMobileSearchOpen(false);
+  const searchActive = showDrop || mobileSearchOpen;
 
   return (
     <>
@@ -221,7 +277,9 @@ export function Header() {
         &nbsp;|&nbsp; {MILL.hours} &nbsp;|&nbsp; Delivery ≤{25} km
       </div>
 
-      <header className="sticky top-0 z-40 bg-[#2e7d32] shadow-md">
+      <header
+        className={`sticky top-0 bg-[#2e7d32] shadow-md ${searchActive ? "z-50" : "z-40"}`}
+      >
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-6">
           <Link
             href="/"
@@ -322,6 +380,7 @@ export function Header() {
               results={results}
               onNavigate={closeMobileSearch}
               variant="mobile"
+              autoFocus
             />
           </div>
         )}

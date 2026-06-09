@@ -100,10 +100,16 @@ export function getAdjacentProducts(slug: string): { prev?: Product; next?: Prod
 export function searchProducts(query: string): Product[] {
   const q = query.toLowerCase().trim();
   if (!q) return products;
-  return products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(q) ||
-      (p.tamil?.includes(q) ?? false) ||
-      p.description.toLowerCase().includes(q)
-  );
+  return products.filter((p) => {
+    const fields = [
+      p.name,
+      p.tamil,
+      p.description,
+      p.slug,
+      p.category,
+      p.badgeLabel,
+      ...(p.tags ?? []),
+    ];
+    return fields.some((field) => field?.toLowerCase().includes(q));
+  });
 }
