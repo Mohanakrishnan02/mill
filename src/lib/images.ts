@@ -25,7 +25,7 @@ export const IMAGES = {
   products: {
     seeragaSamba: "/images/seeraga-samba.png",
     mappillaiSamba: "/images/mappillai-samba.png",
-    kichiliSamba: pexels(4110150),
+    kichiliSamba: "/images/kichili-samba.png",
     ponniRaw: pexels(209487),
     ponniBoiled: pexels(2882154),
     kattuyanam: pexels(1279330),
