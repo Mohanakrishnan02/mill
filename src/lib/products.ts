@@ -97,19 +97,43 @@ export function getAdjacentProducts(slug: string): { prev?: Product; next?: Prod
   };
 }
 
+function fieldMatches(field: string | undefined, q: string): boolean {
+  return field?.toLowerCase().includes(q) ?? false;
+}
+
+/** Score for ranking; null = no match */
+function productMatchScore(product: Product, q: string): number | null {
+  const name = product.name.toLowerCase();
+  const slug = product.slug.toLowerCase();
+
+  if (name === q) return 100;
+  if (name.startsWith(q)) return 90;
+  if (name.includes(q)) return 80;
+  if (slug.includes(q)) return 75;
+  if (fieldMatches(product.tamil, q)) return 70;
+
+  if (q.length < 2) return null;
+
+  if (fieldMatches(product.category, q)) return 55;
+  if (fieldMatches(product.badgeLabel, q)) return 50;
+  if (product.tags?.some((t) => fieldMatches(t, q))) return 45;
+
+  if (q.length >= 3 && fieldMatches(product.description, q)) return 25;
+
+  return null;
+}
+
 export function searchProducts(query: string): Product[] {
   const q = query.toLowerCase().trim();
   if (!q) return products;
-  return products.filter((p) => {
-    const fields = [
-      p.name,
-      p.tamil,
-      p.description,
-      p.slug,
-      p.category,
-      p.badgeLabel,
-      ...(p.tags ?? []),
-    ];
-    return fields.some((field) => field?.toLowerCase().includes(q));
-  });
+
+  return products
+    .map((p) => ({ product: p, score: productMatchScore(p, q) }))
+    .filter((row) => row.score !== null)
+    .sort(
+      (a, b) =>
+        b.score! - a.score! ||
+        a.product.name.localeCompare(b.product.name, "en", { sensitivity: "base" })
+    )
+    .map((row) => row.product);
 }

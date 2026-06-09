@@ -8,7 +8,7 @@ import { ShoppingCart, Search, Menu, X, Phone } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { CartDrawer } from "./CartDrawer";
 import { MILL } from "@/lib/mill-config";
-import { searchProducts } from "@/lib/products";
+import { searchProducts, getProductBySlug } from "@/lib/products";
 import { scrollToSection, scrollToHome, useActiveSection } from "@/hooks/useActiveSection";
 import { ProductImage } from "./ProductImage";
 import { IMAGES } from "@/lib/images";
@@ -171,8 +171,9 @@ function SearchBox({
     ? "w-full rounded-lg border-0 bg-white py-2.5 pl-10 pr-4 text-sm text-stone-900 outline-none shadow-sm"
     : "w-full max-w-lg rounded border-0 bg-white py-2 pl-10 pr-4 text-sm text-stone-900 outline-none";
 
-  const handleResultPick = () => {
+  const handleResultPick = (productName?: string) => {
     pickingResultRef.current = false;
+    if (productName) setQuery(productName);
     onNavigate?.();
     setShowDrop(false);
   };
@@ -198,7 +199,9 @@ function SearchBox({
             inputRef.current?.blur();
           }
           if (e.key === "Enter" && query.trim() && results.length > 0) {
-            router.push(`/products/${results[0].slug}`);
+            const first = results[0];
+            setQuery(first.name);
+            router.push(`/products/${first.slug}`);
             handleResultPick();
           }
         }}
@@ -227,7 +230,7 @@ function SearchBox({
                   e.preventDefault();
                   pickingResultRef.current = true;
                 }}
-                onClick={handleResultPick}
+                onClick={() => handleResultPick(p.name)}
               >
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#fdf8f0]">
                   <ProductImage
@@ -263,6 +266,15 @@ export function Header() {
   const [query, setQuery] = useState("");
   const [showDrop, setShowDrop] = useState(false);
   const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
+
+  // Fill search with product name when opening a product page directly (not while typing)
+  useEffect(() => {
+    const match = pathname.match(/^\/products\/([^/]+)$/);
+    if (!match) return;
+    const product = getProductBySlug(match[1]);
+    if (!product) return;
+    setQuery((prev) => (prev.trim() === "" ? product.name : prev));
+  }, [pathname]);
 
   const closeMobileSearch = () => setMobileSearchOpen(false);
   const searchActive = showDrop || mobileSearchOpen;
