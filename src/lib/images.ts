@@ -15,7 +15,7 @@ export const IMAGES = {
     drying: pexels(24991359),
     milling: pexels(4110256),
     sorting: pexels(4110251),
-    packing: pexels(1838554),
+    packing: "/images/packed-delivered.png",
     /** Father-to-son generational legacy illustration */
     legacyFatherSon: "/images/father-son-legacy.png",
   },
