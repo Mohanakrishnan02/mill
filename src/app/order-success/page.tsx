@@ -1,15 +1,19 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, MessageCircle, Bell } from "lucide-react";
 import { formatINR } from "@/lib/format";
 import { MILL } from "@/lib/mill-config";
+import { IMAGES } from "@/lib/images";
 import {
-  getOrderWhatsAppUrl,
+  getCustomerWhatsAppUrl,
+  getMillAlertWhatsAppUrl,
   loadOrderForWhatsApp,
-  WA_SENT_KEY,
+  WA_CUSTOMER_SENT_KEY,
+  WA_MILL_SENT_KEY,
   type OrderNotifyPayload,
 } from "@/lib/whatsapp-order";
 
@@ -22,7 +26,11 @@ function OrderSuccessContent() {
   const awb = params.get("awb");
   const tracking = params.get("tracking");
   const isDemo = params.get("demo") === "1";
-  const [waOpened, setWaOpened] = useState(false);
+
+  const [customerSent, setCustomerSent] = useState(false);
+  const [millSent, setMillSent] = useState(false);
+  const [showCustomerCard, setShowCustomerCard] = useState(false);
+  const [showMillCard, setShowMillCard] = useState(false);
 
   const stored = loadOrderForWhatsApp();
   const notifyPayload: OrderNotifyPayload = stored ?? {
@@ -33,64 +41,131 @@ function OrderSuccessContent() {
     isDemo,
   };
 
-  const waUrl = getOrderWhatsAppUrl(notifyPayload);
+  const customerWaUrl = getCustomerWhatsAppUrl(notifyPayload);
+  const millWaUrl = getMillAlertWhatsAppUrl(notifyPayload);
 
   useEffect(() => {
-    if (sessionStorage.getItem(WA_SENT_KEY)) return;
-    sessionStorage.setItem(WA_SENT_KEY, "1");
-    const timer = setTimeout(() => {
-      window.open(waUrl, "_blank", "noopener,noreferrer");
-      setWaOpened(true);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [waUrl]);
+    const customerAlready = sessionStorage.getItem(WA_CUSTOMER_SENT_KEY);
+    const millAlready = sessionStorage.getItem(WA_MILL_SENT_KEY);
+
+    const t1 = setTimeout(() => setShowCustomerCard(true), 400);
+    const t2 = setTimeout(() => {
+      if (!customerAlready && phone) {
+        window.open(customerWaUrl, "_blank", "noopener,noreferrer");
+        sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
+        setCustomerSent(true);
+      }
+    }, 1200);
+    const t3 = setTimeout(() => setShowMillCard(true), 1800);
+    const t4 = setTimeout(() => {
+      if (!millAlready) {
+        window.open(millWaUrl, "_blank", "noopener,noreferrer");
+        sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+        setMillSent(true);
+      }
+    }, 2800);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+    };
+  }, [customerWaUrl, millWaUrl, phone]);
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-16 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#2e7d32] bg-green-50">
-        <CheckCircle className="h-9 w-9 text-[#2e7d32]" />
+    <div className="mx-auto max-w-lg px-4 py-12 sm:py-16">
+      <div className="text-center">
+        <div className="order-success-pop mx-auto flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#2e7d32] bg-green-50">
+          <CheckCircle className="h-9 w-9 text-[#2e7d32]" />
+        </div>
+        <h1 className="mt-6 text-2xl font-bold text-[#2e7d32]" style={{ fontFamily: "var(--font-yeseva)" }}>
+          Order Placed! 🎉
+        </h1>
+        <p className="mt-2 text-sm text-stone-600">
+          Thank you for ordering from <strong>{MILL.fullName}</strong>, Melur.
+        </p>
+        <p className="mt-3 inline-block rounded bg-green-50 px-4 py-2 text-lg font-extrabold tracking-wide text-[#2e7d32]">
+          Order #{orderId}
+        </p>
       </div>
-      <h1 className="mt-6 text-2xl font-bold text-[#2e7d32]" style={{ fontFamily: "var(--font-yeseva)" }}>
-        Order Placed! 🎉
-      </h1>
-      <p className="mt-2 text-sm text-stone-600">
-        Thank you for ordering from <strong>{MILL.fullName}</strong>, Melur.
-      </p>
-      {waOpened && (
-        <p className="mt-3 rounded border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800">
-          ✅ WhatsApp opened automatically — order details sent to our mill team.
-        </p>
+
+      {/* Customer WhatsApp confirmation */}
+      {showCustomerCard && phone && (
+        <div className="wa-notify-slide mt-8 overflow-hidden rounded-2xl border border-[#25d366]/30 bg-gradient-to-br from-[#f0fff4] to-white shadow-lg">
+          <div className="flex items-center gap-2 border-b border-[#25d366]/20 bg-[#25d366]/10 px-4 py-2">
+            <MessageCircle className="h-4 w-4 text-[#25d366]" />
+            <p className="text-xs font-bold text-[#128C7E]">Confirmation sent to your mobile</p>
+            {customerSent && (
+              <span className="ml-auto rounded-full bg-[#25d366] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
+                Sent ✓
+              </span>
+            )}
+          </div>
+          <div className="flex gap-4 p-4">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-[#25d366]/40">
+              <Image src={IMAGES.logo} alt="" fill className="object-cover" sizes="64px" />
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-xs font-bold text-stone-800">{MILL.fullName}</p>
+              <p className="mt-1 text-sm font-semibold text-[#2e7d32]">✅ Order Confirmed!</p>
+              <p className="mt-1 text-xs text-stone-500">
+                WhatsApp confirmation → <strong>+91 {phone}</strong>
+              </p>
+              <p className="mt-1 text-xs text-stone-600">
+                Order #{orderId} · {formatINR(total)}
+              </p>
+            </div>
+          </div>
+          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#dcf8c6] px-3 py-2 text-left text-xs text-stone-700">
+            Dear customer, your order is confirmed. We will deliver from our Melur mill soon. 🌾
+          </div>
+        </div>
       )}
-      <p className="mt-3 inline-block rounded bg-green-50 px-4 py-2 text-lg font-extrabold tracking-wide text-[#2e7d32]">
-        Order #{orderId}
-      </p>
-      {phone && (
-        <p className="mt-2 text-xs text-stone-500">
-          We will contact <strong>+91 {phone}</strong> to confirm delivery.
-        </p>
+
+      {/* Mill team alert */}
+      {showMillCard && (
+        <div className="wa-notify-slide mt-4 overflow-hidden rounded-2xl border border-[#e07b00]/30 bg-gradient-to-br from-[#fff8f0] to-white shadow-lg" style={{ animationDelay: "0.15s" }}>
+          <div className="flex items-center gap-2 border-b border-[#e07b00]/20 bg-[#e07b00]/10 px-4 py-2">
+            <Bell className="h-4 w-4 text-[#e07b00] wa-bell-ring" />
+            <p className="text-xs font-bold text-[#e07b00]">Alert sent to mill team</p>
+            {millSent && (
+              <span className="ml-auto rounded-full bg-[#e07b00] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
+                Alert ✓
+              </span>
+            )}
+          </div>
+          <div className="flex gap-4 p-4">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-[#e07b00]/40">
+              <Image src={IMAGES.logo} alt="" fill className="object-cover" sizes="64px" />
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-xs font-bold text-[#e07b00]">🚨 NEW ORDER RECEIVED</p>
+              <p className="mt-1 text-sm font-semibold text-stone-800">{MILL.fullName}</p>
+              <p className="mt-1 text-xs text-stone-500">
+                WhatsApp alert → <strong>{MILL.phoneDisplay}</strong>
+              </p>
+              <p className="mt-1 text-xs text-stone-600">
+                Customer +91 {phone || "—"} · {formatINR(total)}
+              </p>
+            </div>
+          </div>
+          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#fff3e0] px-3 py-2 text-left text-xs text-stone-700">
+            New order #{orderId} received — please confirm and arrange delivery from Melur mill.
+          </div>
+        </div>
       )}
 
       {(awb || tracking) && (
-        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-left text-sm">
+        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-left text-sm">
           <p className="font-bold text-[#2874f0]">🚚 Ekart Logistics</p>
           {awb && <p className="mt-1 text-stone-600">AWB / Tracking: <strong>{awb}</strong></p>}
           {tracking && (
-            <a
-              href={tracking}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-block text-xs font-bold text-[#2874f0] hover:underline"
-            >
+            <a href={tracking} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs font-bold text-[#2874f0] hover:underline">
               Track your shipment →
             </a>
           )}
         </div>
-      )}
-
-      {!awb && !tracking && (
-        <p className="mt-3 text-xs text-stone-500">
-          Delivery via Ekart Logistics (Melur hub) or direct mill delivery — tracking shared on WhatsApp.
-        </p>
       )}
 
       <div className="mt-6 rounded-lg border border-stone-200 bg-white p-5 text-left text-sm">
@@ -100,9 +175,7 @@ function OrderSuccessContent() {
         </div>
         <div className="mt-2 flex justify-between">
           <span className="text-stone-500">Payment</span>
-          <span className="font-bold text-[#2e7d32]">
-            {isDemo ? "Demo / Pending" : "Paid Online ✓"}
-          </span>
+          <span className="font-bold text-[#2e7d32]">{isDemo ? "Demo / Pending" : "Paid Online ✓"}</span>
         </div>
         {paymentId && (
           <div className="mt-2 flex justify-between">
@@ -113,18 +186,18 @@ function OrderSuccessContent() {
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded bg-[#25d366] py-3 text-sm font-extrabold text-white"
-        >
-          WhatsApp — Open Order Message Again
+        {phone && (
+          <a href={customerWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded bg-[#25d366] py-3 text-sm font-extrabold text-white">
+            WhatsApp — Your Confirmation
+          </a>
+        )}
+        <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border-2 border-[#e07b00] bg-[#fff3e0] py-3 text-sm font-bold text-[#e07b00]">
+          WhatsApp — Mill Team Alert
         </a>
-        <Link href="/products" className="rounded bg-[#e07b00] py-3 text-sm font-bold text-white">
+        <Link href="/products" className="rounded bg-[#e07b00] py-3 text-center text-sm font-bold text-white">
           Continue Shopping
         </Link>
-        <Link href="/" className="rounded border border-stone-200 py-2.5 text-sm font-semibold text-stone-700">
+        <Link href="/" className="rounded border border-stone-200 py-2.5 text-center text-sm font-semibold text-stone-700">
           Back to Home
         </Link>
       </div>

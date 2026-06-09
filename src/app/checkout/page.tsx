@@ -14,6 +14,7 @@ import { reverseGeocodePincode } from "@/lib/geocode";
 import { GoogleAddressInput } from "@/components/GoogleAddressInput";
 import { saveOrderForWhatsApp } from "@/lib/whatsapp-order";
 import { ShippingAddress } from "@/types";
+import { OtpVerifiedBadge } from "@/components/OtpVerifiedBadge";
 import type { RazorpaySuccessResponse } from "@/types/razorpay";
 
 type NominatimResult = { display_name: string; lat: string; lon: string };
@@ -393,11 +394,7 @@ export default function CheckoutPage() {
                   {otpSent && !otpVerified && genOtp && (
                     <p className="mt-1 text-[11px] text-stone-500">Demo OTP: <strong>{genOtp}</strong></p>
                   )}
-                  {otpVerified && (
-                    <p className="mt-2 rounded border border-green-300 bg-green-50 px-2 py-1 text-xs text-green-800">
-                      ✅ Mobile verified
-                    </p>
-                  )}
+                  {otpVerified && <OtpVerifiedBadge phone={address.phone} />}
                 </div>
                 <input
                   placeholder="Email (optional)"

@@ -19,9 +19,9 @@ type NavItem =
 
 const navItems: NavItem[] = [
   { type: "page", href: "/", label: "Home" },
-  { type: "page", href: "/products", label: "Products" },
+  { type: "page", href: "/products", label: "Our Products" },
   { type: "section", sectionId: "journey", href: "/#journey", label: "Our Journey" },
-  { type: "section", sectionId: "contact", href: "/#contact", label: "Contact" },
+  { type: "section", sectionId: "contact", href: "/#contact", label: "Our Contact" },
 ];
 
 function NavLinks({

@@ -317,6 +317,65 @@ body {
 }
 .footer-banner-glow { animation: footerBannerGlow 3s ease-in-out infinite; }
 
+/* ── OTP verified animation ── */
+@keyframes otpPopIn {
+  0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+  60% { transform: scale(1.02) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes otpCheckBounce {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.15); }
+  70% { transform: scale(0.95); }
+}
+@keyframes otpProgressFill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@keyframes otpShimmerText {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.otp-verified-pop { animation: otpPopIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.otp-check-bounce { animation: otpCheckBounce 0.7s ease-out 0.2s both; }
+.otp-progress-fill { animation: otpProgressFill 1.2s ease-out 0.3s both; }
+.otp-shimmer-text { animation: otpShimmerText 2s ease-in-out infinite; }
+
+/* ── Order success & WhatsApp notify ── */
+@keyframes orderSuccessPop {
+  0% { opacity: 0; transform: scale(0.5); }
+  70% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes waNotifySlide {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes waPulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+@keyframes waBellRing {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(14deg); }
+  40% { transform: rotate(-12deg); }
+  60% { transform: rotate(8deg); }
+  80% { transform: rotate(-4deg); }
+}
+@keyframes waMsgShimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.order-success-pop { animation: orderSuccessPop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.wa-notify-slide { animation: waNotifySlide 0.5s ease-out both; }
+.wa-pulse-dot { animation: waPulseDot 1.5s ease-in-out infinite; }
+.wa-bell-ring { animation: waBellRing 0.8s ease-in-out 0.3s both; }
+.wa-msg-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: waMsgShimmer 3s ease-in-out infinite;
+}
+
 .reveal-on-scroll {
   opacity: 0;
   transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
@@ -332,7 +391,9 @@ body {
   .animate-float, .hero-glow-ring, .hero-mesh, .hero-grain-particle,
   .hero-stagger .hero-item, .stat-pop, .btn-shimmer,
   .reveal-on-scroll, .journey-fade-up, .nav-link-pulse,
-  .footer-banner-shimmer, .footer-banner-glow {
+  .footer-banner-shimmer, .footer-banner-glow,
+  .otp-verified-pop, .otp-check-bounce, .otp-progress-fill, .otp-shimmer-text,
+  .order-success-pop, .wa-notify-slide, .wa-pulse-dot, .wa-bell-ring, .wa-msg-shimmer {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
