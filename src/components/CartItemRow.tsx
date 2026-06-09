@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Minus, Plus, Bookmark, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatINR, calcDiscountPercent } from "@/lib/format";
+import { ProductImage } from "./ProductImage";
 import { CartItem } from "@/types";
 
 interface CartItemRowProps {
@@ -17,8 +18,8 @@ export function CartItemRow({ item, variant = "cart" }: CartItemRowProps) {
 
   return (
     <div className="flex gap-3 border-b border-stone-100 py-4 last:border-0">
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded bg-[#f5ede0] text-3xl">
-        {item.image}
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-[#f5ede0]">
+        <ProductImage src={item.image} alt={item.name} className="object-cover" sizes="64px" />
       </div>
       <div className="min-w-0 flex-1">
         <Link

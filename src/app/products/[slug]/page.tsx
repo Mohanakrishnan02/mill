@@ -7,6 +7,7 @@ import { Check, Truck, Shield } from "lucide-react";
 import { getProductBySlug } from "@/lib/products";
 import { useCart } from "@/context/CartContext";
 import { formatINR, calcDiscountPercent } from "@/lib/format";
+import { ProductImage } from "@/components/ProductImage";
 import { DELIVERY } from "@/lib/mill-config";
 
 const badgeColors: Record<string, string> = {
@@ -67,8 +68,14 @@ export default function ProductDetailPage({
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="relative flex aspect-square items-center justify-center rounded-xl bg-gradient-to-br from-[#fdf8f0] to-[#f5ede0] text-[120px]">
-          {product.image}
+        <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-[#fdf8f0] to-[#f5ede0]">
+          <ProductImage
+            src={product.image}
+            alt={product.name}
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority
+          />
           {product.badge && product.badgeLabel && (
             <span className={`absolute left-4 top-4 rounded px-2 py-0.5 text-xs font-bold text-white ${badgeColors[product.badge]}`}>
               {product.badgeLabel}

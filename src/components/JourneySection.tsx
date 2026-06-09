@@ -8,6 +8,7 @@ import {
   journeyStats,
   journeySteps,
 } from "@/lib/journey-content";
+import { IMAGES } from "@/lib/images";
 import { useSectionHighlight } from "@/hooks/useSectionHighlight";
 
 function useInView(threshold = 0.15) {
@@ -181,7 +182,7 @@ export function JourneySection() {
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div className="journey-image-wrap relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
             <Image
-              src="https://images.pexels.com/photos/4110256/pexels-photo-4110256.jpeg?auto=compress&cs=tinysrgb&w=1200"
+              src={IMAGES.journey.story}
               alt="Traditional rice milling at Jayalakshmi Vilas"
               fill
               className="object-cover transition-transform duration-700 hover:scale-105"

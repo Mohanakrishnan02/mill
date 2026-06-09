@@ -1,10 +1,11 @@
+import { IMAGES } from "./images";
+
 export const JOURNEY = {
   yearsExperience: 23,
   foundedYear: 2003,
   videoUrl:
     "https://videos.pexels.com/video-files/3129671/3129671-hd_1920_1080_25fps.mp4",
-  videoPoster:
-    "https://images.pexels.com/photos/725508/pexels-photo-725508.jpeg?auto=compress&cs=tinysrgb&w=1920",
+  videoPoster: IMAGES.journey.fields.replace("w=800", "w=1920"),
 } as const;
 
 export type JourneyStep = {
@@ -32,8 +33,7 @@ export const journeySteps: JourneyStep[] = [
     titleTa: "நெல் வயல்கள்",
     descEn: "We source paddy from trusted farmers across Melur and Madurai district.",
     descTa: "மேலூர் மற்றும் மதுரை மாவட்ட விவசாயிகளிடமிருந்து நம்பகமான நெல்லை தேர்ந்தெடுக்கிறோம்.",
-    image:
-      "https://images.pexels.com/photos/725508/pexels-photo-725508.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: IMAGES.journey.fields,
     icon: "🌾",
   },
   {
@@ -42,8 +42,7 @@ export const journeySteps: JourneyStep[] = [
     titleTa: "கையால் அறுவடை",
     descEn: "Seasonal harvest at peak ripeness — only the best grains enter our mill.",
     descTa: "சரியான பழுப்பு நிலையில் அறுவடை — சிறந்த நெல் மட்டுமே ஆலைக்கு வருகிறது.",
-    image:
-      "https://images.pexels.com/photos/533360/pexels-photo-533360.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: IMAGES.journey.harvest,
     icon: "✂️",
   },
   {
@@ -52,8 +51,7 @@ export const journeySteps: JourneyStep[] = [
     titleTa: "வெயிலில் உலர்த்தல்",
     descEn: "Natural sun-drying preserves aroma, taste, and traditional grain quality.",
     descTa: "இயற்கை வெயில் உலர்த்தல் — நறுமணம், சுவை, பாரம்பரிய தரத்தை காக்கிறது.",
-    image:
-      "https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: IMAGES.journey.drying,
     icon: "☀️",
   },
   {
@@ -62,8 +60,7 @@ export const journeySteps: JourneyStep[] = [
     titleTa: "கல் அரைத்தல்",
     descEn: "Traditional stone-mill process — unpolished rice with full nutrition intact.",
     descTa: "பாரம்பரிய கல் அரைப்பு — பொலிஷ் இல்லாத, முழு ஊட்டச்சத்துடன் அரிசி.",
-    image:
-      "https://images.pexels.com/photos/4110256/pexels-photo-4110256.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: IMAGES.journey.milling,
     icon: "⚙️",
   },
   {
@@ -72,8 +69,7 @@ export const journeySteps: JourneyStep[] = [
     titleTa: "கையால் தேர்வு",
     descEn: "Every batch is hand-checked — broken grains and impurities removed.",
     descTa: "ஒவ்வொரு தொகுப்பும் கையால் பரிசோதனை — உடைந்த நெல், கழிவுகள் நீக்கப்படுகின்றன.",
-    image:
-      "https://images.pexels.com/photos/4110251/pexels-photo-4110251.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: IMAGES.journey.sorting,
     icon: "🤲",
   },
   {
@@ -82,8 +78,7 @@ export const journeySteps: JourneyStep[] = [
     titleTa: "பேக்கிங் & டெலிவரி",
     descEn: "Fresh packs from 1 kg to 25 kg — delivered straight to your doorstep.",
     descTa: "1 kg முதல் 25 kg வரை — உங்கள் வீட்டு வாசலில் நேரடி டெலிவரி.",
-    image:
-      "https://images.pexels.com/photos/33239/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800",
+    image: IMAGES.journey.packing,
     icon: "📦",
   },
 ];
@@ -108,7 +103,7 @@ export const journeyMilestones: JourneyMilestone[] = [
     titleEn: "12 Varieties",
     titleTa: "12 வகை அரிசி",
     descEn: "Expanded to Seeraga Samba, Mapillai Samba, Karuppu Kavuni and more heritage rice.",
-    descTa: "சீரக சம்பா, மாப்பிள்ளை சம்பா, கருப்பு கவுனி உள்ளிட்ட பாரம்பரிய அரிசி வகைகள்.",
+    descTa: "சீரக சம்பா, மாப்பிள்ளை சம்பா, கருப்பு கவுநி உள்ளிட்ட பாarம்பரிய அரிசி வகைகள்.",
   },
   {
     year: "Today",

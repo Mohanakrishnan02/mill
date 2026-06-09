@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Product } from "@/types";
 import { formatINR, calcDiscountPercent } from "@/lib/format";
 import { useCart } from "@/context/CartContext";
+import { ProductImage } from "./ProductImage";
 
 const badgeColors: Record<string, string> = {
   popular: "bg-[#e07b00]",
@@ -38,10 +39,14 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="group flex flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg card-hover-lift">
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-[#fdf8f0] to-[#f5ede0] text-5xl">
-          {product.image}
+        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#fdf8f0] to-[#f5ede0]">
+          <ProductImage
+            src={product.image}
+            alt={product.name}
+            className="object-cover transition duration-500 group-hover:scale-110"
+          />
           {product.badge && product.badgeLabel && (
             <span className={`absolute left-2 top-2 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase text-white ${badgeColors[product.badge]}`}>
               {product.badgeLabel}
