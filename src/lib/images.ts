@@ -18,6 +18,8 @@ export const IMAGES = {
     packing: "/images/packed-delivered.png",
     /** Father-to-son generational legacy illustration */
     legacyFatherSon: "/images/father-son-legacy.png",
+    /** Pure Rice. Pure Trust. banner */
+    pureRiceTrust: "/images/pure-rice-trust.png",
   },
 
   products: {

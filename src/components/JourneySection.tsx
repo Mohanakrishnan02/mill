@@ -367,22 +367,17 @@ export function JourneySection() {
           ))}
         </div>
 
-        {/* Secondary video strip */}
+        {/* Pure Rice. Pure Trust. banner */}
         <div className="journey-video-strip relative mt-14 overflow-hidden rounded-2xl border border-white/10">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
+          <Image
+            src={IMAGES.journey.pureRiceTrust}
+            alt="Pure rice from paddy fields to your bowl — Jayalakshmi Vilas Rice Mill, Melur"
+            width={1920}
+            height={640}
             className="h-48 w-full object-cover sm:h-64"
-            poster="https://images.pexels.com/photos/533360/pexels-photo-533360.jpeg?auto=compress&cs=tinysrgb&w=1920"
-          >
-            <source
-              src="https://videos.pexels.com/video-files/4516279/4516279-hd_1920_1080_25fps.mp4"
-              type="video/mp4"
-            />
-          </video>
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/45">
             <div className="text-center px-4">
               <p
                 className="text-xl font-bold sm:text-2xl"
