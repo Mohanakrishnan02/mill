@@ -300,6 +300,39 @@ body {
 }
 .legacy-gen-arrow { animation: legacyGenArrow 2s ease-in-out infinite; }
 
+/* ── Footer banner animations ── */
+@keyframes footerBannerZoom {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes footerBannerShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes footerBannerGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+@keyframes footerPolicyFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.footer-banner-wrap { position: relative; }
+.footer-banner-zoom { animation: footerBannerZoom 18s ease-in-out infinite; transform-origin: center center; }
+.footer-banner-shimmer {
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%);
+  background-size: 200% 100%;
+  animation: footerBannerShimmer 6s ease-in-out infinite;
+}
+.footer-banner-grain {
+  background-image: radial-gradient(rgba(245,166,35,0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.4;
+  animation: footerBannerGlow 4s ease-in-out infinite;
+}
+.footer-banner-glow { animation: footerBannerGlow 3s ease-in-out infinite; }
+.footer-policy-card { animation: footerPolicyFade 0.6s ease-out both; }
+
 .reveal-on-scroll {
   opacity: 0;
   transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
@@ -314,7 +347,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-float, .hero-glow-ring, .hero-mesh, .hero-grain-particle,
   .hero-stagger .hero-item, .stat-pop, .btn-shimmer,
-  .reveal-on-scroll, .journey-fade-up, .nav-link-pulse {
+  .reveal-on-scroll, .journey-fade-up, .nav-link-pulse,
+  .footer-banner-zoom, .footer-banner-shimmer, .footer-banner-grain,
+  .footer-banner-glow, .footer-policy-card {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
