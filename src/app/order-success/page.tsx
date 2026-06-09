@@ -2,10 +2,16 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { formatINR } from "@/lib/format";
 import { MILL } from "@/lib/mill-config";
+import {
+  getOrderWhatsAppUrl,
+  loadOrderForWhatsApp,
+  WA_SENT_KEY,
+  type OrderNotifyPayload,
+} from "@/lib/whatsapp-order";
 
 function OrderSuccessContent() {
   const params = useSearchParams();
@@ -15,13 +21,29 @@ function OrderSuccessContent() {
   const phone = params.get("phone") || "";
   const awb = params.get("awb");
   const tracking = params.get("tracking");
-
   const isDemo = params.get("demo") === "1";
+  const [waOpened, setWaOpened] = useState(false);
 
-  const waMsg = encodeURIComponent(
-    `Hello ${MILL.fullName}!\n\nNew Order:\nOrder ID: #${orderId}\nTotal: ${formatINR(total)}\nMobile: +91 ${phone}\n\nPlease confirm. Thank you!`
-  );
-  const waUrl = `https://wa.me/${MILL.whatsapp}?text=${waMsg}`;
+  const stored = loadOrderForWhatsApp();
+  const notifyPayload: OrderNotifyPayload = stored ?? {
+    orderId,
+    total,
+    phone,
+    paymentId: paymentId ?? undefined,
+    isDemo,
+  };
+
+  const waUrl = getOrderWhatsAppUrl(notifyPayload);
+
+  useEffect(() => {
+    if (sessionStorage.getItem(WA_SENT_KEY)) return;
+    sessionStorage.setItem(WA_SENT_KEY, "1");
+    const timer = setTimeout(() => {
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+      setWaOpened(true);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [waUrl]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16 text-center">
@@ -34,6 +56,11 @@ function OrderSuccessContent() {
       <p className="mt-2 text-sm text-stone-600">
         Thank you for ordering from <strong>{MILL.fullName}</strong>, Melur.
       </p>
+      {waOpened && (
+        <p className="mt-3 rounded border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800">
+          ✅ WhatsApp opened automatically — order details sent to our mill team.
+        </p>
+      )}
       <p className="mt-3 inline-block rounded bg-green-50 px-4 py-2 text-lg font-extrabold tracking-wide text-[#2e7d32]">
         Order #{orderId}
       </p>
@@ -92,7 +119,7 @@ function OrderSuccessContent() {
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 rounded bg-[#25d366] py-3 text-sm font-extrabold text-white"
         >
-          WhatsApp — Share Order
+          WhatsApp — Open Order Message Again
         </a>
         <Link href="/products" className="rounded bg-[#e07b00] py-3 text-sm font-bold text-white">
           Continue Shopping

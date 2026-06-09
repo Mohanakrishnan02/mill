@@ -3,8 +3,8 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, Truck, Shield } from "lucide-react";
-import { getProductBySlug } from "@/lib/products";
+import { Check, Truck, Shield, ChevronLeft, ChevronRight } from "lucide-react";
+import { getProductBySlug, getAdjacentProducts } from "@/lib/products";
 import { useCart } from "@/context/CartContext";
 import { formatINR, calcDiscountPercent } from "@/lib/format";
 import { ProductImage } from "@/components/ProductImage";
@@ -30,6 +30,8 @@ export default function ProductDetailPage({
   );
 
   if (!product) notFound();
+
+  const { prev, next } = getAdjacentProducts(slug);
 
   const variant =
     product.variants.find((v) => v.id === selectedVariantId) ?? product.variants[0];
@@ -76,6 +78,24 @@ export default function ProductDetailPage({
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority
           />
+          {prev && (
+            <Link
+              href={`/products/${prev.slug}`}
+              aria-label={`Previous: ${prev.name}`}
+              className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00]"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Link>
+          )}
+          {next && (
+            <Link
+              href={`/products/${next.slug}`}
+              aria-label={`Next: ${next.name}`}
+              className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00]"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Link>
+          )}
           {product.badge && product.badgeLabel && (
             <span className={`absolute left-4 top-4 rounded px-2 py-0.5 text-xs font-bold text-white ${badgeColors[product.badge]}`}>
               {product.badgeLabel}

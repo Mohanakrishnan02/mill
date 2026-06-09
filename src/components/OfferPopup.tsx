@@ -29,8 +29,8 @@ const offers = [
   },
   {
     icon: Sparkles,
-    title: "12+ Heritage Varieties",
-    desc: "Seeraga Samba, Kavuni, Mappillai Samba & more",
+    title: "5 Rice Varieties",
+    desc: "JGL, Akshaya, Ponni Boiled & more",
     accent: "from-purple-600 to-purple-800",
   },
 ];

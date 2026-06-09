@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCarousel } from "@/components/ProductCarousel";
 import { HeroSection } from "@/components/HeroSection";
 import { JourneySection } from "@/components/JourneySection";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
-import { products } from "@/lib/products";
+import { getFeaturedProducts, products } from "@/lib/products";
 import { DELIVERY } from "@/lib/mill-config";
 
 export default function HomePage() {
-  const featured = products.slice(0, 8);
+  const featured = getFeaturedProducts();
 
   return (
     <>
@@ -44,20 +44,22 @@ export default function HomePage() {
               <h2 className="text-xl font-bold text-[#5d3a1a]" style={{ fontFamily: "var(--font-yeseva)" }}>
                 Traditional Rice Varieties <span className="text-[#e07b00]">— Direct from Mill</span>
               </h2>
-              <p className="mt-1 text-sm text-stone-500">Cart saved automatically · Online payment only</p>
+              <p className="mt-1 text-sm text-stone-500">
+                Featured: JGL, Akshaya & Ponni Boiled · Cart saved automatically
+              </p>
             </div>
             <Link href="/products" className="text-sm font-bold text-[#2874f0] hover:underline">
-              View All 12 →
+              View All {products.length} →
             </Link>
           </div>
         </RevealOnScroll>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-          {featured.map((product, i) => (
-            <RevealOnScroll key={product.id} delay={i * 60} direction="scale">
-              <ProductCard product={product} />
-            </RevealOnScroll>
-          ))}
-        </div>
+        <RevealOnScroll delay={100}>
+          <ProductCarousel items={products} visibleCount={3} />
+        </RevealOnScroll>
+        <p className="mt-6 text-center text-xs text-stone-400">
+          Use ← → arrows to browse all {products.length} varieties ·{" "}
+          {products.length - featured.length} more in full catalog
+        </p>
       </section>
 
       {/* Payment strip */}

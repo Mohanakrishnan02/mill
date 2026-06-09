@@ -100,10 +100,10 @@ export const journeyMilestones: JourneyMilestone[] = [
   },
   {
     year: "2018",
-    titleEn: "12 Varieties",
-    titleTa: "12 வகை அரிசி",
-    descEn: "Expanded to Seeraga Samba, Mapillai Samba, Karuppu Kavuni and more heritage rice.",
-    descTa: "சீரக சம்பா, மாப்பிள்ளை சம்பா, கருப்பு கவுநி உள்ளிட்ட பாarம்பரிய அரிசி வகைகள்.",
+    titleEn: "5 Varieties",
+    titleTa: "5 வகை அரிசி",
+    descEn: "Expanded to JGL, Akshaya, Ponni Boiled, RNR 15048 and more everyday rice.",
+    descTa: "ஜே.ஜி.எல், அக்ஷயா, பொன்னி புழுங்கல், ஆர்.என்.ஆர் 15048 உள்ளிட்ட அரிசி வகைகள்.",
   },
   {
     year: "Today",
@@ -116,7 +116,7 @@ export const journeyMilestones: JourneyMilestone[] = [
 
 export const journeyStats = [
   { value: 23, suffix: "+", labelEn: "Years Experience", labelTa: "ஆண்டுகள் அனுபவம்" },
-  { value: 12, suffix: "+", labelEn: "Rice Varieties", labelTa: "அரிசி வகைகள்" },
+  { value: 5, suffix: "", labelEn: "Rice Varieties", labelTa: "அரிசி வகைகள்" },
   { value: 100, suffix: "%", labelEn: "Traditional Process", labelTa: "பாரம்பரிய முறை" },
   { value: 5000, suffix: "+", labelEn: "Happy Families", labelTa: "மகிழ்ச்சியான குடும்பங்கள்" },
 ] as const;

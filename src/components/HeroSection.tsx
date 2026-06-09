@@ -76,7 +76,7 @@ export function HeroSection() {
           </div>
           <div className="hero-item mt-10 grid grid-cols-2 gap-6 sm:flex sm:flex-wrap sm:gap-8">
             {[
-              { n: "12+", l: "Varieties" },
+              { n: "5", l: "Varieties" },
               { n: "100%", l: "Traditional" },
               { n: "All Days", l: "Open" },
               { n: "Free", l: `≤${DELIVERY.freeKm} km` },

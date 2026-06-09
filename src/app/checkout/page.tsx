@@ -10,6 +10,9 @@ import { loadRazorpayScript } from "@/lib/razorpay-client";
 import { formatINR } from "@/lib/format";
 import { MILL, DELIVERY } from "@/lib/mill-config";
 import { distanceFromMill } from "@/lib/shipping";
+import { reverseGeocodePincode } from "@/lib/geocode";
+import { GoogleAddressInput } from "@/components/GoogleAddressInput";
+import { saveOrderForWhatsApp } from "@/lib/whatsapp-order";
 import { ShippingAddress } from "@/types";
 import type { RazorpaySuccessResponse } from "@/types/razorpay";
 
@@ -77,11 +80,37 @@ export default function CheckoutPage() {
     }, 450);
   };
 
-  const pickSuggestion = (s: NominatimResult) => {
+  const pickSuggestion = async (s: NominatimResult) => {
     updateField("addressLine1", s.display_name.split(",").slice(0, 3).join(", ").trim());
-    applyDistance(parseFloat(s.lat), parseFloat(s.lon));
+    const lat = parseFloat(s.lat);
+    const lng = parseFloat(s.lon);
+    applyDistance(lat, lng);
+
+    const geo = await reverseGeocodePincode(lat, lng);
+    if (geo.pincode) updateField("pincode", geo.pincode);
+    if (geo.city) updateField("city", geo.city);
+    if (geo.state) updateField("state", geo.state);
+
     setShowSuggestions(false);
   };
+
+  const handleGooglePlace = async (place: {
+    addressLine1: string;
+    city: string;
+    state: string;
+    pincode: string;
+    lat: number;
+    lng: number;
+  }) => {
+    updateField("addressLine1", place.addressLine1);
+    if (place.city) updateField("city", place.city);
+    if (place.state) updateField("state", place.state);
+    if (place.pincode) updateField("pincode", place.pincode);
+    applyDistance(place.lat, place.lng);
+    setShowSuggestions(false);
+  };
+
+  const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const sendOtp = () => {
     if (!/^\d{10}$/.test(address.phone)) {
@@ -214,6 +243,14 @@ export default function CheckoutPage() {
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.success) {
             const fulfillment = await finalizeOrder(orderId, response.razorpay_payment_id);
+            saveOrderForWhatsApp({
+              orderId,
+              total: summary.total,
+              phone: address.phone,
+              paymentId: response.razorpay_payment_id,
+              address,
+              items,
+            });
             clearCart();
             setDeliveryDistanceKm(null);
             const params = new URLSearchParams({
@@ -248,6 +285,14 @@ export default function CheckoutPage() {
   const handleDemoConfirm = async () => {
     const orderId = "JV" + Date.now().toString().slice(-8).toUpperCase();
     const fulfillment = await finalizeOrder(orderId);
+    saveOrderForWhatsApp({
+      orderId,
+      total: summary.total,
+      phone: address.phone,
+      isDemo: true,
+      address,
+      items,
+    });
     clearCart();
     setDeliveryDistanceKm(null);
     const params = new URLSearchParams({
@@ -362,29 +407,49 @@ export default function CheckoutPage() {
                   className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0] sm:col-span-2"
                 />
                 <div className="relative sm:col-span-2">
-                  <input
-                    placeholder="Delivery address * (type for suggestions)"
-                    value={address.addressLine1}
-                    onChange={(e) => {
-                      updateField("addressLine1", e.target.value);
-                      searchAddress(e.target.value);
-                    }}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0]"
-                  />
-                  {showSuggestions && addrSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded border border-stone-200 bg-white shadow-lg">
-                      {addrSuggestions.map((s, i) => (
-                        <button
-                          key={i}
-                          type="button"
-                          className="block w-full border-b border-stone-100 px-3 py-2 text-left text-xs hover:bg-orange-50 last:border-0"
-                          onMouseDown={() => pickSuggestion(s)}
-                        >
-                          {s.display_name.split(",").slice(0, 4).join(", ")}
-                        </button>
-                      ))}
-                    </div>
+                  {googleMapsKey ? (
+                    <>
+                      <GoogleAddressInput
+                        placeholder="Search address on Google Maps *"
+                        value={address.addressLine1}
+                        onChange={(v) => updateField("addressLine1", v)}
+                        onPlaceSelect={handleGooglePlace}
+                        className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0]"
+                      />
+                      <p className="mt-1 text-[10px] text-stone-400">
+                        Select from Google Maps — pincode fills automatically
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        placeholder="Delivery address * (type for suggestions)"
+                        value={address.addressLine1}
+                        onChange={(e) => {
+                          updateField("addressLine1", e.target.value);
+                          searchAddress(e.target.value);
+                        }}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                        className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0]"
+                      />
+                      {showSuggestions && addrSuggestions.length > 0 && (
+                        <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded border border-stone-200 bg-white shadow-lg">
+                          {addrSuggestions.map((s, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              className="block w-full border-b border-stone-100 px-3 py-2 text-left text-xs hover:bg-orange-50 last:border-0"
+                              onMouseDown={() => pickSuggestion(s)}
+                            >
+                              {s.display_name.split(",").slice(0, 4).join(", ")}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <p className="mt-1 text-[10px] text-stone-400">
+                        Pick a suggestion — pincode auto-fills from location
+                      </p>
+                    </>
                   )}
                 </div>
                 <input

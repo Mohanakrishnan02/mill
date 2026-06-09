@@ -8,7 +8,7 @@ export default function ProductsPage() {
         Traditional Rice Varieties
       </h1>
       <p className="mt-1 text-stone-500">
-        12 heritage varieties — cart saved automatically · Online payment only (No COD)
+        {products.length} heritage varieties — cart saved automatically · Online payment only (No COD)
       </p>
       <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
         {products.map((product) => (

@@ -6,7 +6,6 @@ type PriceMap = Record<number, number>;
 function variantsFromPrices(prices: PriceMap, prefix: string) {
   return Object.entries(prices).map(([kg, price]) => {
     const k = parseInt(kg, 10);
-    const perKg = price / k;
     const mrp = Math.round(price * 1.06);
     return {
       id: `${prefix}-${kg}kg`,
@@ -50,43 +49,25 @@ function makeProduct(
   };
 }
 
+/** Shown on home page (3 cards + carousel starts here) */
+export const HOME_FEATURED_SLUGS = ["jgl", "akshaya-rice", "ponni-boiled-rice"] as const;
+
 export const products: Product[] = [
-  makeProduct(1, "Seeraga Samba", "சீரக சம்பா", "popular", "Best Seller",
-    "Tiny ultra-fragrant rice for biryanis & pulavs. Pride of Tamil Nadu kitchens.",
-    { 1: 80, 5: 370, 10: 720, 25: 1700 }, IMAGES.products.seeragaSamba),
-  makeProduct(2, "Mappillai Samba", "மாப்பிள்ளை சம்பா", "organic", "Organic",
-    "Dark-red heritage rice rich in iron and fibre. A nutritional powerhouse.",
-    { 1: 90, 5: 420, 10: 820, 25: 1950 }, IMAGES.products.mappillaiSamba),
-  makeProduct(3, "Kichili Samba", "கிச்சிலி சம்பா", "popular", "Popular",
-    "Short-grain fragrant rice, soft and sticky. Great for pongal and sweet rice.",
-    { 1: 75, 5: 340, 10: 660, 25: 1550 }, IMAGES.products.kichiliSamba),
+  makeProduct(1, "JGL", "ஜே.ஜி.எல்", "raw", "Daily Rice",
+    "Everyday rice variety from our mill — stone-milled, honest weight, fair price.",
+    { 1: 60, 5: 270, 10: 520, 25: 1200 }, IMAGES.products.jgl),
+  makeProduct(2, "Akshaya Rice", "அக்ஷயா அரிசி", "popular", "Daily Rice",
+    "Soft, white everyday rice — light on the stomach, perfect for daily meals.",
+    { 1: 65, 5: 290, 10: 560, 25: 1300 }, IMAGES.products.akshayaRice),
+  makeProduct(3, "Ponni Boiled Rice", "பொன்னி புழுங்கல்", "raw", "Boiled",
+    "Steam-cooked Ponni for better nutrients. Most-used rice in South Indian homes.",
+    { 1: 60, 5: 270, 10: 520, 25: 1200 }, IMAGES.products.ponniBoiled),
   makeProduct(4, "Ponni Raw Rice", "பொன்னி பச்சரிசி", "raw", "Raw Rice",
     "Classic Ponni variety — everyday Tamil Nadu rice. Fluffy, non-sticky.",
     { 1: 55, 5: 255, 10: 490, 25: 1150 }, IMAGES.products.ponniRaw),
-  makeProduct(5, "Ponni Boiled Rice", "பொன்னி புழுங்கல்", "raw", "Boiled",
-    "Steam-cooked Ponni for better nutrients. Most-used rice in South Indian homes.",
-    { 1: 60, 5: 270, 10: 520, 25: 1200 }, IMAGES.products.ponniBoiled),
-  makeProduct(6, "Kattuyanam", "காட்டுயானம்", "organic", "Heritage",
-    "Ancient forest rice — black-pigmented, high in antioxidants. Truly rare.",
-    { 1: 110, 5: 520, 10: 1020, 25: 2400 }, IMAGES.products.kattuyanam),
-  makeProduct(7, "Illupai Poo Samba", "இலுப்பைப்பூ சம்பா", "organic", "Rare",
-    "Aromatic heritage rice with floral scent resembling illupai flowers.",
-    { 1: 95, 5: 440, 10: 860, 25: 2050 }, IMAGES.products.illupaiPoo),
-  makeProduct(8, "Thooyamalli", "தூயமல்லி", "popular", "Fragrant",
-    "Long-grain white rice with jasmine-like aroma. Premium variety.",
-    { 1: 85, 5: 390, 10: 760, 25: 1800 }, IMAGES.products.thooyamalli),
-  makeProduct(9, "Kuruva Rice", "குறுவை அரிசி", "raw", "Short Crop",
-    "Short-duration variety. Light on the stomach — ideal for elderly.",
-    { 1: 65, 5: 290, 10: 560, 25: 1300 }, IMAGES.products.kuruva),
-  makeProduct(10, "Red Raw Rice", "சிவப்பு பச்சரிசி", "organic", "Red Rice",
-    "Unpolished red rice full of fibre and minerals. Earthy taste.",
-    { 1: 80, 5: 370, 10: 720, 25: 1700 }, IMAGES.products.redRaw),
-  makeProduct(11, "Bamboo Rice", "மூங்கில் அரிசி", "organic", "Tribal",
-    "Rare bamboo seed rice. Extremely nutritious — packed with phosphorus.",
-    { 1: 150, 5: 720, 10: 1400, 25: 3300 }, IMAGES.products.bamboo),
-  makeProduct(12, "Kavuni Rice", "கவுநி அரிசி", "organic", "Black Rice",
-    "Black glutinous rice — treasure of Tamil medicine. Rich in anthocyanins.",
-    { 1: 120, 5: 560, 10: 1100, 25: 2600 }, IMAGES.products.kavuni),
+  makeProduct(5, "RNR 15048", "ஆர்.என்.ஆர் 15048", "popular", "High Yield",
+    "Popular high-yield rice variety — fluffy, non-sticky, ideal for everyday meals.",
+    { 1: 65, 5: 290, 10: 560, 25: 1300 }, IMAGES.products.rnr15048),
 ];
 
 export function getProductBySlug(slug: string): Product | undefined {
@@ -99,6 +80,21 @@ export function getProductById(id: string): Product | undefined {
 
 export function getVariant(product: Product, variantId: string) {
   return product.variants.find((v) => v.id === variantId);
+}
+
+export function getFeaturedProducts(): Product[] {
+  return HOME_FEATURED_SLUGS.map((slug) => products.find((p) => p.slug === slug)).filter(
+    (p): p is Product => Boolean(p)
+  );
+}
+
+export function getAdjacentProducts(slug: string): { prev?: Product; next?: Product } {
+  const idx = products.findIndex((p) => p.slug === slug);
+  if (idx < 0) return {};
+  return {
+    prev: idx > 0 ? products[idx - 1] : undefined,
+    next: idx < products.length - 1 ? products[idx + 1] : undefined,
+  };
 }
 
 export function searchProducts(query: string): Product[] {

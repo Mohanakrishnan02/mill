@@ -148,7 +148,7 @@ export function Header() {
               onChange={(e) => { setQuery(e.target.value); setShowDrop(true); }}
               onFocus={() => setShowDrop(true)}
               onBlur={() => setTimeout(() => setShowDrop(false), 180)}
-              placeholder="Search rice… Seeraga Samba, Kavuni…"
+              placeholder="Search rice… JGL, Akshaya, Ponni…"
               className="w-full max-w-lg rounded border-0 py-2 pl-10 pr-4 text-sm outline-none"
             />
             {showDrop && query.trim() && (
