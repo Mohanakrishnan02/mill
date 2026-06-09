@@ -1,0 +1,459 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CreditCard, Loader2 } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { PriceSummary } from "@/components/PriceSummary";
+import { loadRazorpayScript } from "@/lib/razorpay-client";
+import { formatINR } from "@/lib/format";
+import { MILL, DELIVERY } from "@/lib/mill-config";
+import { distanceFromMill } from "@/lib/shipping";
+import { ShippingAddress } from "@/types";
+import type { RazorpaySuccessResponse } from "@/types/razorpay";
+
+type NominatimResult = { display_name: string; lat: string; lon: string };
+
+const emptyAddress: ShippingAddress = {
+  fullName: "",
+  phone: "",
+  email: "",
+  addressLine1: "",
+  addressLine2: "",
+  city: "Madurai",
+  state: "Tamil Nadu",
+  pincode: "",
+};
+
+export default function CheckoutPage() {
+  const router = useRouter();
+  const { items, summary, clearCart, isHydrated, setDeliveryDistanceKm, deliveryDistanceKm } = useCart();
+  const [step, setStep] = useState(1);
+  const [address, setAddress] = useState<ShippingAddress>(emptyAddress);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [genOtp, setGenOtp] = useState("");
+  const [enteredOtp, setEnteredOtp] = useState("");
+  const [addrSuggestions, setAddrSuggestions] = useState<NominatimResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const addrTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const updateField = (field: keyof ShippingAddress, value: string) => {
+    setAddress((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const applyDistance = useCallback(
+    (lat: number, lng: number) => {
+      const d = distanceFromMill(lat, lng);
+      setDeliveryDistanceKm(d);
+    },
+    [setDeliveryDistanceKm]
+  );
+
+  useEffect(() => {
+    return () => setDeliveryDistanceKm(null);
+  }, [setDeliveryDistanceKm]);
+
+  const searchAddress = (q: string) => {
+    if (addrTimer.current) clearTimeout(addrTimer.current);
+    if (q.length < 4) {
+      setAddrSuggestions([]);
+      return;
+    }
+    addrTimer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ", Tamil Nadu, India")}&format=json&limit=6`
+        );
+        const data: NominatimResult[] = await res.json();
+        setAddrSuggestions(data);
+        setShowSuggestions(true);
+      } catch {
+        setAddrSuggestions([]);
+      }
+    }, 450);
+  };
+
+  const pickSuggestion = (s: NominatimResult) => {
+    updateField("addressLine1", s.display_name.split(",").slice(0, 3).join(", ").trim());
+    applyDistance(parseFloat(s.lat), parseFloat(s.lon));
+    setShowSuggestions(false);
+  };
+
+  const sendOtp = () => {
+    if (!/^\d{10}$/.test(address.phone)) {
+      alert("Enter valid 10-digit mobile number.");
+      return;
+    }
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    setGenOtp(code);
+    setOtpSent(true);
+  };
+
+  const verifyOtp = () => {
+    if (enteredOtp !== genOtp) {
+      alert("Incorrect OTP. Try again.");
+      return false;
+    }
+    setOtpVerified(true);
+    return true;
+  };
+
+  const validateStep1 = () => {
+    if (!address.fullName.trim()) {
+      alert("Enter your name.");
+      return false;
+    }
+    if (!/^\d{10}$/.test(address.phone)) {
+      alert("Enter valid 10-digit mobile.");
+      return false;
+    }
+    if (!otpVerified) {
+      alert("Please verify your mobile with OTP.");
+      return false;
+    }
+    if (!address.addressLine1.trim()) {
+      alert("Enter delivery address.");
+      return false;
+    }
+    if (!address.city.trim()) {
+      alert("Enter city.");
+      return false;
+    }
+    if (!/^\d{6}$/.test(address.pincode)) {
+      alert("Enter valid 6-digit pincode.");
+      return false;
+    }
+    if (summary.isOutstation && summary.totalKg < DELIVERY.minKgBeyondMaxKm) {
+      alert(`Beyond ${DELIVERY.maxKm} km requires minimum ${DELIVERY.minKgBeyondMaxKm} kg. You have ${summary.totalKg} kg.`);
+      return false;
+    }
+    return true;
+  };
+
+  const handlePay = async () => {
+    if (items.length === 0) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        setError("Failed to load payment gateway.");
+        return;
+      }
+
+      const res = await fetch("/api/payment/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: summary.total * 100 }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not initiate payment");
+        return;
+      }
+
+      const orderId = "JV" + Date.now().toString().slice(-8).toUpperCase();
+
+      const options = {
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: MILL.fullName,
+        description: `Rice Order — Melur`,
+        order_id: data.orderId,
+        prefill: {
+          name: address.fullName,
+          email: address.email || "",
+          contact: address.phone,
+        },
+        notes: {
+          orderId,
+          address: [address.addressLine1, address.addressLine2, address.city, address.pincode].filter(Boolean).join(", "),
+        },
+        theme: { color: "#e07b00" },
+        handler: async (response: RazorpaySuccessResponse) => {
+          const verifyRes = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyRes.ok && verifyData.success) {
+            clearCart();
+            setDeliveryDistanceKm(null);
+            router.push(
+              `/order-success?total=${summary.total}&paymentId=${response.razorpay_payment_id}&orderId=${orderId}&phone=${address.phone}`
+            );
+          } else {
+            setError("Payment verification failed. Call " + MILL.phone + " if amount was deducted.");
+          }
+        },
+        modal: { ondismiss: () => setLoading(false) },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (r: unknown) => {
+        const err = r as { error?: { description?: string } };
+        setError("Payment failed: " + (err.error?.description || "Unknown error"));
+      });
+      rzp.open();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemoConfirm = () => {
+    const orderId = "JV" + Date.now().toString().slice(-8).toUpperCase();
+    clearCart();
+    setDeliveryDistanceKm(null);
+    router.push(
+      `/order-success?total=${summary.total}&orderId=${orderId}&phone=${address.phone}&demo=1`
+    );
+  };
+
+  if (!isHydrated) {
+    return <div className="flex min-h-[50vh] items-center justify-center text-stone-500">Loading...</div>;
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-20 text-center">
+        <p className="text-lg text-stone-600">Your cart is empty</p>
+        <Link href="/products" className="mt-4 inline-block rounded bg-[#e07b00] px-6 py-2.5 text-sm font-bold text-white">
+          Shop Rice Varieties
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold text-[#5d3a1a]" style={{ fontFamily: "var(--font-yeseva)" }}>
+        Checkout
+      </h1>
+      <p className="mt-1 text-sm text-stone-500">Online payment only — No COD</p>
+
+      {/* Step indicator */}
+      <div className="mt-6 flex items-center gap-2 text-xs font-semibold">
+        {[1, 2, 3].map((n) => (
+          <div key={n} className="flex items-center gap-2">
+            <span className={`flex h-6 w-6 items-center justify-center rounded-full ${step >= n ? "bg-[#2874f0] text-white" : "bg-stone-200 text-stone-500"}`}>
+              {step > n ? "✓" : n}
+            </span>
+            <span className={step >= n ? "text-[#2874f0]" : "text-stone-400"}>
+              {n === 1 ? "Address" : n === 2 ? "Payment" : "Confirm"}
+            </span>
+            {n < 3 && <div className={`h-0.5 w-8 ${step > n ? "bg-[#2e7d32]" : "bg-stone-200"}`} />}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 grid gap-8 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          {step === 1 && (
+            <section className="rounded-lg border border-stone-200 bg-white p-5">
+              <h2 className="font-bold text-stone-900">Delivery Address & Verification</h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <input
+                  placeholder="First Name *"
+                  value={address.fullName}
+                  onChange={(e) => updateField("fullName", e.target.value)}
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0] sm:col-span-2"
+                />
+                <div className="sm:col-span-2">
+                  <div className="flex gap-2">
+                    <input
+                      placeholder="Mobile (10 digits) *"
+                      value={address.phone}
+                      readOnly={otpVerified}
+                      onChange={(e) => updateField("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      className="flex-1 rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0]"
+                    />
+                    <button
+                      type="button"
+                      onClick={sendOtp}
+                      disabled={address.phone.length !== 10 || otpVerified}
+                      className="rounded bg-[#2874f0] px-4 py-2 text-xs font-bold text-white disabled:bg-stone-300"
+                    >
+                      {otpSent ? "Resend OTP" : "Send OTP"}
+                    </button>
+                  </div>
+                  {otpSent && !otpVerified && (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        placeholder="Enter 6-digit OTP"
+                        value={enteredOtp}
+                        onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        className="flex-1 rounded border border-stone-200 px-3 py-2 text-sm font-bold tracking-widest outline-none"
+                      />
+                      <button type="button" onClick={verifyOtp} className="rounded bg-[#2e7d32] px-4 py-2 text-xs font-bold text-white">
+                        Verify
+                      </button>
+                    </div>
+                  )}
+                  {otpSent && !otpVerified && genOtp && (
+                    <p className="mt-1 text-[11px] text-stone-500">Demo OTP: <strong>{genOtp}</strong></p>
+                  )}
+                  {otpVerified && (
+                    <p className="mt-2 rounded border border-green-300 bg-green-50 px-2 py-1 text-xs text-green-800">
+                      ✅ Mobile verified
+                    </p>
+                  )}
+                </div>
+                <input
+                  placeholder="Email (optional)"
+                  type="email"
+                  value={address.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0] sm:col-span-2"
+                />
+                <div className="relative sm:col-span-2">
+                  <input
+                    placeholder="Delivery address * (type for suggestions)"
+                    value={address.addressLine1}
+                    onChange={(e) => {
+                      updateField("addressLine1", e.target.value);
+                      searchAddress(e.target.value);
+                    }}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0]"
+                  />
+                  {showSuggestions && addrSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded border border-stone-200 bg-white shadow-lg">
+                      {addrSuggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          className="block w-full border-b border-stone-100 px-3 py-2 text-left text-xs hover:bg-orange-50 last:border-0"
+                          onMouseDown={() => pickSuggestion(s)}
+                        >
+                          {s.display_name.split(",").slice(0, 4).join(", ")}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <input
+                  placeholder="Landmark (optional)"
+                  value={address.addressLine2}
+                  onChange={(e) => updateField("addressLine2", e.target.value)}
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0] sm:col-span-2"
+                />
+                <input
+                  placeholder="City *"
+                  value={address.city}
+                  onChange={(e) => updateField("city", e.target.value)}
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0]"
+                />
+                <input
+                  placeholder="Pincode *"
+                  value={address.pincode}
+                  onChange={(e) => updateField("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2874f0]"
+                />
+              </div>
+              {deliveryDistanceKm !== null && (
+                <div className="mt-4 rounded border border-stone-200 bg-[#fdf8f0] p-3 text-xs">
+                  <div className="flex justify-between"><span>📍 Distance from mill</span><span>{deliveryDistanceKm.toFixed(1)} km</span></div>
+                  <div className="mt-1 flex justify-between"><span>🚚 Delivery</span><span>{summary.delivery === 0 ? (summary.isOutstation ? "Contact us" : "FREE") : formatINR(summary.delivery)}</span></div>
+                </div>
+              )}
+              {summary.isOutstation && (
+                <p className="mt-3 rounded border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+                  Beyond {DELIVERY.maxKm} km: minimum {DELIVERY.minKgBeyondMaxKm} kg required. You have {summary.totalKg} kg.
+                </p>
+              )}
+              <div className="mt-4 flex gap-2">
+                <Link href="/cart" className="flex-1 rounded border border-stone-200 py-2.5 text-center text-sm font-bold text-stone-600">
+                  ← Back to Cart
+                </Link>
+                <button
+                  onClick={() => validateStep1() && setStep(2)}
+                  className="flex-[2] rounded bg-[#2874f0] py-2.5 text-sm font-bold text-white"
+                >
+                  Continue →
+                </button>
+              </div>
+            </section>
+          )}
+
+          {step === 2 && (
+            <section className="rounded-lg border border-stone-200 bg-white p-5">
+              <h2 className="font-bold text-stone-900">Payment Method</h2>
+              <p className="mt-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                <strong>No Cash on Delivery.</strong> Online payment only via UPI, Cards, or Net Banking.
+              </p>
+              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-[#2874f0] bg-blue-50 p-4">
+                <input type="radio" checked readOnly className="mt-1" />
+                <div>
+                  <div className="flex items-center gap-2 font-semibold">
+                    <CreditCard className="h-4 w-4" />
+                    UPI / Cards / Net Banking
+                  </div>
+                  <p className="mt-1 text-xs text-stone-500">PhonePe, GPay, Paytm, all major cards — via Razorpay</p>
+                </div>
+              </label>
+              <div className="mt-4 flex gap-2">
+                <button onClick={() => setStep(1)} className="flex-1 rounded border border-stone-200 py-2.5 text-sm font-bold">
+                  ← Back
+                </button>
+                <button onClick={() => setStep(3)} className="flex-[2] rounded bg-[#2874f0] py-2.5 text-sm font-bold text-white">
+                  Review & Confirm →
+                </button>
+              </div>
+            </section>
+          )}
+
+          {step === 3 && (
+            <section className="rounded-lg border border-stone-200 bg-white p-5">
+              <h2 className="font-bold text-stone-900">Review Order</h2>
+              <ul className="mt-4 divide-y divide-stone-100 text-sm">
+                {items.map((item) => (
+                  <li key={`${item.productId}-${item.variantId}`} className="flex justify-between py-2">
+                    <span>{item.name} ×{item.quantity} ({item.variantLabel})</span>
+                    <span className="font-semibold">{formatINR(item.price * item.quantity)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 space-y-1 rounded bg-[#fdf8f0] p-3 text-xs">
+                <p><strong>Deliver to:</strong> {[address.addressLine1, address.city, address.pincode].filter(Boolean).join(", ")}</p>
+                <p><strong>Mobile:</strong> +91 {address.phone} ✅</p>
+                <p><strong>Payment:</strong> Online (Razorpay)</p>
+              </div>
+              {error && <p className="mt-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+              <div className="mt-4 flex gap-2">
+                <button onClick={() => setStep(2)} className="flex-1 rounded border border-stone-200 py-2.5 text-sm font-bold">
+                  ← Back
+                </button>
+                <button
+                  onClick={handlePay}
+                  disabled={loading}
+                  className="flex-[2] flex items-center justify-center gap-2 rounded bg-[#2e7d32] py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                >
+                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Pay {formatINR(summary.total)} Now →
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={handleDemoConfirm}
+                className="mt-3 w-full rounded border border-dashed border-stone-300 py-2 text-xs text-stone-500 hover:bg-stone-50"
+              >
+                Demo: Confirm without Razorpay (for testing)
+              </button>
+            </section>
+          )}
+        </div>
+
+        <PriceSummary summary={summary} itemCount={items.reduce((s, i) => s + i.quantity, 0)} />
+      </div>
+    </div>
+  );
+}

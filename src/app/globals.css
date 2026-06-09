@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --s: #e07b00;
+  --g: #2e7d32;
+  --br: #5d3a1a;
+  --cr: #fdf8f0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--cr);
+  color: #212121;
+}
+
+/* ── Offer popup animations ── */
+@keyframes offerOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes offerOverlayOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes offerModalIn {
+  0% { opacity: 0; transform: scale(0.75) translateY(24px); }
+  60% { transform: scale(1.04) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes offerModalOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.9) translateY(12px); }
+}
+@keyframes offerBadgePop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes offerShimmer {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+@keyframes offerSpark {
+  0%, 100% { opacity: 1; transform: rotate(0deg) scale(1); }
+  50% { opacity: 0.5; transform: rotate(180deg) scale(0.8); }
+}
+@keyframes offerGrainFloat {
+  0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+}
+@keyframes offerRowIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes offerCtaPulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(224, 123, 0, 0.35); }
+  50% { box-shadow: 0 4px 22px rgba(224, 123, 0, 0.55); }
+}
+@keyframes offerSlideIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.offer-overlay-in { animation: offerOverlayIn 0.35s ease forwards; }
+.offer-overlay-out { animation: offerOverlayOut 0.3s ease forwards; }
+.offer-modal-in { animation: offerModalIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.offer-modal-out { animation: offerModalOut 0.3s ease forwards; }
+.offer-badge-pop { animation: offerBadgePop 2s ease-in-out infinite; }
+.offer-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: offerShimmer 2.5s ease-in-out infinite;
+}
+.offer-spark { display: inline-block; animation: offerSpark 1.8s ease-in-out infinite; }
+.offer-grain {
+  position: absolute;
+  bottom: -10px;
+  width: 6px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(#f5a623, #e07b00);
+  animation: offerGrainFloat 5s linear infinite;
+}
+.offer-row { animation: offerRowIn 0.45s ease both; }
+.offer-cta { animation: offerCtaPulse 2s ease-in-out infinite; }
+
+.offer-featured { position: relative; }
+.offer-slide { transition: opacity 0.4s ease, transform 0.4s ease; }
+.offer-slide-active {
+  opacity: 1;
+  transform: translateX(0);
+  animation: offerSlideIn 0.4s ease;
+}
+.offer-slide-hidden {
+  opacity: 0;
+  transform: translateX(-12px);
+  pointer-events: none;
 }
