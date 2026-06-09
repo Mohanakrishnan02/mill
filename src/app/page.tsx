@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
+import { JourneySection } from "@/components/JourneySection";
 import { products } from "@/lib/products";
 import { MILL, DELIVERY } from "@/lib/mill-config";
 
@@ -63,25 +64,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Journey teaser */}
-      <section id="journey" className="bg-[#0a1a08] py-14 text-white">
-        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
-          <h2 className="text-2xl font-bold" style={{ fontFamily: "var(--font-yeseva)" }}>
-            Walk Through Our <em className="not-italic text-[#f5a623]">Paddy Fields</em>
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-white/50">
-            From soil to your plate — experience the traditional journey of every grain we mill.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {["Paddy Fields", "Hand Harvest", "Sun Drying", "Stone Milling", "Hand Sorting", "Packed & Ready"].map((step, i) => (
-              <div key={step} className="rounded-lg border border-white/10 bg-white/5 p-4">
-                <div className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-[#e07b00] text-xs font-bold">{i + 1}</div>
-                <p className="mt-2 text-xs font-bold">{step}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <JourneySection />
 
       {/* Products */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
