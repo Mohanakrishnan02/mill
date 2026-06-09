@@ -120,13 +120,87 @@ function NavLink({
   );
 }
 
+function SearchBox({
+  query,
+  setQuery,
+  showDrop,
+  setShowDrop,
+  results,
+  onNavigate,
+  className = "",
+}: {
+  query: string;
+  setQuery: (q: string) => void;
+  showDrop: boolean;
+  setShowDrop: (v: boolean) => void;
+  results: ReturnType<typeof searchProducts>;
+  onNavigate?: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={`relative ${className}`}>
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setShowDrop(true);
+        }}
+        onFocus={() => setShowDrop(true)}
+        onBlur={() => setTimeout(() => setShowDrop(false), 180)}
+        placeholder="Search rice… JGL, Akshaya, Ponni…"
+        className="w-full rounded border-0 py-2.5 pl-10 pr-4 text-sm outline-none"
+      />
+      {showDrop && query.trim() && (
+        <div className="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-xl">
+          {results.length === 0 ? (
+            <p className="p-3 text-sm text-stone-500">No varieties found</p>
+          ) : (
+            results.map((p) => (
+              <Link
+                key={p.id}
+                href={`/products/${p.slug}`}
+                className="flex items-center gap-3 border-b border-stone-100 p-2.5 hover:bg-orange-50 last:border-0"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={onNavigate}
+              >
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#fdf8f0]">
+                  <ProductImage
+                    src={p.image}
+                    alt={p.name}
+                    className="object-cover"
+                    sizes="44px"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-stone-900">{p.name}</p>
+                  <p className="truncate text-xs text-stone-500" style={{ fontFamily: "var(--font-tamil)" }}>
+                    {p.tamil}
+                  </p>
+                  <p className="text-xs font-bold text-[#e07b00]">
+                    from ₹{Math.min(...p.variants.map((v) => v.price))}
+                  </p>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
   const { itemCount, openDrawer, isHydrated } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [showDrop, setShowDrop] = useState(false);
   const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
+
+  const closeMobileSearch = () => setMobileSearchOpen(false);
 
   return (
     <>
@@ -166,51 +240,14 @@ export function Header() {
             </div>
           </Link>
 
-          <div className="relative hidden flex-1 md:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => { setQuery(e.target.value); setShowDrop(true); }}
-              onFocus={() => setShowDrop(true)}
-              onBlur={() => setTimeout(() => setShowDrop(false), 180)}
-              placeholder="Search rice… JGL, Akshaya, Ponni…"
-              className="w-full max-w-lg rounded border-0 py-2 pl-10 pr-4 text-sm outline-none"
+          <div className="relative hidden max-w-lg flex-1 md:block">
+            <SearchBox
+              query={query}
+              setQuery={setQuery}
+              showDrop={showDrop}
+              setShowDrop={setShowDrop}
+              results={results}
             />
-            {showDrop && query.trim() && (
-              <div className="absolute left-0 top-full z-50 mt-1 w-full max-w-lg overflow-hidden rounded-md border border-stone-200 bg-white shadow-xl">
-                {results.length === 0 ? (
-                  <p className="p-3 text-sm text-stone-500">No varieties found</p>
-                ) : (
-                  results.map((p) => (
-                    <Link
-                      key={p.id}
-                      href={`/products/${p.slug}`}
-                      className="flex items-center gap-3 border-b border-stone-100 p-2.5 hover:bg-orange-50 last:border-0"
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
-                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#fdf8f0]">
-                        <ProductImage
-                          src={p.image}
-                          alt={p.name}
-                          className="object-cover"
-                          sizes="44px"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-stone-900">{p.name}</p>
-                        <p className="truncate text-xs text-stone-500" style={{ fontFamily: "var(--font-tamil)" }}>
-                          {p.tamil}
-                        </p>
-                        <p className="text-xs font-bold text-[#e07b00]">
-                          from ₹{Math.min(...p.variants.map((v) => v.price))}
-                        </p>
-                      </div>
-                    </Link>
-                  ))
-                )}
-              </div>
-            )}
           </div>
 
           <nav className="hidden items-center gap-2 lg:flex">
@@ -221,6 +258,19 @@ export function Header() {
             <span>Call / WhatsApp</span>
             <a href={`tel:${MILL.phone}`} className="font-semibold text-[#f5a623]">{MILL.phone}</a>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMobileSearchOpen((v) => !v);
+              if (mobileOpen) setMobileOpen(false);
+            }}
+            className={`rounded p-1.5 text-white md:hidden ${mobileSearchOpen ? "bg-white/15" : ""}`}
+            aria-label="Search products"
+            aria-expanded={mobileSearchOpen}
+          >
+            <Search className="h-5 w-5" />
+          </button>
 
           <button
             onClick={openDrawer}
@@ -235,10 +285,23 @@ export function Header() {
             )}
           </button>
 
-          <button className="rounded p-1 text-white lg:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="rounded p-1 text-white lg:hidden" onClick={() => { setMobileOpen(!mobileOpen); if (mobileSearchOpen) setMobileSearchOpen(false); }}>
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
+
+        {mobileSearchOpen && (
+          <div className="border-t border-white/10 bg-[#2e7d32] px-4 py-3 md:hidden">
+            <SearchBox
+              query={query}
+              setQuery={setQuery}
+              showDrop={showDrop}
+              setShowDrop={setShowDrop}
+              results={results}
+              onNavigate={closeMobileSearch}
+            />
+          </div>
+        )}
 
         {mobileOpen && (
           <nav className="border-t border-white/10 px-2 py-2 lg:hidden">
