@@ -9,7 +9,7 @@ import { useCart } from "@/context/CartContext";
 import { CartDrawer } from "./CartDrawer";
 import { MILL } from "@/lib/mill-config";
 import { searchProducts } from "@/lib/products";
-import { scrollToSection, useActiveSection } from "@/hooks/useActiveSection";
+import { scrollToSection, scrollToHome, useActiveSection } from "@/hooks/useActiveSection";
 import { ProductImage } from "./ProductImage";
 import { IMAGES } from "@/lib/images";
 
@@ -105,7 +105,13 @@ function NavLink({
   return (
     <Link
       href={item.href}
-      onClick={onNavigate}
+      onClick={(e) => {
+        if (item.href === "/" && pathname === "/") {
+          e.preventDefault();
+          scrollToHome();
+        }
+        onNavigate?.();
+      }}
       className={className}
       aria-current={active ? "true" : undefined}
     >
@@ -115,6 +121,7 @@ function NavLink({
 }
 
 export function Header() {
+  const pathname = usePathname();
   const { itemCount, openDrawer, isHydrated } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -133,7 +140,16 @@ export function Header() {
 
       <header className="sticky top-0 z-40 bg-[#2e7d32] shadow-md">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-6">
-          <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          <Link
+            href="/"
+            onClick={(e) => {
+              if (pathname === "/") {
+                e.preventDefault();
+                scrollToHome();
+              }
+            }}
+            className="flex shrink-0 items-center gap-2.5"
+          >
             <Image
               src={IMAGES.logo}
               alt="Jayalakshmi Vilas Rice Mill"

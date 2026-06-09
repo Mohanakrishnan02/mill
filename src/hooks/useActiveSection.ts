@@ -32,7 +32,7 @@ export function useActiveSection(sectionId: string) {
   }, [pathname, sectionId]);
 
   const active =
-    pathname === "/" && (hash === `#${sectionId}` || (inView && hash !== "#contact"));
+    pathname === "/" && (hash === `#${sectionId}` || (!hash && inView));
 
   return { active, hash, pathname };
 }
@@ -42,5 +42,12 @@ export function scrollToSection(sectionId: string) {
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "start" });
   window.history.pushState(null, "", `/#${sectionId}`);
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
+}
+
+/** Scroll to top and clear section hash — use when Home is clicked on `/` */
+export function scrollToHome() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.history.pushState(null, "", "/");
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
