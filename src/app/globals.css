@@ -293,6 +293,13 @@ body {
 }
 .annapurna-frame { background: linear-gradient(135deg, #0a1628, #1a0f05); }
 
+.legacy-gen-sepia { filter: sepia(0.35) saturate(0.9); }
+@keyframes legacyGenArrow {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  50% { transform: translateX(6px); opacity: 0.7; }
+}
+.legacy-gen-arrow { animation: legacyGenArrow 2s ease-in-out infinite; }
+
 .reveal-on-scroll {
   opacity: 0;
   transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),

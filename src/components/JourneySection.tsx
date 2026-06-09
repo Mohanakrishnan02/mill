@@ -10,6 +10,7 @@ import {
 } from "@/lib/journey-content";
 import { IMAGES } from "@/lib/images";
 import { useSectionHighlight } from "@/hooks/useSectionHighlight";
+import { LegacyGenerationImage } from "@/components/LegacyGenerationImage";
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -180,70 +181,47 @@ export function JourneySection() {
         className={`relative mx-auto max-w-7xl px-4 pb-16 sm:px-6 ${story.visible ? "journey-fade-up" : "opacity-0"}`}
       >
         <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div className="journey-image-wrap relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <Image
-              src={IMAGES.journey.story}
-              alt="Traditional rice milling at Jayalakshmi Vilas"
-              fill
-              className="object-cover transition-transform duration-700 hover:scale-105"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#f5a623]">
-                Melur · Madurai · Tamil Nadu
-              </p>
-              <p
-                className="mt-1 text-sm text-white/80"
-                style={{ fontFamily: "var(--font-tamil)" }}
-              >
-                மேலூர் · மதுரை · தமிழ்நாடு
-              </p>
-            </div>
-            <div className="journey-shimmer absolute inset-0" aria-hidden />
-          </div>
+          <LegacyGenerationImage />
 
           <div className="space-y-5">
             <h3
               className="text-2xl font-bold"
               style={{ fontFamily: "var(--font-yeseva)" }}
             >
-              A Legacy Built on <span className="text-[#f5a623]">Every Grain</span>
+              From Father to Son — <span className="text-[#f5a623]">Every Grain</span>
             </h3>
             <p
               className="text-base text-[#f5a623]/90"
               style={{ fontFamily: "var(--font-tamil)" }}
             >
-              ஒவ்வொரு நெல் தானியத்திலும் கட்டப்பட்ட பாரம்பரியம்
+              தந்தையிடமிருந்து மகன் வரை — தலைமுறை பாரம்பரியம்
             </p>
             <p className="text-sm leading-relaxed text-white/70">
-              For over two decades, we have stayed true to the old ways — no excessive polishing,
-              no shortcuts. Our mill on Sivagangai Main Road is where farmers&apos; harvest becomes
-              the rice your grandmother would recognize: aromatic Seeraga Samba, hearty Mapillai
-              Samba, and nutrient-rich Karuppu Kavuni.
+              In 2003, our father founded Jayalakshmi Vilas on Sivagangai Main Road, Melur — with
+              one promise: stone-milled rice, honest weight, and no shortcuts. Today, the next
+              generation carries that same trust forward — from paddy fields to your kitchen.
             </p>
             <p
               className="text-sm leading-relaxed text-white/55"
               style={{ fontFamily: "var(--font-tamil)" }}
             >
-              23 ஆண்டுகளாக பழைய முறையையே பின்பற்றுகிறோம் — அதிக பொலிஷ் இல்லை, குறுக்கு வழிகள்
-              இல்லை. சிவகங்கை மெயின் ரோட்டில் உள்ள எங்கள் ஆலையில், விவசாயிகளின் அறுவடை
-              சீரக சம்பா, மாப்பிள்ளை சம்பா, கருப்பு கவுநி போன்ற பாரம்பரிய அரிசி ஆக
-              மாறுகிறது.
+              2003-ல் எங்கள் தந்தை மேலூரில் ஜெயலட்சுமி விலாஸ் நெல் ஆலையை தொடங்கினார் — கல்
+              அரைப்பு, நேர்மையான எடை, குறுக்கு வழி இல்லை என்ற வாக்குறுதியுடன். இன்று அடுத்த
+              தலைமுறை அதே நம்பிக்கையை நெல் வயலில் இருந்து உங்கள் சமையலறை வரை கொண்டு செல்கிறது.
             </p>
             <ul className="space-y-3">
               {[
                 {
-                  en: "Family-run mill with generations of milling knowledge",
-                  ta: "தலைமுறைகள் அனுபவம் — குடும்ப நிர்வாக ஆலை",
+                  en: "Father's generation — founded the mill with traditional values",
+                  ta: "தந்தை தலைமுறை — பாரம்பரிய முறையில் ஆலை தொடங்கியது",
                 },
                 {
-                  en: "Direct from mill — no middlemen, fair prices",
-                  ta: "நேரடி ஆலை விலை — நடுநிலை வியாபாரிகள் இல்லை",
+                  en: "Son's generation — 23+ years of milling expertise continues",
+                  ta: "மகன் தலைமுறை — 23+ ஆண்டு அனுபவம் தொடர்கிறது",
                 },
                 {
-                  en: "Trusted by homes, caterers & temples across the region",
-                  ta: "வீடுகள், உணவு விருந்து நிறுவனங்கள், கோவில்கள் நம்பும் தரம்",
+                  en: "Trusted by homes, caterers & temples across Melur & Madurai",
+                  ta: "மேலூர், மதுரை வீடுகள், உணவு விருந்து நிறுவனங்கள், கோவில்கள் நம்பும் தரம்",
                 },
               ].map((item, i) => (
                 <li

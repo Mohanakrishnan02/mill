@@ -16,7 +16,8 @@ export const IMAGES = {
     milling: pexels(4110256),
     sorting: pexels(4110251),
     packing: pexels(1838554),
-    story: pexels(7312107, 1200),
+    storyFather: pexels(7533377, 800),
+    storySon: pexels(5980758, 800),
   },
 
   products: {
