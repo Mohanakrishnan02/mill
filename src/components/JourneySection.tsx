@@ -197,27 +197,27 @@ export function JourneySection() {
               தந்தையிடமிருந்து மகன் வரை — தலைமுறை பாரம்பரியம்
             </p>
             <p className="text-sm leading-relaxed text-white/70">
-              In 2003, our father founded Jayalakshmi Vilas on Sivagangai Main Road, Melur — with
-              one promise: stone-milled rice, honest weight, and no shortcuts. Today, the next
-              generation carries that same trust forward — from paddy fields to your kitchen.
+              Our father started this rice mill and ran it for 20 years — stone-milled rice, honest
+              weight, and no shortcuts. Today, his son carries forward the exact same process his
+              father taught, from paddy fields to your kitchen.
             </p>
             <p
               className="text-sm leading-relaxed text-white/55"
               style={{ fontFamily: "var(--font-tamil)" }}
             >
-              2003-ல் எங்கள் தந்தை மேலூரில் ஜெயலட்சுமி விலாஸ் நெல் ஆலையை தொடங்கினார் — கல்
-              அரைப்பு, நேர்மையான எடை, குறுக்கு வழி இல்லை என்ற வாக்குறுதியுடன். இன்று அடுத்த
-              தலைமுறை அதே நம்பிக்கையை நெல் வயலில் இருந்து உங்கள் சமையலறை வரை கொண்டு செல்கிறது.
+              எங்கள் தந்தை இந்த நெல் ஆலையை தொடங்கி 20 ஆண்டுகள் நடத்தினார் — கல் அரைப்பு,
+              நேர்மையான எடை, குறுக்கு வழி இல்லை. இன்று அவரது மகன் தந்தை கற்ற அதே முறையையே
+              தொடர்கிறார் — நெல் வயலில் இருந்து உங்கள் சமையலறை வரை.
             </p>
             <ul className="space-y-3">
               {[
                 {
-                  en: "Father's generation — founded the mill with traditional values",
-                  ta: "தந்தை தலைமுறை — பாரம்பரிய முறையில் ஆலை தொடங்கியது",
+                  en: "Father's generation — started and ran the mill for 20 years",
+                  ta: "தந்தை தலைமுறை — 20 ஆண்டுகள் பாரம்பரிய முறையில் ஆலை நடத்தினார்",
                 },
                 {
-                  en: "Son's generation — 23+ years of milling expertise continues",
-                  ta: "மகன் தலைமுறை — 23+ ஆண்டு அனுபவம் தொடர்கிறது",
+                  en: "Son's generation — continues the same process his father taught",
+                  ta: "மகன் தலைமுறை — தந்தை கற்ற அதே அரைப்பு முறையை தொடர்கிறார்",
                 },
                 {
                   en: "Trusted by homes, caterers & temples across Melur & Madurai",

@@ -16,8 +16,8 @@ export const IMAGES = {
     milling: pexels(4110256),
     sorting: pexels(4110251),
     packing: pexels(1838554),
-    storyFather: pexels(7533377, 800),
-    storySon: pexels(5980758, 800),
+    /** Father-to-son generational legacy illustration */
+    legacyFatherSon: "/images/father-son-legacy.png",
   },
 
   products: {
