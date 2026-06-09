@@ -96,9 +96,6 @@ function NavLink({
         aria-current={active ? "true" : undefined}
       >
         {item.label}
-        {active && !mobile && (
-          <span className="nav-link-pulse absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-white" />
-        )}
       </Link>
     );
   }
