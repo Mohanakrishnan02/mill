@@ -40,7 +40,7 @@ export default function HomePage() {
               Traditional Rice Varieties <span className="text-[#e07b00]">— Direct from Mill</span>
             </h2>
             <p className="mt-1 text-sm text-stone-500">
-              Featured: JGL, Akshaya & Ponni Boiled · Use → to see full catalog
+              Featured: JGL, Akshaya & Ponni Boiled · Click → for full catalog
             </p>
           </div>
         </RevealOnScroll>

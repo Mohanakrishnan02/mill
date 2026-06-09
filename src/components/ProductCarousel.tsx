@@ -2,50 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, ArrowRight, Grid3X3 } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { getFeaturedProducts } from "@/lib/products";
 
 export function ProductCarousel() {
   const featured = getFeaturedProducts();
-  const [showViewAll, setShowViewAll] = useState(false);
-
-  if (showViewAll) {
-    return (
-      <div className="relative px-8 sm:px-12">
-        <button
-          type="button"
-          onClick={() => setShowViewAll(false)}
-          aria-label="Back to featured varieties"
-          className="absolute -left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00] sm:-left-5 sm:h-12 sm:w-12"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-
-        <Link
-          href="/products"
-          className="group flex min-h-[280px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e07b00]/40 bg-gradient-to-br from-[#fff8f0] to-[#f5ede0] p-8 text-center transition hover:border-[#e07b00] hover:shadow-lg"
-        >
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#e07b00]/15 transition group-hover:scale-110">
-            <Grid3X3 className="h-8 w-8 text-[#e07b00]" />
-          </div>
-          <p
-            className="mt-4 text-xl font-bold text-[#5d3a1a]"
-            style={{ fontFamily: "var(--font-yeseva)" }}
-          >
-            Click here to view all
-          </p>
-          <p className="mt-2 text-sm text-stone-500">
-            See our full rice catalog — JGL, Akshaya, Ponni & more
-          </p>
-          <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#e07b00] px-6 py-2.5 text-sm font-bold text-white transition group-hover:bg-[#f5a623]">
-            Open full product list
-            <ArrowRight className="h-4 w-4" />
-          </span>
-        </Link>
-      </div>
-    );
-  }
+  const [showPrompt, setShowPrompt] = useState(false);
 
   return (
     <div className="relative px-8 sm:px-12">
@@ -57,12 +20,50 @@ export function ProductCarousel() {
 
       <button
         type="button"
-        onClick={() => setShowViewAll(true)}
+        onClick={() => setShowPrompt(true)}
         aria-label="View all rice varieties"
         className="absolute -right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00] sm:-right-5 sm:h-12 sm:w-12"
       >
         <ChevronRight className="h-6 w-6" />
       </button>
+
+      {showPrompt && (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-black/20"
+            aria-label="Close"
+            onClick={() => setShowPrompt(false)}
+          />
+          <div className="absolute -right-1 top-1/2 z-50 w-56 -translate-y-1/2 rounded-lg border border-stone-200 bg-white p-4 shadow-xl sm:-right-2 sm:w-64">
+            <button
+              type="button"
+              onClick={() => setShowPrompt(false)}
+              className="absolute right-2 top-2 rounded p-0.5 text-stone-400 hover:text-stone-600"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <p className="pr-6 text-sm font-bold text-[#5d3a1a]">View full product list?</p>
+            <p className="mt-1 text-xs text-stone-500">All 5 rice varieties from our mill</p>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowPrompt(false)}
+                className="flex-1 rounded border border-stone-200 py-1.5 text-xs font-semibold text-stone-600 hover:bg-stone-50"
+              >
+                Cancel
+              </button>
+              <Link
+                href="/products"
+                className="flex-1 rounded bg-[#e07b00] py-1.5 text-center text-xs font-bold text-white hover:bg-[#f5a623]"
+              >
+                Open →
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
