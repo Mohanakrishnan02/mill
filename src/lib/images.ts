@@ -10,7 +10,7 @@ export const IMAGES = {
   heroBg: pexels(1072824, 1920),
 
   journey: {
-    fields: pexels(7533377),
+    fields: "/images/paddy-field.png",
     harvest: pexels(5980758),
     drying: pexels(24991359),
     milling: pexels(4110256),

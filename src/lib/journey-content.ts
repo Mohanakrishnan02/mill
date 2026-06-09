@@ -5,7 +5,7 @@ export const JOURNEY = {
   foundedYear: 2003,
   videoUrl:
     "https://videos.pexels.com/video-files/3129671/3129671-hd_1920_1080_25fps.mp4",
-  videoPoster: IMAGES.journey.fields.replace("w=800", "w=1920"),
+  videoPoster: IMAGES.journey.fields,
 } as const;
 
 export type JourneyStep = {
