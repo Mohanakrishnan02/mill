@@ -300,7 +300,7 @@ export function Header() {
                 scrollToHome();
               }
             }}
-            className="flex min-w-0 shrink items-center gap-2 sm:gap-2.5"
+            className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5 md:flex-initial"
           >
             <Image
               src={IMAGES.logo}
@@ -308,13 +308,18 @@ export function Header() {
               width={44}
               height={44}
               priority
-              className="shrink-0 rounded-full object-cover ring-2 ring-[#f5a623]/40"
+              className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-[#f5a623]/40 sm:h-11 sm:w-11"
             />
-            <div className="hidden min-w-0 md:block">
-              <p className="font-serif text-lg font-bold leading-tight text-white" style={{ fontFamily: "var(--font-yeseva)" }}>
+            <div className="min-w-0">
+              <p
+                className="truncate font-serif text-sm font-bold leading-tight text-white sm:text-lg"
+                style={{ fontFamily: "var(--font-yeseva)" }}
+              >
                 {MILL.name}
               </p>
-              <p className="text-[10px] uppercase tracking-widest text-white/60">{MILL.tagline}</p>
+              <p className="truncate text-[9px] uppercase tracking-wide text-white/60 sm:text-[10px] sm:tracking-widest">
+                {MILL.tagline}
+              </p>
             </div>
           </Link>
 
@@ -338,7 +343,7 @@ export function Header() {
             <a href={`tel:${MILL.phone}`} className="font-semibold text-[#f5a623]">{MILL.phone}</a>
           </div>
 
-          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               onClick={openDrawer}
               className="relative flex shrink-0 items-center gap-2 rounded bg-[#e07b00] px-2.5 py-2 text-sm font-semibold text-white hover:bg-[#f5a623] sm:px-3.5"
