@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
       sent: result.sent,
       viaApi: result.viaApi,
       method: result.method ?? null,
-      fallbackUrl: result.sent ? null : getMillAlertWhatsAppUrl(payload),
+      error: result.error ?? null,
+      manualUrl: result.sent ? null : getMillAlertWhatsAppUrl(payload),
     });
   } catch (error) {
     console.error("Mill notify error:", error);

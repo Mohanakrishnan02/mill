@@ -59,6 +59,8 @@ function OrderSuccessContent() {
   const [customerAutoViaApi, setCustomerAutoViaApi] = useState(false);
   const [showCustomerCard, setShowCustomerCard] = useState(false);
   const [showMillCard, setShowMillCard] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendAttempt, setSendAttempt] = useState(0);
 
   const stored = loadOrderForWhatsApp();
   const notifyPayload: OrderNotifyPayload = stored ?? {
@@ -82,7 +84,7 @@ function OrderSuccessContent() {
     const t1 = setTimeout(() => setShowCustomerCard(true), 400);
     const t3 = setTimeout(() => setShowMillCard(true), 1200);
 
-    const sendBothWhatsAppMessages = async () => {
+    const sendBothWhatsAppMessages = async (attempt = 1) => {
       if (!phone) return;
 
       const customerAlready =
@@ -99,6 +101,9 @@ function OrderSuccessContent() {
       }
       if (customerAlready && millAlready) return;
 
+      setSending(true);
+      setSendAttempt(attempt);
+
       try {
         const res = await fetch("/api/orders/notify-both", {
           method: "POST",
@@ -111,40 +116,41 @@ function OrderSuccessContent() {
         });
         const data = await res.json();
 
-        if (data.customer?.sent) {
+        const customerOk = customerAlready || Boolean(data.customer?.sent && data.customer?.viaApi);
+        const millOk = millAlready || Boolean(data.mill?.sent && data.mill?.viaApi);
+
+        if (data.customer?.sent && data.customer?.viaApi) {
           setCustomerSent(true);
-          setCustomerAutoViaApi(Boolean(data.customer.viaApi));
-          sessionStorage.setItem(customerSentKey, data.customer.viaApi ? "api" : "fallback");
-        } else if (!customerAlready && data.customer?.fallbackUrl) {
-          window.open(data.customer.fallbackUrl, "_blank", "noopener,noreferrer");
-          setCustomerSent(true);
-          sessionStorage.setItem(customerSentKey, "fallback");
+          setCustomerAutoViaApi(true);
+          sessionStorage.setItem(customerSentKey, "api");
         }
 
-        if (data.mill?.sent) {
+        if (data.mill?.sent && data.mill?.viaApi) {
           setMillSent(true);
-          setMillAutoViaApi(Boolean(data.mill.viaApi));
-          sessionStorage.setItem(millSentKey, data.mill.viaApi ? "api" : "fallback");
-        } else if (!millAlready && data.mill?.fallbackUrl) {
-          window.open(data.mill.fallbackUrl, "_blank", "noopener,noreferrer");
-          setMillSent(true);
-          sessionStorage.setItem(millSentKey, "fallback");
+          setMillAutoViaApi(true);
+          sessionStorage.setItem(millSentKey, "api");
         }
+
+        if (customerOk && millOk) {
+          setSending(false);
+          return;
+        }
+
+        if (attempt < 3) {
+          setTimeout(() => sendBothWhatsAppMessages(attempt + 1), 2500);
+          return;
+        }
+        setSending(false);
       } catch {
-        if (!customerAlready) {
-          window.open(customerWaUrl, "_blank", "noopener,noreferrer");
-          setCustomerSent(true);
-          sessionStorage.setItem(customerSentKey, "fallback");
-        }
-        if (!millAlready) {
-          window.open(millWaUrl, "_blank", "noopener,noreferrer");
-          setMillSent(true);
-          sessionStorage.setItem(millSentKey, "fallback");
+        if (attempt < 3) {
+          setTimeout(() => sendBothWhatsAppMessages(attempt + 1), 2500);
+        } else {
+          setSending(false);
         }
       }
     };
 
-    const t2 = setTimeout(() => sendBothWhatsAppMessages(), 600);
+    const t2 = setTimeout(() => sendBothWhatsAppMessages(1), 400);
 
     return () => {
       clearTimeout(t1);
@@ -188,7 +194,11 @@ function OrderSuccessContent() {
           <div className="flex items-center gap-2 border-b border-[#25d366]/20 bg-[#25d366]/10 px-4 py-2">
             <MessageCircle className="h-4 w-4 text-[#25d366]" />
             <p className="text-xs font-bold text-[#128C7E]">
-              {customerAutoViaApi ? "Confirmation auto-sent to your mobile" : "Confirmation sent to your mobile"}
+              {sending && !customerAutoViaApi
+                ? "Sending confirmation to your mobile…"
+                : customerAutoViaApi
+                  ? "Confirmation auto-sent to your mobile"
+                  : "Customer confirmation"}
             </p>
             {customerSent && (
               <span className="ml-auto rounded-full bg-[#25d366] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
@@ -226,7 +236,11 @@ function OrderSuccessContent() {
           <div className="flex items-center gap-2 border-b border-[#E07A2F]/20 bg-[#E07A2F]/10 px-4 py-2">
             <Bell className="h-4 w-4 text-[#E07A2F] wa-bell-ring" />
             <p className="text-xs font-bold text-[#E07A2F]">
-              {millAutoViaApi ? "Auto-sent to mill team" : "Alert sent to mill team"}
+              {sending && !millAutoViaApi
+                ? "Sending alert to mill team…"
+                : millAutoViaApi
+                  ? "Auto-sent to mill team"
+                  : "Mill team alert"}
             </p>
             {millSent && (
               <span className="ml-auto rounded-full bg-[#E07A2F] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
@@ -288,25 +302,30 @@ function OrderSuccessContent() {
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
-        {phone && !customerAutoViaApi && (
-          <a href={customerWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded bg-[#25d366] py-3 text-sm font-extrabold text-white">
-            Send Confirmation to +91 {phone}
-          </a>
+        {sending && (
+          <p className="rounded-lg border border-stone-200 bg-white py-2.5 text-center text-xs text-stone-600">
+            Sending WhatsApp messages automatically… (attempt {sendAttempt}/3)
+          </p>
         )}
         {phone && customerAutoViaApi && (
           <p className="rounded-lg border border-[#25d366]/30 bg-[#f0fff4] py-2.5 text-center text-xs font-semibold text-[#128C7E]">
             Confirmation auto-sent to +91 {phone}
           </p>
         )}
-        {!millAutoViaApi && (
-          <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border-2 border-[#E07A2F] bg-[#FDE8D4] py-3 text-sm font-bold text-[#E07A2F]">
-            Send Mill Alert to {MILL.millAlertDisplay}
-          </a>
-        )}
         {millAutoViaApi && (
           <p className="rounded-lg border border-[#E07A2F]/30 bg-[#FFFAF5] py-2.5 text-center text-xs font-semibold text-[#E07A2F]">
             Mill alert auto-sent to {MILL.millAlertDisplay}
           </p>
+        )}
+        {!sending && phone && !customerAutoViaApi && (
+          <a href={customerWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border border-[#25d366] bg-white py-2.5 text-sm font-semibold text-[#128C7E]">
+            Manual: Send confirmation to +91 {phone}
+          </a>
+        )}
+        {!sending && !millAutoViaApi && (
+          <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border border-[#E07A2F] bg-white py-2.5 text-sm font-semibold text-[#E07A2F]">
+            Manual: Send mill alert to {MILL.millAlertDisplay}
+          </a>
         )}
         <Link href="/products" className="rounded bg-[#E07A2F] py-3 text-center text-sm font-bold text-white">
           Continue Shopping

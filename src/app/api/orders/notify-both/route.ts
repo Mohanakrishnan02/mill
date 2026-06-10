@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendBothOrderNotifications } from "@/lib/whatsapp-api";
 import {
-  getCustomerWhatsAppUrl,
-  getMillAlertWhatsAppUrl,
-  type OrderNotifyPayload,
-} from "@/lib/whatsapp-order";
+  isWhatsAppAutoSendConfigured,
+  sendBothOrderNotifications,
+} from "@/lib/whatsapp-api";
+import type { OrderNotifyPayload } from "@/lib/whatsapp-order";
 
 type NotifyBothBody = OrderNotifyPayload & {
   skipCustomer?: boolean;
@@ -27,17 +26,18 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      configured: isWhatsAppAutoSendConfigured(),
       customer: {
         sent: customer.sent,
         viaApi: customer.viaApi,
         method: customer.method ?? null,
-        fallbackUrl: customer.sent ? null : getCustomerWhatsAppUrl(payload),
+        error: customer.error ?? null,
       },
       mill: {
         sent: mill.sent,
         viaApi: mill.viaApi,
         method: mill.method ?? null,
-        fallbackUrl: mill.sent ? null : getMillAlertWhatsAppUrl(payload),
+        error: mill.error ?? null,
       },
     });
   } catch (error) {

@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
       sent: result.sent,
       viaApi: result.viaApi,
       method: result.method ?? null,
-      fallbackUrl: result.sent ? null : getCustomerWhatsAppUrl(payload),
+      error: result.error ?? null,
+      manualUrl: result.sent ? null : getCustomerWhatsAppUrl(payload),
     });
   } catch (error) {
     console.error("Customer notify error:", error);

@@ -9,13 +9,38 @@ import {
 export type SendResult = {
   sent: boolean;
   viaApi: boolean;
-  method?: "whatsapp-cloud" | "callmebot";
+  method?: "whatsapp-cloud" | "green-api" | "callmebot";
+  error?: string;
 };
 
-async function whatsAppApiCall(body: Record<string, unknown>): Promise<boolean> {
+function toWhatsAppDigits(to: string): string {
+  return to.replace(/\D/g, "");
+}
+
+function toGreenApiChatId(to: string): string {
+  const digits = toWhatsAppDigits(to);
+  const normalized = digits.length === 10 ? `91${digits}` : digits;
+  return `${normalized}@c.us`;
+}
+
+async function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withRetry(fn: () => Promise<boolean>, attempts = 3, gapMs = 1200): Promise<boolean> {
+  for (let i = 0; i < attempts; i++) {
+    if (await fn()) return true;
+    if (i < attempts - 1) await delay(gapMs);
+  }
+  return false;
+}
+
+async function whatsAppApiCall(body: Record<string, unknown>): Promise<{ ok: boolean; error?: string }> {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  if (!token || !phoneId) return false;
+  if (!token || !phoneId) {
+    return { ok: false, error: "WhatsApp Cloud API not configured" };
+  }
 
   try {
     const res = await fetch(`https://graph.facebook.com/v21.0/${phoneId}/messages`, {
@@ -26,24 +51,108 @@ async function whatsAppApiCall(body: Record<string, unknown>): Promise<boolean> 
       },
       body: JSON.stringify(body),
     });
+    const text = await res.text();
     if (!res.ok) {
-      console.error("WhatsApp Cloud API error:", await res.text());
+      console.error("WhatsApp Cloud API error:", text);
+      return { ok: false, error: text.slice(0, 200) };
+    }
+    return { ok: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "WhatsApp Cloud API request failed";
+    console.error(message, err);
+    return { ok: false, error: message };
+  }
+}
+
+async function sendWhatsAppText(to: string, body: string): Promise<boolean> {
+  const digits = toWhatsAppDigits(to);
+  const result = await whatsAppApiCall({
+    messaging_product: "whatsapp",
+    to: digits,
+    type: "text",
+    text: { preview_url: false, body: body.normalize("NFC") },
+  });
+  return result.ok;
+}
+
+async function sendWhatsAppTemplate(
+  to: string,
+  templateName: string,
+  bodyParams: string[]
+): Promise<boolean> {
+  const digits = toWhatsAppDigits(to);
+  const result = await whatsAppApiCall({
+    messaging_product: "whatsapp",
+    to: digits,
+    type: "template",
+    template: {
+      name: templateName,
+      language: { code: process.env.WHATSAPP_TEMPLATE_LANG || "en" },
+      components: bodyParams.length
+        ? [
+            {
+              type: "body",
+              parameters: bodyParams.map((text) => ({ type: "text", text: text.slice(0, 256) })),
+            },
+          ]
+        : undefined,
+    },
+  });
+  return result.ok;
+}
+
+async function sendWhatsAppImage(
+  to: string,
+  imageUrl: string,
+  caption?: string
+): Promise<boolean> {
+  const digits = toWhatsAppDigits(to);
+  const result = await whatsAppApiCall({
+    messaging_product: "whatsapp",
+    to: digits,
+    type: "image",
+    image: {
+      link: imageUrl,
+      ...(caption ? { caption: caption.normalize("NFC").slice(0, 1024) } : {}),
+    },
+  });
+  return result.ok;
+}
+
+/** Green API — connect mill WhatsApp once, then auto-send to any customer number */
+async function sendViaGreenApi(to: string, text: string): Promise<boolean> {
+  const instanceId = process.env.GREEN_API_INSTANCE_ID;
+  const token = process.env.GREEN_API_TOKEN;
+  if (!instanceId || !token) return false;
+
+  try {
+    const res = await fetch(
+      `https://api.green-api.com/waInstance${instanceId}/sendMessage/${token}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chatId: toGreenApiChatId(to),
+          message: text.normalize("NFC"),
+        }),
+        cache: "no-store",
+      }
+    );
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.error("Green API error:", body);
       return false;
     }
-    return true;
+    return Boolean(body.idMessage);
   } catch (err) {
-    console.error("WhatsApp Cloud API request failed:", err);
+    console.error("Green API request failed:", err);
     return false;
   }
 }
 
-/** CallMeBot — free auto-send after one-time WhatsApp registration */
-async function sendViaCallMeBot(
-  to: string,
-  text: string,
-  apiKey: string
-): Promise<boolean> {
-  const phone = to.replace(/\D/g, "");
+/** CallMeBot — free auto-send to a pre-registered phone (mill team) */
+async function sendViaCallMeBot(to: string, text: string, apiKey: string): Promise<boolean> {
+  const phone = toWhatsAppDigits(to);
   const url =
     `https://api.callmebot.com/whatsapp.php?phone=${phone}` +
     `&text=${encodeURIComponent(text.normalize("NFC"))}` +
@@ -56,7 +165,6 @@ async function sendViaCallMeBot(
       console.error("CallMeBot error:", body);
       return false;
     }
-    // CallMeBot returns plain text like "Message sent" or error message
     const ok = /sent|success|queued/i.test(body) && !/error|fail|invalid/i.test(body);
     if (!ok) console.error("CallMeBot response:", body);
     return ok;
@@ -66,34 +174,7 @@ async function sendViaCallMeBot(
   }
 }
 
-export async function sendWhatsAppText(to: string, body: string): Promise<boolean> {
-  const digits = to.replace(/\D/g, "");
-  return whatsAppApiCall({
-    messaging_product: "whatsapp",
-    to: digits,
-    type: "text",
-    text: { preview_url: false, body: body.normalize("NFC") },
-  });
-}
-
-export async function sendWhatsAppImage(
-  to: string,
-  imageUrl: string,
-  caption?: string
-): Promise<boolean> {
-  const digits = to.replace(/\D/g, "");
-  return whatsAppApiCall({
-    messaging_product: "whatsapp",
-    to: digits,
-    type: "image",
-    image: {
-      link: imageUrl,
-      ...(caption ? { caption: caption.normalize("NFC").slice(0, 1024) } : {}),
-    },
-  });
-}
-
-async function sendViaWhatsAppCloud(
+async function sendViaWhatsAppCloudFull(
   to: string,
   payload: OrderNotifyPayload,
   buildMessage: (p: OrderNotifyPayload) => string,
@@ -115,32 +196,81 @@ async function sendViaWhatsAppCloud(
   return true;
 }
 
+async function sendViaWhatsAppCloudCustomer(to: string, payload: OrderNotifyPayload): Promise<boolean> {
+  const template = process.env.WHATSAPP_ORDER_TEMPLATE;
+  if (template) {
+    const itemLine = payload.items?.[0]
+      ? `${payload.items[0].name} (${payload.items[0].variantLabel})`
+      : "Rice order";
+    const templateOk = await sendWhatsAppTemplate(to, template, [
+      payload.orderId,
+      String(payload.total),
+      itemLine,
+      MILL.phone,
+    ]);
+    if (templateOk) return true;
+  }
+
+  return sendWhatsAppText(to, buildCustomerConfirmationMessage(payload));
+}
+
 async function sendOrderNotification(
   to: string,
   payload: OrderNotifyPayload,
   buildMessage: (p: OrderNotifyPayload) => string,
   imageCaption: string,
-  callMeBotKey?: string
+  options?: { callMeBotKey?: string; isCustomer?: boolean }
 ): Promise<SendResult> {
   const message = buildMessage(payload);
+  const errors: string[] = [];
 
-  // 1. WhatsApp Cloud API — images + text
-  const cloudFull = await sendViaWhatsAppCloud(to, payload, buildMessage, imageCaption);
-  if (cloudFull) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+  const tryCloud = async (): Promise<SendResult | null> => {
+    if (!process.env.WHATSAPP_ACCESS_TOKEN) return null;
 
-  // 2. WhatsApp Cloud API — text only (more reliable for new customers)
-  if (process.env.WHATSAPP_ACCESS_TOKEN) {
-    const cloudText = await sendWhatsAppText(to, message);
-    if (cloudText) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+    if (options?.isCustomer) {
+      const customerOk = await withRetry(() => sendViaWhatsAppCloudCustomer(to, payload), 2);
+      if (customerOk) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+    } else {
+      const fullOk = await withRetry(
+        () => sendViaWhatsAppCloudFull(to, payload, buildMessage, imageCaption),
+        2
+      );
+      if (fullOk) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+
+      const textOk = await withRetry(() => sendWhatsAppText(to, message), 2);
+      if (textOk) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+    }
+
+    errors.push("WhatsApp Cloud API send failed");
+    return null;
+  };
+
+  const tryGreen = async (): Promise<SendResult | null> => {
+    if (!process.env.GREEN_API_INSTANCE_ID || !process.env.GREEN_API_TOKEN) return null;
+    const greenOk = await withRetry(() => sendViaGreenApi(to, message), 2);
+    if (greenOk) return { sent: true, viaApi: true, method: "green-api" };
+    errors.push("Green API send failed");
+    return null;
+  };
+
+  const tryCallMeBot = async (): Promise<SendResult | null> => {
+    if (!options?.callMeBotKey) return null;
+    const botOk = await withRetry(() => sendViaCallMeBot(to, message, options.callMeBotKey!), 2);
+    if (botOk) return { sent: true, viaApi: true, method: "callmebot" };
+    errors.push("CallMeBot send failed");
+    return null;
+  };
+
+  for (const attempt of [tryCloud, tryGreen, tryCallMeBot]) {
+    const result = await attempt();
+    if (result) return result;
   }
 
-  // 3. CallMeBot fallback (recipient must register once)
-  if (callMeBotKey) {
-    const botSent = await sendViaCallMeBot(to, message, callMeBotKey);
-    if (botSent) return { sent: true, viaApi: true, method: "callmebot" };
-  }
-
-  return { sent: false, viaApi: false };
+  return {
+    sent: false,
+    viaApi: false,
+    error: errors.join("; ") || "No WhatsApp API configured on server",
+  };
 }
 
 export async function sendCustomerConfirmation(payload: OrderNotifyPayload): Promise<SendResult> {
@@ -149,7 +279,8 @@ export async function sendCustomerConfirmation(payload: OrderNotifyPayload): Pro
     `91${phone}`,
     payload,
     buildCustomerConfirmationMessage,
-    "\u2014 Order Confirmed"
+    "\u2014 Order Confirmed",
+    { isCustomer: true }
   );
 }
 
@@ -159,7 +290,7 @@ export async function sendMillTeamAlert(payload: OrderNotifyPayload): Promise<Se
     payload,
     buildMillAlertMessage,
     "\u2014 New Order Alert",
-    process.env.CALLMEBOT_MILL_API_KEY
+    { callMeBotKey: process.env.CALLMEBOT_MILL_API_KEY }
   );
 }
 
@@ -167,6 +298,14 @@ export type BothNotifyResult = {
   customer: SendResult;
   mill: SendResult;
 };
+
+export function isWhatsAppAutoSendConfigured(): boolean {
+  return Boolean(
+    process.env.WHATSAPP_ACCESS_TOKEN ||
+      process.env.GREEN_API_INSTANCE_ID ||
+      process.env.CALLMEBOT_MILL_API_KEY
+  );
+}
 
 /** Send customer confirmation + mill alert in parallel on every order */
 export async function sendBothOrderNotifications(
