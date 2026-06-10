@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CreditCard, Loader2 } from "lucide-react";
+import { CreditCard, CheckCircle2, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { PriceSummary } from "@/components/PriceSummary";
 import { loadRazorpayScript } from "@/lib/razorpay-client";
@@ -14,7 +14,7 @@ import { reverseGeocodePincode } from "@/lib/geocode";
 import { GoogleAddressInput } from "@/components/GoogleAddressInput";
 import { saveOrderForWhatsApp } from "@/lib/whatsapp-order";
 import { ShippingAddress } from "@/types";
-import { OtpVerifiedBadge } from "@/components/OtpVerifiedBadge";
+import { OtpEntryModal, OtpSuccessModal } from "@/components/OtpModals";
 import type { RazorpaySuccessResponse } from "@/types/razorpay";
 
 type NominatimResult = { display_name: string; lat: string; lon: string };
@@ -40,7 +40,8 @@ export default function CheckoutPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [genOtp, setGenOtp] = useState("");
-  const [enteredOtp, setEnteredOtp] = useState("");
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [showVerifiedModal, setShowVerifiedModal] = useState(false);
   const [addrSuggestions, setAddrSuggestions] = useState<NominatimResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const addrTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -121,14 +122,14 @@ export default function CheckoutPage() {
     const code = String(Math.floor(100000 + Math.random() * 900000));
     setGenOtp(code);
     setOtpSent(true);
+    setShowOtpModal(true);
   };
 
-  const verifyOtp = () => {
-    if (enteredOtp !== genOtp) {
-      alert("Incorrect OTP. Try again.");
-      return false;
-    }
+  const handleOtpSubmit = (otp: string) => {
+    if (otp !== genOtp) return false;
     setOtpVerified(true);
+    setShowOtpModal(false);
+    setShowVerifiedModal(true);
     return true;
   };
 
@@ -378,23 +379,12 @@ export default function CheckoutPage() {
                       {otpSent ? "Resend OTP" : "Send OTP"}
                     </button>
                   </div>
-                  {otpSent && !otpVerified && (
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        placeholder="Enter 6-digit OTP"
-                        value={enteredOtp}
-                        onChange={(e) => setEnteredOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                        className="flex-1 rounded border border-stone-200 px-3 py-2 text-sm font-bold tracking-widest outline-none"
-                      />
-                      <button type="button" onClick={verifyOtp} className="rounded bg-[#2e7d32] px-4 py-2 text-xs font-bold text-white">
-                        Verify
-                      </button>
-                    </div>
+                  {otpVerified && (
+                    <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-[#2e7d32]">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Verified · +91 {address.phone}
+                    </p>
                   )}
-                  {otpSent && !otpVerified && genOtp && (
-                    <p className="mt-1 text-[11px] text-stone-500">Demo OTP: <strong>{genOtp}</strong></p>
-                  )}
-                  {otpVerified && <OtpVerifiedBadge phone={address.phone} />}
                 </div>
                 <input
                   placeholder="Email (optional)"
@@ -563,6 +553,19 @@ export default function CheckoutPage() {
 
         <PriceSummary summary={summary} itemCount={items.reduce((s, i) => s + i.quantity, 0)} />
       </div>
+
+      <OtpEntryModal
+        open={showOtpModal}
+        phone={address.phone}
+        demoOtp={genOtp}
+        onClose={() => setShowOtpModal(false)}
+        onSubmit={handleOtpSubmit}
+      />
+      <OtpSuccessModal
+        open={showVerifiedModal}
+        phone={address.phone}
+        onClose={() => setShowVerifiedModal(false)}
+      />
     </div>
   );
 }

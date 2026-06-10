@@ -362,6 +362,25 @@ body {
 .otp-progress-fill { animation: otpProgressFill 1.2s ease-out 0.3s both; }
 .otp-shimmer-text { animation: otpShimmerText 2s ease-in-out infinite; }
 
+/* ── OTP modal (compact popup) ── */
+@keyframes otpModalOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes otpModalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes otpCheckPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.otp-modal-overlay { animation: otpModalOverlay 0.2s ease forwards; }
+.otp-modal-in { animation: otpModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.otp-success-pop { animation: otpModalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.otp-check-pop { animation: otpCheckPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
 /* ── Order success & WhatsApp notify ── */
 @keyframes orderSuccessPop {
   0% { opacity: 0; transform: scale(0.5); }
@@ -432,6 +451,7 @@ body {
   .reveal-on-scroll, .journey-fade-up, .nav-link-pulse,
   .footer-banner-shimmer, .footer-banner-glow,
   .otp-verified-pop, .otp-check-bounce, .otp-progress-fill, .otp-shimmer-text,
+  .otp-modal-overlay, .otp-modal-in, .otp-success-pop, .otp-check-pop,
   .order-success-pop, .wa-notify-slide, .wa-pulse-dot, .wa-bell-ring, .wa-msg-shimmer,
   .view-all-overlay-in, .view-all-panel-in, .view-all-logo-pop, .view-all-cta-pulse {
     animation: none !important;
