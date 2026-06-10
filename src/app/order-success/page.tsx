@@ -12,8 +12,6 @@ import {
   getCustomerWhatsAppUrl,
   getMillAlertWhatsAppUrl,
   loadOrderForWhatsApp,
-  WA_CUSTOMER_SENT_KEY,
-  WA_MILL_SENT_KEY,
   buildCustomerConfirmationMessage,
   buildMillAlertMessage,
   type OrderNotifyPayload,
@@ -28,12 +26,13 @@ function OrderSuccessContent() {
   const awb = params.get("awb");
   const tracking = params.get("tracking");
   const isDemo = params.get("demo") === "1";
+  const customerConfirmAuto = params.get("customerConfirm") === "1";
   const millAlertAuto = params.get("millAlert") === "1";
 
-  const [customerSent, setCustomerSent] = useState(false);
+  const [customerSent, setCustomerSent] = useState(customerConfirmAuto);
   const [millSent, setMillSent] = useState(millAlertAuto);
   const [millAutoViaApi, setMillAutoViaApi] = useState(millAlertAuto);
-  const [customerAutoViaApi, setCustomerAutoViaApi] = useState(false);
+  const [customerAutoViaApi, setCustomerAutoViaApi] = useState(customerConfirmAuto);
   const [showCustomerCard, setShowCustomerCard] = useState(false);
   const [showMillCard, setShowMillCard] = useState(false);
 
@@ -63,6 +62,11 @@ function OrderSuccessContent() {
 
     const sendCustomerConfirmation = async () => {
       if (customerAlready || !phone) return;
+      if (customerConfirmAuto) {
+        setCustomerSent(true);
+        setCustomerAutoViaApi(true);
+        return;
+      }
       try {
         const res = await fetch("/api/orders/notify-customer", {
           method: "POST",
@@ -130,7 +134,7 @@ function OrderSuccessContent() {
       clearTimeout(t3);
       clearTimeout(t4);
     };
-  }, [customerWaUrl, millWaUrl, phone, millAlertAuto, orderId]);
+  }, [customerWaUrl, millWaUrl, phone, millAlertAuto, customerConfirmAuto, orderId]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:py-16">
@@ -255,21 +259,26 @@ function OrderSuccessContent() {
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
-        {phone && (
+        {phone && !customerAutoViaApi && (
           <a href={customerWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded bg-[#25d366] py-3 text-sm font-extrabold text-white">
-            WhatsApp — Your Confirmation
+            Send Confirmation to +91 {phone}
           </a>
+        )}
+        {phone && customerAutoViaApi && (
+          <p className="rounded-lg border border-[#25d366]/30 bg-[#f0fff4] py-2.5 text-center text-xs font-semibold text-[#128C7E]">
+            Confirmation auto-sent to +91 {phone}
+          </p>
         )}
         {!millAutoViaApi && (
           <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border-2 border-[#e07b00] bg-[#fff3e0] py-3 text-sm font-bold text-[#e07b00]">
             Send Mill Alert to {MILL.millAlertDisplay}
           </a>
         )}
-        <p className="text-center text-xs text-stone-500">
-          {millAutoViaApi
-            ? `Mill team alert auto-sent to ${MILL.millAlertDisplay}`
-            : `Mill alert → ${MILL.millAlertDisplay} (tap button above if not received)`}
-        </p>
+        {millAutoViaApi && (
+          <p className="rounded-lg border border-[#e07b00]/30 bg-[#fff8f0] py-2.5 text-center text-xs font-semibold text-[#e07b00]">
+            Mill alert auto-sent to {MILL.millAlertDisplay}
+          </p>
+        )}
         <Link href="/products" className="rounded bg-[#e07b00] py-3 text-center text-sm font-bold text-white">
           Continue Shopping
         </Link>

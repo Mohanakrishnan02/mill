@@ -168,7 +168,14 @@ export default function CheckoutPage() {
   const finalizeOrder = async (
     orderId: string,
     paymentId?: string,
-  ): Promise<{ trackingUrl?: string; awb?: string; deliveryMessage?: string; millAlertSent?: boolean }> => {
+    isDemoOrder = false,
+  ): Promise<{
+    trackingUrl?: string;
+    awb?: string;
+    deliveryMessage?: string;
+    customerConfirmSent?: boolean;
+    millAlertSent?: boolean;
+  }> => {
     try {
       const res = await fetch("/api/orders/fulfill", {
         method: "POST",
@@ -181,6 +188,7 @@ export default function CheckoutPage() {
           total: summary.total,
           paymentId,
           deliveryDistanceKm,
+          isDemo: isDemoOrder,
         }),
       });
       const data = await res.json();
@@ -188,6 +196,7 @@ export default function CheckoutPage() {
         trackingUrl: data.trackingUrl,
         awb: data.awb,
         deliveryMessage: data.message,
+        customerConfirmSent: data.customerConfirmSent,
         millAlertSent: data.millAlertSent,
       };
     } catch {
@@ -264,6 +273,7 @@ export default function CheckoutPage() {
             });
             if (fulfillment.awb) params.set("awb", fulfillment.awb);
             if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
+            if (fulfillment.customerConfirmSent) params.set("customerConfirm", "1");
             if (fulfillment.millAlertSent) params.set("millAlert", "1");
             router.push(`/order-success?${params.toString()}`);
           } else {
@@ -288,7 +298,7 @@ export default function CheckoutPage() {
 
   const handleDemoConfirm = async () => {
     const orderId = "JV" + Date.now().toString().slice(-8).toUpperCase();
-    const fulfillment = await finalizeOrder(orderId);
+    const fulfillment = await finalizeOrder(orderId, undefined, true);
     saveOrderForWhatsApp({
       orderId,
       total: summary.total,
@@ -307,6 +317,7 @@ export default function CheckoutPage() {
     });
     if (fulfillment.awb) params.set("awb", fulfillment.awb);
     if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
+    if (fulfillment.customerConfirmSent) params.set("customerConfirm", "1");
     if (fulfillment.millAlertSent) params.set("millAlert", "1");
     router.push(`/order-success?${params.toString()}`);
   };

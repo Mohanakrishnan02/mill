@@ -122,9 +122,17 @@ async function sendOrderNotification(
 ): Promise<SendResult> {
   const message = buildMessage(payload);
 
-  const cloudSent = await sendViaWhatsAppCloud(to, payload, buildMessage, imageCaption);
-  if (cloudSent) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+  // 1. WhatsApp Cloud API — images + text
+  const cloudFull = await sendViaWhatsAppCloud(to, payload, buildMessage, imageCaption);
+  if (cloudFull) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
 
+  // 2. WhatsApp Cloud API — text only (more reliable for new customers)
+  if (process.env.WHATSAPP_ACCESS_TOKEN) {
+    const cloudText = await sendWhatsAppText(to, message);
+    if (cloudText) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+  }
+
+  // 3. CallMeBot fallback (recipient must register once)
   if (callMeBotKey) {
     const botSent = await sendViaCallMeBot(to, message, callMeBotKey);
     if (botSent) return { sent: true, viaApi: true, method: "callmebot" };
@@ -139,8 +147,7 @@ export async function sendCustomerConfirmation(payload: OrderNotifyPayload): Pro
     `91${phone}`,
     payload,
     buildCustomerConfirmationMessage,
-    "\u2014 Order Confirmed",
-    process.env.CALLMEBOT_CUSTOMER_API_KEY
+    "\u2014 Order Confirmed"
   );
 }
 

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendCustomerConfirmation, sendMillTeamAlert } from "@/lib/whatsapp-api";
 import { createEkartShipment } from "@/lib/ekart/client";
 import {
   deliveryProviderLabel,
   selectDeliveryProvider,
 } from "@/lib/delivery-config";
-import { sendMillTeamAlert } from "@/lib/whatsapp-api";
 import type { CartItem, ShippingAddress } from "@/types";
 
 type FulfillBody = {
@@ -15,6 +15,7 @@ type FulfillBody = {
   total: number;
   paymentId?: string;
   deliveryDistanceKm?: number | null;
+  isDemo?: boolean;
 };
 
 export async function POST(req: NextRequest) {
@@ -25,19 +26,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing order details" }, { status: 400 });
     }
 
-    const provider = selectDeliveryProvider(
-      body.deliveryDistanceKm ?? null,
-      body.totalKg,
-    );
-
-    const millAlert = await sendMillTeamAlert({
+    const notifyPayload = {
       orderId: body.orderId,
       total: body.total,
       phone: body.address.phone,
       paymentId: body.paymentId,
+      isDemo: body.isDemo,
       address: body.address,
       items: body.items,
-    });
+    };
+
+    // Send WhatsApp notifications in parallel — customer + mill team
+    const [customerNotify, millAlert] = await Promise.all([
+      sendCustomerConfirmation(notifyPayload),
+      sendMillTeamAlert(notifyPayload),
+    ]);
+
+    const provider = selectDeliveryProvider(
+      body.deliveryDistanceKm ?? null,
+      body.totalKg,
+    );
 
     if (provider === "local") {
       return NextResponse.json({
@@ -45,6 +53,7 @@ export async function POST(req: NextRequest) {
         provider: "local",
         providerLabel: deliveryProviderLabel("local"),
         message: "Order confirmed. Our team will deliver from Melur mill.",
+        customerConfirmSent: customerNotify.sent,
         millAlertSent: millAlert.sent,
       });
     }
@@ -66,6 +75,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ...shipment,
       providerLabel: deliveryProviderLabel(shipment.provider === "pending" ? "ekart" : "ekart"),
+      customerConfirmSent: customerNotify.sent,
       millAlertSent: millAlert.sent,
     });
   } catch (error) {
