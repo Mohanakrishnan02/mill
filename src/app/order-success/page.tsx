@@ -53,8 +53,10 @@ function OrderSuccessContent() {
   const productImageSrc = notifyPayload.items?.[0]?.image || IMAGES.logo;
 
   useEffect(() => {
-    const customerAlready = sessionStorage.getItem(WA_CUSTOMER_SENT_KEY);
-    const millAlready = sessionStorage.getItem(WA_MILL_SENT_KEY) || millAlertAuto;
+    const customerSentKey = `jv_wa_customer_${orderId}`;
+    const millSentKey = `jv_wa_mill_${orderId}`;
+    const customerAlready = sessionStorage.getItem(customerSentKey);
+    const millAlready = sessionStorage.getItem(millSentKey);
 
     const t1 = setTimeout(() => setShowCustomerCard(true), 400);
     const t3 = setTimeout(() => setShowMillCard(true), 1800);
@@ -71,24 +73,27 @@ function OrderSuccessContent() {
         if (data.sent) {
           setCustomerSent(true);
           setCustomerAutoViaApi(true);
-          sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
+          sessionStorage.setItem(customerSentKey, "1");
           return;
         }
         if (data.fallbackUrl) {
           window.open(data.fallbackUrl, "_blank", "noopener,noreferrer");
           setCustomerSent(true);
-          sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
+          sessionStorage.setItem(customerSentKey, "1");
         }
       } catch {
         window.open(customerWaUrl, "_blank", "noopener,noreferrer");
         setCustomerSent(true);
-        sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
+        sessionStorage.setItem(customerSentKey, "1");
       }
     };
 
     const sendMillAlert = async () => {
-      if (millAlready) {
-        setMillSent(true);
+      if (millAlready || millAlertAuto) {
+        if (millAlertAuto) {
+          setMillSent(true);
+          setMillAutoViaApi(true);
+        }
         return;
       }
       try {
@@ -101,26 +106,23 @@ function OrderSuccessContent() {
         if (data.sent) {
           setMillSent(true);
           setMillAutoViaApi(true);
-          sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+          sessionStorage.setItem(millSentKey, "1");
           return;
         }
         if (data.fallbackUrl) {
           window.open(data.fallbackUrl, "_blank", "noopener,noreferrer");
           setMillSent(true);
-          sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+          sessionStorage.setItem(millSentKey, "1");
         }
       } catch {
         window.open(millWaUrl, "_blank", "noopener,noreferrer");
         setMillSent(true);
-        sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+        sessionStorage.setItem(millSentKey, "1");
       }
     };
 
     const t2 = setTimeout(() => sendCustomerConfirmation(), 1200);
-    const t4 = setTimeout(() => {
-      if (!millAlertAuto) sendMillAlert();
-      else sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
-    }, 2800);
+    const t4 = setTimeout(() => sendMillAlert(), 2800);
 
     return () => {
       clearTimeout(t1);
@@ -258,8 +260,15 @@ function OrderSuccessContent() {
             WhatsApp — Your Confirmation
           </a>
         )}
+        {!millAutoViaApi && (
+          <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border-2 border-[#e07b00] bg-[#fff3e0] py-3 text-sm font-bold text-[#e07b00]">
+            Send Mill Alert to {MILL.millAlertDisplay}
+          </a>
+        )}
         <p className="text-center text-xs text-stone-500">
-          Mill team alert sent automatically to {MILL.millAlertDisplay}
+          {millAutoViaApi
+            ? `Mill team alert auto-sent to ${MILL.millAlertDisplay}`
+            : `Mill alert → ${MILL.millAlertDisplay} (tap button above if not received)`}
         </p>
         <Link href="/products" className="rounded bg-[#e07b00] py-3 text-center text-sm font-bold text-white">
           Continue Shopping

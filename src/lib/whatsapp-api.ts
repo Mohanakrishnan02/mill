@@ -6,6 +6,12 @@ import {
   type OrderNotifyPayload,
 } from "@/lib/whatsapp-order";
 
+export type SendResult = {
+  sent: boolean;
+  viaApi: boolean;
+  method?: "whatsapp-cloud" | "callmebot";
+};
+
 async function whatsAppApiCall(body: Record<string, unknown>): Promise<boolean> {
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -21,17 +27,45 @@ async function whatsAppApiCall(body: Record<string, unknown>): Promise<boolean> 
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      console.error("WhatsApp API error:", await res.text());
+      console.error("WhatsApp Cloud API error:", await res.text());
       return false;
     }
     return true;
   } catch (err) {
-    console.error("WhatsApp API request failed:", err);
+    console.error("WhatsApp Cloud API request failed:", err);
     return false;
   }
 }
 
-/** Send a text message via WhatsApp Cloud API */
+/** CallMeBot — free auto-send after one-time WhatsApp registration */
+async function sendViaCallMeBot(
+  to: string,
+  text: string,
+  apiKey: string
+): Promise<boolean> {
+  const phone = to.replace(/\D/g, "");
+  const url =
+    `https://api.callmebot.com/whatsapp.php?phone=${phone}` +
+    `&text=${encodeURIComponent(text.normalize("NFC"))}` +
+    `&apikey=${encodeURIComponent(apiKey)}`;
+
+  try {
+    const res = await fetch(url, { method: "GET", cache: "no-store" });
+    const body = await res.text();
+    if (!res.ok) {
+      console.error("CallMeBot error:", body);
+      return false;
+    }
+    // CallMeBot returns plain text like "Message sent" or error message
+    const ok = /sent|success|queued/i.test(body) && !/error|fail|invalid/i.test(body);
+    if (!ok) console.error("CallMeBot response:", body);
+    return ok;
+  } catch (err) {
+    console.error("CallMeBot request failed:", err);
+    return false;
+  }
+}
+
 export async function sendWhatsAppText(to: string, body: string): Promise<boolean> {
   const digits = to.replace(/\D/g, "");
   return whatsAppApiCall({
@@ -42,7 +76,6 @@ export async function sendWhatsAppText(to: string, body: string): Promise<boolea
   });
 }
 
-/** Send an image message via WhatsApp Cloud API */
 export async function sendWhatsAppImage(
   to: string,
   imageUrl: string,
@@ -60,17 +93,15 @@ export async function sendWhatsAppImage(
   });
 }
 
-/** Send logo + product images, then formatted text */
-async function sendOrderNotification(
+async function sendViaWhatsAppCloud(
   to: string,
   payload: OrderNotifyPayload,
   buildMessage: (p: OrderNotifyPayload) => string,
   imageCaption: string
-): Promise<{ sent: boolean; viaApi: boolean }> {
-  const message = buildMessage(payload);
-  const token = process.env.WHATSAPP_ACCESS_TOKEN;
-  if (!token) return { sent: false, viaApi: false };
+): Promise<boolean> {
+  if (!process.env.WHATSAPP_ACCESS_TOKEN) return false;
 
+  const message = buildMessage(payload);
   const { logoUrl, productUrl } = getOrderImageUrls(payload);
 
   await sendWhatsAppImage(to, logoUrl, `${MILL.fullName} ${imageCaption}`);
@@ -79,31 +110,46 @@ async function sendOrderNotification(
     await sendWhatsAppImage(to, productUrl, productName);
   }
 
-  const sent = await sendWhatsAppText(to, message);
-  return { sent, viaApi: sent };
+  return sendWhatsAppText(to, message);
 }
 
-/** Auto-send customer order confirmation with images + text */
-export async function sendCustomerConfirmation(
-  payload: OrderNotifyPayload
-): Promise<{ sent: boolean; viaApi: boolean }> {
+async function sendOrderNotification(
+  to: string,
+  payload: OrderNotifyPayload,
+  buildMessage: (p: OrderNotifyPayload) => string,
+  imageCaption: string,
+  callMeBotKey?: string
+): Promise<SendResult> {
+  const message = buildMessage(payload);
+
+  const cloudSent = await sendViaWhatsAppCloud(to, payload, buildMessage, imageCaption);
+  if (cloudSent) return { sent: true, viaApi: true, method: "whatsapp-cloud" };
+
+  if (callMeBotKey) {
+    const botSent = await sendViaCallMeBot(to, message, callMeBotKey);
+    if (botSent) return { sent: true, viaApi: true, method: "callmebot" };
+  }
+
+  return { sent: false, viaApi: false };
+}
+
+export async function sendCustomerConfirmation(payload: OrderNotifyPayload): Promise<SendResult> {
   const phone = payload.phone.replace(/\D/g, "").slice(-10);
   return sendOrderNotification(
     `91${phone}`,
     payload,
     buildCustomerConfirmationMessage,
-    "\u2014 Order Confirmed"
+    "\u2014 Order Confirmed",
+    process.env.CALLMEBOT_CUSTOMER_API_KEY
   );
 }
 
-/** Auto-send new order alert to mill team with images + text */
-export async function sendMillTeamAlert(
-  payload: OrderNotifyPayload
-): Promise<{ sent: boolean; viaApi: boolean }> {
+export async function sendMillTeamAlert(payload: OrderNotifyPayload): Promise<SendResult> {
   return sendOrderNotification(
     MILL.millAlertWhatsapp,
     payload,
     buildMillAlertMessage,
-    "\u2014 New Order Alert"
+    "\u2014 New Order Alert",
+    process.env.CALLMEBOT_MILL_API_KEY
   );
 }

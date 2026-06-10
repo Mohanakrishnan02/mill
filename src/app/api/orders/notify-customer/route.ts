@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
       success: true,
       sent: result.sent,
       viaApi: result.viaApi,
+      method: result.method ?? null,
       fallbackUrl: result.sent ? null : getCustomerWhatsAppUrl(payload),
     });
   } catch (error) {
