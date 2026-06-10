@@ -6,6 +6,10 @@ export const MILL = {
   phone: "7339604011",
   phoneDisplay: "+91 7339604011",
   whatsapp: "917339604011",
+  /** Mill team order alerts — sent automatically on every order */
+  millAlertPhone: "9941876024",
+  millAlertDisplay: "+91 9941876024",
+  millAlertWhatsapp: "919941876024",
   email: "jayalakshmivilasricemill@gmail.com",
   address: "Sivagangai Main Road, Melur",
   city: "Madurai",

@@ -28,9 +28,11 @@ function OrderSuccessContent() {
   const awb = params.get("awb");
   const tracking = params.get("tracking");
   const isDemo = params.get("demo") === "1";
+  const millAlertAuto = params.get("millAlert") === "1";
 
   const [customerSent, setCustomerSent] = useState(false);
-  const [millSent, setMillSent] = useState(false);
+  const [millSent, setMillSent] = useState(millAlertAuto);
+  const [millAutoViaApi, setMillAutoViaApi] = useState(millAlertAuto);
   const [showCustomerCard, setShowCustomerCard] = useState(false);
   const [showMillCard, setShowMillCard] = useState(false);
 
@@ -51,7 +53,7 @@ function OrderSuccessContent() {
 
   useEffect(() => {
     const customerAlready = sessionStorage.getItem(WA_CUSTOMER_SENT_KEY);
-    const millAlready = sessionStorage.getItem(WA_MILL_SENT_KEY);
+    const millAlready = sessionStorage.getItem(WA_MILL_SENT_KEY) || millAlertAuto;
 
     const t1 = setTimeout(() => setShowCustomerCard(true), 400);
     const t2 = setTimeout(() => {
@@ -62,12 +64,40 @@ function OrderSuccessContent() {
       }
     }, 1200);
     const t3 = setTimeout(() => setShowMillCard(true), 1800);
-    const t4 = setTimeout(() => {
-      if (!millAlready) {
-        window.open(millWaUrl, "_blank", "noopener,noreferrer");
-        sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+
+    const sendMillAlert = async () => {
+      if (millAlready) {
         setMillSent(true);
+        return;
       }
+      try {
+        const res = await fetch("/api/orders/notify-mill", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(notifyPayload),
+        });
+        const data = await res.json();
+        if (data.sent) {
+          setMillSent(true);
+          setMillAutoViaApi(true);
+          sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+          return;
+        }
+        if (data.fallbackUrl) {
+          window.open(data.fallbackUrl, "_blank", "noopener,noreferrer");
+          setMillSent(true);
+          sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+        }
+      } catch {
+        window.open(millWaUrl, "_blank", "noopener,noreferrer");
+        setMillSent(true);
+        sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
+      }
+    };
+
+    const t4 = setTimeout(() => {
+      if (!millAlertAuto) sendMillAlert();
+      else sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
     }, 2800);
 
     return () => {
@@ -76,7 +106,7 @@ function OrderSuccessContent() {
       clearTimeout(t3);
       clearTimeout(t4);
     };
-  }, [customerWaUrl, millWaUrl, phone]);
+  }, [customerWaUrl, millWaUrl, phone, millAlertAuto, orderId]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:py-16">
@@ -136,7 +166,9 @@ function OrderSuccessContent() {
         <div className="wa-notify-slide mt-4 overflow-hidden rounded-2xl border border-[#e07b00]/30 bg-gradient-to-br from-[#fff8f0] to-white shadow-lg" style={{ animationDelay: "0.15s" }}>
           <div className="flex items-center gap-2 border-b border-[#e07b00]/20 bg-[#e07b00]/10 px-4 py-2">
             <Bell className="h-4 w-4 text-[#e07b00] wa-bell-ring" />
-            <p className="text-xs font-bold text-[#e07b00]">Alert sent to mill team</p>
+            <p className="text-xs font-bold text-[#e07b00]">
+              {millAutoViaApi ? "Auto-sent to mill team" : "Alert sent to mill team"}
+            </p>
             {millSent && (
               <span className="ml-auto rounded-full bg-[#e07b00] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
                 Alert ✓
@@ -154,7 +186,7 @@ function OrderSuccessContent() {
               <p className="text-xs font-bold text-[#e07b00]">🚨 NEW ORDER RECEIVED 🔔</p>
               <p className="mt-1 text-sm font-semibold text-stone-800">{MILL.fullName}</p>
               <p className="mt-1 text-xs text-stone-500">
-                WhatsApp → <strong>{MILL.phoneDisplay}</strong>
+                {millAutoViaApi ? "Sent automatically" : "WhatsApp"} → <strong>{MILL.millAlertDisplay}</strong>
               </p>
               <p className="mt-1 text-xs text-stone-600">
                 Customer +91 {phone || "—"} · {formatINR(total)}
@@ -202,9 +234,9 @@ function OrderSuccessContent() {
             WhatsApp — Your Confirmation
           </a>
         )}
-        <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border-2 border-[#e07b00] bg-[#fff3e0] py-3 text-sm font-bold text-[#e07b00]">
-          WhatsApp — Mill Team Alert
-        </a>
+        <p className="text-center text-xs text-stone-500">
+          Mill team alert sent automatically to {MILL.millAlertDisplay}
+        </p>
         <Link href="/products" className="rounded bg-[#e07b00] py-3 text-center text-sm font-bold text-white">
           Continue Shopping
         </Link>

@@ -4,6 +4,7 @@ import {
   deliveryProviderLabel,
   selectDeliveryProvider,
 } from "@/lib/delivery-config";
+import { sendMillTeamAlert } from "@/lib/whatsapp-api";
 import type { CartItem, ShippingAddress } from "@/types";
 
 type FulfillBody = {
@@ -29,12 +30,22 @@ export async function POST(req: NextRequest) {
       body.totalKg,
     );
 
+    const millAlert = await sendMillTeamAlert({
+      orderId: body.orderId,
+      total: body.total,
+      phone: body.address.phone,
+      paymentId: body.paymentId,
+      address: body.address,
+      items: body.items,
+    });
+
     if (provider === "local") {
       return NextResponse.json({
         success: true,
         provider: "local",
         providerLabel: deliveryProviderLabel("local"),
         message: "Order confirmed. Our team will deliver from Melur mill.",
+        millAlertSent: millAlert.sent,
       });
     }
 
@@ -55,6 +66,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ...shipment,
       providerLabel: deliveryProviderLabel(shipment.provider === "pending" ? "ekart" : "ekart"),
+      millAlertSent: millAlert.sent,
     });
   } catch (error) {
     console.error("Order fulfill error:", error);

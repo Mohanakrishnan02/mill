@@ -149,7 +149,7 @@ export function getCustomerWhatsAppUrl(payload: OrderNotifyPayload): string {
 
 export function getMillAlertWhatsAppUrl(payload: OrderNotifyPayload): string {
   const text = buildMillAlertMessage(payload);
-  return buildWhatsAppSendUrl(MILL.whatsapp, text);
+  return buildWhatsAppSendUrl(MILL.millAlertWhatsapp, text);
 }
 
 export function getOrderWhatsAppUrl(payload: OrderNotifyPayload): string {

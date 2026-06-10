@@ -168,7 +168,7 @@ export default function CheckoutPage() {
   const finalizeOrder = async (
     orderId: string,
     paymentId?: string,
-  ): Promise<{ trackingUrl?: string; awb?: string; deliveryMessage?: string }> => {
+  ): Promise<{ trackingUrl?: string; awb?: string; deliveryMessage?: string; millAlertSent?: boolean }> => {
     try {
       const res = await fetch("/api/orders/fulfill", {
         method: "POST",
@@ -188,6 +188,7 @@ export default function CheckoutPage() {
         trackingUrl: data.trackingUrl,
         awb: data.awb,
         deliveryMessage: data.message,
+        millAlertSent: data.millAlertSent,
       };
     } catch {
       return { deliveryMessage: "Order placed — delivery will be arranged shortly." };
@@ -263,6 +264,7 @@ export default function CheckoutPage() {
             });
             if (fulfillment.awb) params.set("awb", fulfillment.awb);
             if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
+            if (fulfillment.millAlertSent) params.set("millAlert", "1");
             router.push(`/order-success?${params.toString()}`);
           } else {
             setError("Payment verification failed. Call " + MILL.phone + " if amount was deducted.");
@@ -305,6 +307,7 @@ export default function CheckoutPage() {
     });
     if (fulfillment.awb) params.set("awb", fulfillment.awb);
     if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
+    if (fulfillment.millAlertSent) params.set("millAlert", "1");
     router.push(`/order-success?${params.toString()}`);
   };
 
