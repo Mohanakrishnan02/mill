@@ -7,9 +7,9 @@ import { useCart } from "@/context/CartContext";
 import { ProductImage } from "./ProductImage";
 
 const badgeColors: Record<string, string> = {
-  popular: "bg-[#e07b00]",
-  organic: "bg-[#558b2f]",
-  raw: "bg-[#8b5e3c]",
+  popular: "bg-[#E07A2F]",
+  organic: "bg-[#9E4A56]",
+  raw: "bg-[#8B4A35]",
 };
 
 interface ProductCardProps {
@@ -41,7 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg card-hover-lift">
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#fdf8f0] to-[#f5ede0]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#FFFAF5] to-[#F5EBE0]">
           <ProductImage
             src={product.image}
             alt={product.name}
@@ -56,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
       <div className="flex flex-1 flex-col p-3">
         <Link href={`/products/${product.slug}`}>
-          <h3 className="text-sm font-bold text-stone-900 hover:text-[#2e7d32]">{product.name}</h3>
+          <h3 className="text-sm font-bold text-stone-900 hover:text-[#7A2E3A]">{product.name}</h3>
         </Link>
         {product.tamil && (
           <p className="text-xs text-stone-600" style={{ fontFamily: "var(--font-tamil)" }}>{product.tamil}</p>
@@ -65,7 +65,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="mt-2 flex items-baseline gap-1.5">
           <span className="text-lg font-extrabold text-stone-900">{formatINR(defaultVariant.price)}</span>
           {discount > 0 && (
-            <span className="text-[10px] font-bold text-[#2e7d32]">{discount}% off</span>
+            <span className="text-[10px] font-bold text-[#7A2E3A]">{discount}% off</span>
           )}
         </div>
         <p className="text-[10px] text-stone-400">From {defaultVariant.label}</p>
@@ -73,13 +73,13 @@ export function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             disabled={!defaultVariant.inStock}
-            className="flex-1 rounded border border-[#e07b00] bg-[#fff3e0] py-2 text-[11px] font-bold text-[#e07b00] hover:bg-[#e07b00] hover:text-white disabled:opacity-40"
+            className="flex-1 rounded border border-[#E07A2F] bg-[#FDE8D4] py-2 text-[11px] font-bold text-[#E07A2F] hover:bg-[#E07A2F] hover:text-white disabled:opacity-40"
           >
             ADD TO CART
           </button>
           <Link
             href={`/products/${product.slug}`}
-            className="flex flex-1 items-center justify-center rounded bg-[#e07b00] py-2 text-[11px] font-bold text-white hover:bg-[#f5a623]"
+            className="flex flex-1 items-center justify-center rounded bg-[#E07A2F] py-2 text-[11px] font-bold text-white hover:bg-[#F5A962]"
           >
             BUY NOW
           </Link>

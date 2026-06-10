@@ -17,7 +17,7 @@ export function CartDrawer() {
     <>
       <div className="fixed inset-0 z-50 bg-black/40" onClick={closeDrawer} />
       <aside className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
-        <div className="flex items-center justify-between bg-[#2874f0] px-4 py-3.5 text-white">
+        <div className="flex items-center justify-between bg-[#7A2E3A] px-4 py-3.5 text-white">
           <div>
             <h2 className="font-bold">My Cart</h2>
             <span className="text-xs opacity-75">{isHydrated ? `${items.length} items` : ""}</span>
@@ -34,7 +34,7 @@ export function CartDrawer() {
             <ShoppingBag className="h-16 w-16 text-stone-300" />
             <p className="text-stone-600">Your cart is empty</p>
             <p className="text-sm text-stone-400">Items are saved automatically in your browser</p>
-            <Link href="/products" onClick={closeDrawer} className="rounded bg-[#e07b00] px-6 py-2.5 text-sm font-bold text-white">
+            <Link href="/products" onClick={closeDrawer} className="rounded bg-[#E07A2F] px-6 py-2.5 text-sm font-bold text-white">
               Shop Rice Varieties
             </Link>
           </div>
@@ -55,7 +55,7 @@ export function CartDrawer() {
                 </div>
               )}
             </div>
-            <div className="border-t bg-[#fdf8f0] p-4">
+            <div className="border-t bg-[#FFFAF5] p-4">
               <PriceSummary summary={summary} itemCount={items.reduce((s, i) => s + i.quantity, 0)} />
               <p className="mt-2 text-[11px] text-blue-800">
                 Free ≤{DELIVERY.freeKm} km · ₹{DELIVERY.ratePerKm}/km up to {DELIVERY.maxKm} km
@@ -63,7 +63,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={closeDrawer}
-                className="mt-3 block w-full rounded bg-[#e07b00] py-3 text-center text-sm font-extrabold text-white hover:bg-[#f5a623]"
+                className="mt-3 block w-full rounded bg-[#E07A2F] py-3 text-center text-sm font-extrabold text-white hover:bg-[#F5A962]"
               >
                 PROCEED TO CHECKOUT →
               </Link>

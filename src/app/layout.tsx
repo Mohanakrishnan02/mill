@@ -22,13 +22,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2e7d32",
+  themeColor: "#7A2E3A",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${yeseva.variable} ${tamil.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-[#fdf8f0] pb-16 font-sans antialiased md:pb-0">
+      <body className="min-h-full flex flex-col bg-[#FFFAF5] pb-16 font-sans antialiased md:pb-0">
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>

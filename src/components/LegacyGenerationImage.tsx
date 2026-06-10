@@ -16,7 +16,7 @@ export function LegacyGenerationImage() {
       </div>
 
       <div className="border-t border-white/10 bg-[#0a1a08]/90 px-4 py-3 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#f5a623]">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#F5A962]">
           Father → Son · 20 Years of Trust
         </p>
         <p className="text-[11px] text-white/50" style={{ fontFamily: "var(--font-tamil)" }}>

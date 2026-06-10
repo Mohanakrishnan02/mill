@@ -30,8 +30,6 @@ const WA = {
   cart: "\u{1F6D2}",
 } as const;
 
-const DIVIDER = "------------------------------";
-
 const MAX_ENCODED_TEXT_LEN = 1400;
 
 export function toAbsoluteUrl(path: string): string {
@@ -61,13 +59,17 @@ function shortDeliveryAddress(address: ShippingAddress): string {
     .join(", ");
 }
 
+function formatItemLine(item: CartItem, withPrice = false): string {
+  const tamil = item.tamil ? ` (${item.tamil})` : "";
+  const line = `${item.name}${tamil} \u2014 ${item.variantLabel} \u00D7 ${item.quantity}`;
+  if (withPrice) {
+    return `\u2022 ${line} \u2014 ${formatINR(item.price * item.quantity)}`;
+  }
+  return `\u2022 ${line}`;
+}
+
 function formatItemsList(items: CartItem[], withPrice = false): string[] {
-  return items.map((item) => {
-    const line = `${item.name} (${item.variantLabel}) \u00D7 ${item.quantity}`;
-    return withPrice
-      ? `   \u2022 ${line} \u2014 ${formatINR(item.price * item.quantity)}`
-      : `   \u2022 ${line}`;
-  });
+  return items.map((item) => formatItemLine(item, withPrice));
 }
 
 function buildWhatsAppSendUrl(phone: string, text: string): string {
@@ -84,31 +86,35 @@ function buildWhatsAppSendUrl(phone: string, text: string): string {
 export function buildCustomerConfirmationMessage(payload: OrderNotifyPayload): string {
   const lines = [
     `${WA.rice} *${MILL.fullName}*`,
-    DIVIDER,
+    `_${MILL.tagline}_`,
+    "",
     `${WA.check} *ORDER CONFIRMED* ${WA.party}`,
     "",
     "Dear Customer,",
-    "",
     "Thank you for ordering from our Melur rice mill!",
     "",
-    `${WA.box} *Order ID:* #${payload.orderId}`,
-    `${WA.money} *Total Paid:* ${formatINR(payload.total)}`,
-    payload.paymentId ? `*Payment ID:* ${payload.paymentId}` : null,
+    `*ORDER DETAILS*`,
+    `${WA.box} Order ID : *#${payload.orderId}*`,
+    `${WA.money} Total Paid : *${formatINR(payload.total)}*`,
+    payload.paymentId ? `Payment ID : ${payload.paymentId}` : null,
+    payload.isDemo ? `Status : Demo / Test order` : `Status : ${WA.check} Paid online`,
   ].filter(Boolean) as string[];
 
   if (payload.items?.length) {
-    lines.push("", `${WA.cart} *Your Items:*`);
+    lines.push("", `*YOUR RICE ORDER*`);
     lines.push(...formatItemsList(payload.items));
   }
 
   lines.push(
     "",
-    `${WA.truck} Your rice will be stone-milled at our Melur mill and delivered to you soon.`,
+    `*DELIVERY*`,
+    `${WA.truck} Fresh stone-milled rice from our Melur mill.`,
+    "We will prepare and deliver your order soon.",
     "",
-    `${WA.phone} *Call / WhatsApp:* ${MILL.phone}`,
-    `${WA.pin} *Mill Address:* ${MILL.address}, ${MILL.city} \u2013 ${MILL.pincode}`,
+    `*CONTACT US*`,
+    `${WA.phone} ${MILL.phone}`,
+    `${WA.pin} ${MILL.address}, ${MILL.city} \u2013 ${MILL.pincode}`,
     "",
-    DIVIDER,
     `\u2014 ${MILL.fullName}, Melur ${WA.pray}`
   );
 
@@ -119,31 +125,31 @@ export function buildMillAlertMessage(payload: OrderNotifyPayload): string {
   const lines = [
     `${WA.alert} *NEW ORDER RECEIVED* ${WA.bell}`,
     `${WA.rice} *${MILL.fullName}*`,
-    DIVIDER,
-    `${WA.bolt} A new order has been placed. Please confirm and arrange delivery.`,
     "",
-    `${WA.box} *Order ID:* #${payload.orderId}`,
-    `${WA.phone} *Customer Mobile:* +91 ${payload.phone}`,
-    `${WA.money} *Order Total:* ${formatINR(payload.total)}`,
-    payload.paymentId ? `*Payment ID:* ${payload.paymentId}` : null,
-    payload.isDemo ? `*Mode:* Demo / Test order` : `*Payment:* ${WA.check} Paid online`,
+    `${WA.bolt} Please confirm this order and arrange delivery.`,
+    "",
+    `*ORDER DETAILS*`,
+    `${WA.box} Order ID : *#${payload.orderId}*`,
+    `${WA.phone} Customer : *+91 ${payload.phone}*`,
+    `${WA.money} Total : *${formatINR(payload.total)}*`,
+    payload.paymentId ? `Payment ID : ${payload.paymentId}` : null,
+    payload.isDemo ? `Mode : Demo / Test order` : `Payment : ${WA.check} Paid online`,
   ].filter(Boolean) as string[];
 
   if (payload.address) {
-    lines.push("", `${WA.pin} *Deliver To:*`, `   ${shortDeliveryAddress(payload.address)}`);
+    lines.push("", `*DELIVER TO*`, shortDeliveryAddress(payload.address));
   }
 
   if (payload.items?.length) {
-    lines.push("", `${WA.cart} *Order Items:*`);
+    lines.push("", `*ORDER ITEMS*`);
     lines.push(...formatItemsList(payload.items, true));
   }
 
   lines.push(
     "",
-    `${WA.bell} Please contact the customer and confirm delivery.`,
+    `${WA.bell} Contact customer and confirm delivery.`,
     "",
-    DIVIDER,
-    `\u2014 Mill Team Alert, Melur`
+    `\u2014 Mill Team, Melur`
   );
 
   return lines.join("\n");

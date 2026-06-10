@@ -20,7 +20,7 @@ export function PriceSummary({ summary, itemCount = 0 }: PriceSummaryProps) {
           <dd>{formatINR(summary.subtotal)}</dd>
         </div>
         {summary.promoDiscount > 0 && (
-          <div className="flex justify-between text-[#2e7d32]">
+          <div className="flex justify-between text-[#7A2E3A]">
             <dt>Discount ({DELIVERY.discountPercent}%)</dt>
             <dd>− {formatINR(summary.promoDiscount)}</dd>
           </div>
@@ -33,7 +33,7 @@ export function PriceSummary({ summary, itemCount = 0 }: PriceSummaryProps) {
             ) : summary.isOutstation ? (
               <span className="text-amber-700">Contact us</span>
             ) : summary.delivery === 0 ? (
-              <span className="font-semibold text-[#2e7d32]">FREE</span>
+              <span className="font-semibold text-[#7A2E3A]">FREE</span>
             ) : (
               formatINR(summary.delivery)
             )}

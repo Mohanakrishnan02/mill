@@ -35,7 +35,7 @@ export function ProductCarousel() {
             type="button"
             onClick={openPanel}
             aria-label="View all rice varieties"
-            className="absolute -right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-[#5d3a1a] shadow-lg transition hover:scale-105 hover:border-[#e07b00] hover:text-[#e07b00] sm:-right-5 sm:h-14 sm:w-14"
+            className="absolute -right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-[#3A2A24] shadow-lg transition hover:scale-105 hover:border-[#E07A2F] hover:text-[#E07A2F] sm:-right-5 sm:h-14 sm:w-14"
           >
             <ChevronRight className="h-7 w-7 sm:h-8 sm:w-8" />
           </button>
@@ -64,8 +64,8 @@ export function ProductCarousel() {
               <X className="h-5 w-5" />
             </button>
 
-            <div className="border-b border-stone-100 bg-gradient-to-br from-[#fdf8f0] to-orange-50/80 px-6 pb-5 pt-8 text-center">
-              <div className="view-all-logo-pop mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white shadow-md ring-2 ring-[#f5a623]/40">
+            <div className="border-b border-stone-100 bg-gradient-to-br from-[#FFFAF5] to-[#FDE8D4]/80 px-6 pb-5 pt-8 text-center">
+              <div className="view-all-logo-pop mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white shadow-md ring-2 ring-[#F5A962]/40">
                 <Image
                   src={IMAGES.logo}
                   alt=""
@@ -76,7 +76,7 @@ export function ProductCarousel() {
               </div>
               <h3
                 id="view-all-title"
-                className="text-lg font-bold text-[#5d3a1a] sm:text-xl"
+                className="text-lg font-bold text-[#3A2A24] sm:text-xl"
                 style={{ fontFamily: "var(--font-yeseva)" }}
               >
                 View All Product List
@@ -87,12 +87,12 @@ export function ProductCarousel() {
             </div>
 
             <div className="flex flex-1 flex-col gap-4 px-6 py-5">
-              <div className="flex items-start gap-3 rounded-xl bg-[#fdf8f0] p-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2e7d32]/10">
-                  <Wheat className="h-5 w-5 text-[#2e7d32]" />
+              <div className="flex items-start gap-3 rounded-xl bg-[#FFFAF5] p-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#7A2E3A]/10">
+                  <Wheat className="h-5 w-5 text-[#7A2E3A]" />
                 </div>
                 <div className="text-left text-sm text-stone-600">
-                  <p className="font-semibold text-[#5d3a1a]">JGL · Akshaya · Ponni</p>
+                  <p className="font-semibold text-[#3A2A24]">JGL · Akshaya · Ponni</p>
                   <p className="mt-0.5 text-xs leading-relaxed">
                     Browse every variety, weights & prices — fresh from Jayalakshmi Vilas Mill.
                   </p>
@@ -101,7 +101,7 @@ export function ProductCarousel() {
 
               <Link
                 href="/products"
-                className="view-all-cta-pulse flex w-full items-center justify-center gap-2 rounded-xl bg-[#e07b00] px-5 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-[#f5a623]"
+                className="view-all-cta-pulse flex w-full items-center justify-center gap-2 rounded-xl bg-[#E07A2F] px-5 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-[#F5A962]"
               >
                 View All Products
                 <ArrowRight className="h-5 w-5" />

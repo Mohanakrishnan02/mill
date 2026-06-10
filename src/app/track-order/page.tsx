@@ -20,11 +20,11 @@ export default function TrackOrderPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
       <div className="text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#2874f0]/10">
-          <Truck className="h-7 w-7 text-[#2874f0]" />
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#7A2E3A]/10">
+          <Truck className="h-7 w-7 text-[#7A2E3A]" />
         </div>
         <h1
-          className="mt-4 text-2xl font-bold text-[#5d3a1a]"
+          className="mt-4 text-2xl font-bold text-[#3A2A24]"
           style={{ fontFamily: "var(--font-yeseva)" }}
         >
           Track Your Order
@@ -41,12 +41,12 @@ export default function TrackOrderPage() {
           value={awb}
           onChange={(e) => setAwb(e.target.value.toUpperCase())}
           placeholder="Enter your tracking ID"
-          className="mt-2 w-full rounded-lg border border-stone-200 px-4 py-3 text-sm font-mono outline-none focus:border-[#2874f0]"
+          className="mt-2 w-full rounded-lg border border-stone-200 px-4 py-3 text-sm font-mono outline-none focus:border-[#7A2E3A]"
         />
         <button
           type="button"
           onClick={() => openEkartTrack(awb)}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#2874f0] py-3 text-sm font-bold text-white hover:bg-[#1a5fd4]"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#7A2E3A] py-3 text-sm font-bold text-white hover:bg-[#5C1F28]"
         >
           <ExternalLink className="h-4 w-4" />
           Track on Ekart Logistics
@@ -61,7 +61,7 @@ export default function TrackOrderPage() {
           <button
             type="button"
             onClick={() => openEkartTrack(DEMO_AWB)}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-[#2874f0] bg-white py-2.5 text-xs font-bold text-[#2874f0] hover:bg-blue-50"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-[#7A2E3A] bg-white py-2.5 text-xs font-bold text-[#7A2E3A] hover:bg-[#F5EBE8]"
           >
             <Package className="h-4 w-4" />
             Demo Track — {DEMO_AWB}
@@ -75,7 +75,7 @@ export default function TrackOrderPage() {
       </p>
 
       <div className="mt-6 text-center">
-        <Link href="/" className="text-sm font-semibold text-[#2874f0] hover:underline">
+        <Link href="/" className="text-sm font-semibold text-[#7A2E3A] hover:underline">
           ← Back to Home
         </Link>
       </div>

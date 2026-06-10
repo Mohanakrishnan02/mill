@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendCustomerConfirmation, sendMillTeamAlert } from "@/lib/whatsapp-api";
+import { sendBothOrderNotifications } from "@/lib/whatsapp-api";
 import { createEkartShipment } from "@/lib/ekart/client";
 import {
   deliveryProviderLabel,
@@ -36,11 +36,9 @@ export async function POST(req: NextRequest) {
       items: body.items,
     };
 
-    // Send WhatsApp notifications in parallel — customer + mill team
-    const [customerNotify, millAlert] = await Promise.all([
-      sendCustomerConfirmation(notifyPayload),
-      sendMillTeamAlert(notifyPayload),
-    ]);
+    // Auto-send both WhatsApp messages — customer confirmation + mill team alert
+    const { customer: customerNotify, mill: millAlert } =
+      await sendBothOrderNotifications(notifyPayload);
 
     const provider = selectDeliveryProvider(
       body.deliveryDistanceKm ?? null,
@@ -54,7 +52,9 @@ export async function POST(req: NextRequest) {
         providerLabel: deliveryProviderLabel("local"),
         message: "Order confirmed. Our team will deliver from Melur mill.",
         customerConfirmSent: customerNotify.sent,
+        customerConfirmViaApi: customerNotify.viaApi,
         millAlertSent: millAlert.sent,
+        millAlertViaApi: millAlert.viaApi,
       });
     }
 
@@ -76,7 +76,9 @@ export async function POST(req: NextRequest) {
       ...shipment,
       providerLabel: deliveryProviderLabel(shipment.provider === "pending" ? "ekart" : "ekart"),
       customerConfirmSent: customerNotify.sent,
+      customerConfirmViaApi: customerNotify.viaApi,
       millAlertSent: millAlert.sent,
+      millAlertViaApi: millAlert.viaApi,
     });
   } catch (error) {
     console.error("Order fulfill error:", error);

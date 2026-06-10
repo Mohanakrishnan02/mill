@@ -11,8 +11,8 @@ import { ProductImage } from "@/components/ProductImage";
 import { DELIVERY } from "@/lib/mill-config";
 
 const badgeColors: Record<string, string> = {
-  popular: "bg-[#e07b00]",
-  organic: "bg-[#558b2f]",
+  popular: "bg-[#E07A2F]",
+  organic: "bg-[#9E4A56]",
   raw: "bg-[#8b5e3c]",
 };
 
@@ -62,15 +62,15 @@ export default function ProductDetailPage({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <nav className="mb-6 text-sm text-stone-500">
-        <Link href="/" className="hover:text-[#2e7d32]">Home</Link>
+        <Link href="/" className="hover:text-[#7A2E3A]">Home</Link>
         {" / "}
-        <Link href="/products" className="hover:text-[#2e7d32]">Products</Link>
+        <Link href="/products" className="hover:text-[#7A2E3A]">Products</Link>
         {" / "}
         <span className="text-stone-800">{product.name}</span>
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-[#fdf8f0] to-[#f5ede0]">
+        <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-[#FFFAF5] to-[#F5EBE0]">
           <ProductImage
             src={product.image}
             alt={product.name}
@@ -82,7 +82,7 @@ export default function ProductDetailPage({
             <Link
               href={`/products/${prev.slug}`}
               aria-label={`Previous: ${prev.name}`}
-              className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00]"
+              className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#3A2A24] shadow-md transition hover:border-[#E07A2F] hover:text-[#E07A2F]"
             >
               <ChevronLeft className="h-6 w-6" />
             </Link>
@@ -91,7 +91,7 @@ export default function ProductDetailPage({
             <Link
               href={`/products/${next.slug}`}
               aria-label={`Next: ${next.name}`}
-              className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#5d3a1a] shadow-md transition hover:border-[#e07b00] hover:text-[#e07b00]"
+              className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-white/90 text-[#3A2A24] shadow-md transition hover:border-[#E07A2F] hover:text-[#E07A2F]"
             >
               <ChevronRight className="h-6 w-6" />
             </Link>
@@ -104,8 +104,8 @@ export default function ProductDetailPage({
         </div>
 
         <div>
-          <p className="text-sm font-medium text-[#e07b00]">{product.category}</p>
-          <h1 className="mt-1 text-3xl font-bold text-[#5d3a1a]" style={{ fontFamily: "var(--font-yeseva)" }}>
+          <p className="text-sm font-medium text-[#E07A2F]">{product.category}</p>
+          <h1 className="mt-1 text-3xl font-bold text-[#3A2A24]" style={{ fontFamily: "var(--font-yeseva)" }}>
             {product.name}
           </h1>
           {product.tamil && (
@@ -118,7 +118,7 @@ export default function ProductDetailPage({
             <span className="text-3xl font-extrabold text-stone-900">{formatINR(variant.price)}</span>
             <span className="text-sm text-stone-400">/ {variant.label}</span>
             {discount > 0 && (
-              <span className="rounded bg-green-100 px-2 py-0.5 text-sm font-bold text-[#2e7d32]">
+              <span className="rounded bg-[#F5EBE8] px-2 py-0.5 text-sm font-bold text-[#7A2E3A]">
                 {discount}% off
               </span>
             )}
@@ -136,9 +136,9 @@ export default function ProductDetailPage({
                   disabled={!v.inStock}
                   className={`rounded border px-4 py-2 text-sm font-semibold transition ${
                     selectedVariantId === v.id
-                      ? "border-[#e07b00] bg-[#fff3e0] text-[#e07b00]"
+                      ? "border-[#E07A2F] bg-[#FDE8D4] text-[#E07A2F]"
                       : v.inStock
-                        ? "border-stone-200 text-stone-700 hover:border-[#e07b00]"
+                        ? "border-stone-200 text-stone-700 hover:border-[#E07A2F]"
                         : "cursor-not-allowed border-stone-100 bg-stone-50 text-stone-300"
                   }`}
                 >
@@ -152,14 +152,14 @@ export default function ProductDetailPage({
             <button
               onClick={handleAddToCart}
               disabled={!variant.inStock}
-              className="flex-1 rounded border-2 border-[#e07b00] bg-[#fff3e0] py-3.5 text-sm font-bold text-[#e07b00] hover:bg-[#e07b00] hover:text-white disabled:opacity-40"
+              className="flex-1 rounded border-2 border-[#E07A2F] bg-[#FDE8D4] py-3.5 text-sm font-bold text-[#E07A2F] hover:bg-[#E07A2F] hover:text-white disabled:opacity-40"
             >
               ADD TO CART
             </button>
             <button
               onClick={handleBuyNow}
               disabled={!variant.inStock}
-              className="flex-1 rounded bg-[#e07b00] py-3.5 text-sm font-bold text-white hover:bg-[#f5a623] disabled:opacity-40"
+              className="flex-1 rounded bg-[#E07A2F] py-3.5 text-sm font-bold text-white hover:bg-[#F5A962] disabled:opacity-40"
             >
               BUY NOW
             </button>
@@ -167,15 +167,15 @@ export default function ProductDetailPage({
 
           <ul className="mt-8 space-y-3 border-t border-stone-100 pt-6">
             <li className="flex items-center gap-2 text-sm text-stone-600">
-              <Truck className="h-4 w-4 text-[#2e7d32]" />
+              <Truck className="h-4 w-4 text-[#7A2E3A]" />
               Free delivery ≤ {DELIVERY.freeKm} km · ₹{DELIVERY.ratePerKm}/km up to {DELIVERY.maxKm} km
             </li>
             <li className="flex items-center gap-2 text-sm text-stone-600">
-              <Shield className="h-4 w-4 text-[#2e7d32]" />
+              <Shield className="h-4 w-4 text-[#7A2E3A]" />
               100% traditional — stone-milled, no chemicals
             </li>
             <li className="flex items-center gap-2 text-sm text-stone-600">
-              <Check className="h-4 w-4 text-[#2e7d32]" />
+              <Check className="h-4 w-4 text-[#7A2E3A]" />
               Online payment only — UPI, Cards, Net Banking (No COD)
             </li>
           </ul>

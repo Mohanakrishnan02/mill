@@ -102,15 +102,17 @@ async function sendViaWhatsAppCloud(
   if (!process.env.WHATSAPP_ACCESS_TOKEN) return false;
 
   const message = buildMessage(payload);
-  const { logoUrl, productUrl } = getOrderImageUrls(payload);
+  const textOk = await sendWhatsAppText(to, message);
+  if (!textOk) return false;
 
+  const { logoUrl, productUrl } = getOrderImageUrls(payload);
   await sendWhatsAppImage(to, logoUrl, `${MILL.fullName} ${imageCaption}`);
   if (productUrl !== logoUrl) {
     const productName = payload.items?.[0]?.name ?? "Your Rice";
     await sendWhatsAppImage(to, productUrl, productName);
   }
 
-  return sendWhatsAppText(to, message);
+  return true;
 }
 
 async function sendOrderNotification(
@@ -159,4 +161,25 @@ export async function sendMillTeamAlert(payload: OrderNotifyPayload): Promise<Se
     "\u2014 New Order Alert",
     process.env.CALLMEBOT_MILL_API_KEY
   );
+}
+
+export type BothNotifyResult = {
+  customer: SendResult;
+  mill: SendResult;
+};
+
+/** Send customer confirmation + mill alert in parallel on every order */
+export async function sendBothOrderNotifications(
+  payload: OrderNotifyPayload,
+  options?: { skipCustomer?: boolean; skipMill?: boolean }
+): Promise<BothNotifyResult> {
+  const [customer, mill] = await Promise.all([
+    options?.skipCustomer
+      ? Promise.resolve({ sent: true, viaApi: true } satisfies SendResult)
+      : sendCustomerConfirmation(payload),
+    options?.skipMill
+      ? Promise.resolve({ sent: true, viaApi: true } satisfies SendResult)
+      : sendMillTeamAlert(payload),
+  ]);
+  return { customer, mill };
 }

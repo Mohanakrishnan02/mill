@@ -18,13 +18,13 @@ export function CartItemRow({ item, variant = "cart" }: CartItemRowProps) {
 
   return (
     <div className="flex gap-3 border-b border-stone-100 py-4 last:border-0">
-      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-[#f5ede0]">
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-[#F5EBE0]">
         <ProductImage src={item.image} alt={item.name} className="object-cover" sizes="64px" />
       </div>
       <div className="min-w-0 flex-1">
         <Link
           href={`/products/${item.productSlug}`}
-          className="line-clamp-2 text-sm font-bold text-stone-800 hover:text-[#2e7d32]"
+          className="line-clamp-2 text-sm font-bold text-stone-800 hover:text-[#7A2E3A]"
         >
           {item.name}
         </Link>
@@ -37,7 +37,7 @@ export function CartItemRow({ item, variant = "cart" }: CartItemRowProps) {
         <div className="mt-1 flex items-center gap-2">
           <span className="font-extrabold text-stone-900">{formatINR(item.price)}</span>
           {discount > 0 && (
-            <span className="text-[10px] font-bold text-[#2e7d32]">{discount}% off</span>
+            <span className="text-[10px] font-bold text-[#7A2E3A]">{discount}% off</span>
           )}
         </div>
 
@@ -64,7 +64,7 @@ export function CartItemRow({ item, variant = "cart" }: CartItemRowProps) {
             </div>
             <button
               onClick={() => saveForLater(item.productId, item.variantId)}
-              className="flex items-center gap-1 text-xs font-medium text-stone-500 hover:text-[#2e7d32]"
+              className="flex items-center gap-1 text-xs font-medium text-stone-500 hover:text-[#7A2E3A]"
             >
               <Bookmark className="h-3.5 w-3.5" />
               Save for later
@@ -81,7 +81,7 @@ export function CartItemRow({ item, variant = "cart" }: CartItemRowProps) {
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <button
               onClick={() => moveToCart(item.productId, item.variantId)}
-              className="rounded border border-[#2e7d32] px-3 py-1 text-xs font-semibold text-[#2e7d32] hover:bg-green-50"
+              className="rounded border border-[#7A2E3A] px-3 py-1 text-xs font-semibold text-[#7A2E3A] hover:bg-[#F5EBE8]"
             >
               Move to cart
             </button>
