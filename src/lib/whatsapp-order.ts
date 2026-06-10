@@ -1,5 +1,6 @@
 import { formatINR } from "@/lib/format";
 import { MILL } from "@/lib/mill-config";
+import { IMAGES } from "@/lib/images";
 import type { CartItem, ShippingAddress } from "@/types";
 
 export type OrderNotifyPayload = {
@@ -12,71 +13,126 @@ export type OrderNotifyPayload = {
   items?: CartItem[];
 };
 
+/** Unicode escapes — reliable in WhatsApp pre-filled text (avoids encoding corruption) */
+const WA = {
+  rice: "\u{1F33E}",
+  check: "\u2705",
+  party: "\u{1F389}",
+  phone: "\u{1F4DE}",
+  pin: "\u{1F4CD}",
+  pray: "\u{1F64F}",
+  alert: "\u{1F6A8}",
+  bolt: "\u26A1",
+  bell: "\u{1F514}",
+  camera: "\u{1F4F7}",
+  box: "\u{1F4E6}",
+  truck: "\u{1F69A}",
+} as const;
+
+const MAX_ENCODED_TEXT_LEN = 1400;
+
+export function toAbsoluteUrl(path: string): string {
+  if (path.startsWith("http")) return path;
+  const base = MILL.siteUrl.replace(/\/$/, "");
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function primaryProductImage(items?: CartItem[]): string {
+  const first = items?.[0]?.image;
+  return toAbsoluteUrl(first || IMAGES.logo);
+}
+
+function shortDeliveryAddress(address: ShippingAddress): string {
+  return [
+    address.fullName,
+    address.addressLine1,
+    address.addressLine2,
+    address.city,
+    address.pincode,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function buildWhatsAppSendUrl(phone: string, text: string): string {
+  const digits = phone.replace(/\D/g, "");
+  let body = text.normalize("NFC");
+
+  while (body.length > 0 && encodeURIComponent(body).length > MAX_ENCODED_TEXT_LEN) {
+    body = body.slice(0, Math.floor(body.length * 0.85)).trimEnd() + "\n...";
+  }
+
+  return `https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(body)}`;
+}
+
 export function buildCustomerConfirmationMessage(payload: OrderNotifyPayload): string {
+  const logoUrl = toAbsoluteUrl(IMAGES.logo);
+  const productImg = primaryProductImage(payload.items);
+
   const lines = [
-    `🌾 *${MILL.fullName}*`,
-    `✅ *Order Confirmed!*`,
+    `${WA.camera} *Mill Logo:* ${logoUrl}`,
+    `${WA.camera} *Your Rice:* ${productImg}`,
+    "",
+    `${WA.rice} *${MILL.fullName}*`,
+    `${WA.check} *Order Confirmed!* ${WA.party}`,
     "",
     `Dear customer, thank you for your order.`,
     "",
-    `*Order ID:* #${payload.orderId}`,
+    `${WA.box} *Order ID:* #${payload.orderId}`,
     `*Total Paid:* ${formatINR(payload.total)}`,
     payload.paymentId ? `*Payment ID:* ${payload.paymentId}` : null,
     "",
-    `Your rice will be prepared at our Melur mill and delivered soon.`,
+    `${WA.truck} Your rice will be prepared at our Melur mill and delivered soon.`,
     "",
-    `📞 Queries: ${MILL.phone}`,
-    `📍 ${MILL.address}, ${MILL.city}`,
+    `${WA.phone} Queries: ${MILL.phone}`,
+    `${WA.pin} ${MILL.address}, ${MILL.city}`,
   ].filter(Boolean) as string[];
 
   if (payload.items?.length) {
     lines.push("", "*Your items:*");
     for (const item of payload.items) {
-      lines.push(`• ${item.name} (${item.variantLabel}) ×${item.quantity}`);
+      lines.push(`\u2022 ${item.name} (${item.variantLabel}) \u00D7${item.quantity}`);
     }
   }
 
-  lines.push("", "— Jayalakshmi Vilas Rice Mill, Melur 🙏");
+  lines.push("", `\u2014 ${MILL.fullName}, Melur ${WA.pray}`);
   return lines.join("\n");
 }
 
 export function buildMillAlertMessage(payload: OrderNotifyPayload): string {
+  const logoUrl = toAbsoluteUrl(IMAGES.logo);
+  const productImg = primaryProductImage(payload.items);
+
   const lines = [
-    `🚨 *NEW ORDER RECEIVED*`,
-    `🌾 *${MILL.fullName}*`,
+    `${WA.camera} *Mill Logo:* ${logoUrl}`,
+    `${WA.camera} *Order Rice:* ${productImg}`,
     "",
-    `⚡ A new order has been placed — please confirm & arrange delivery.`,
+    `${WA.alert} *NEW ORDER RECEIVED* ${WA.bell}`,
+    `${WA.rice} *${MILL.fullName}*`,
     "",
-    `*Order ID:* #${payload.orderId}`,
+    `${WA.bolt} A new order has been placed \u2014 please confirm & arrange delivery.`,
+    "",
+    `${WA.box} *Order ID:* #${payload.orderId}`,
     `*Customer Mobile:* +91 ${payload.phone}`,
     `*Order Total:* ${formatINR(payload.total)}`,
     payload.paymentId ? `*Payment ID:* ${payload.paymentId}` : null,
-    payload.isDemo ? `*Mode:* Demo / Test order` : `*Payment:* ✅ Paid online`,
+    payload.isDemo ? `*Mode:* Demo / Test order` : `*Payment:* ${WA.check} Paid online`,
   ].filter(Boolean) as string[];
 
   if (payload.address) {
-    const addr = [
-      payload.address.fullName,
-      payload.address.addressLine1,
-      payload.address.addressLine2,
-      payload.address.city,
-      payload.address.pincode,
-    ]
-      .filter(Boolean)
-      .join(", ");
-    lines.push("", `*Deliver to:* ${addr}`);
+    lines.push("", `${WA.pin} *Deliver to:* ${shortDeliveryAddress(payload.address)}`);
   }
 
   if (payload.items?.length) {
     lines.push("", "*Order items:*");
     for (const item of payload.items) {
       lines.push(
-        `• ${item.name} (${item.variantLabel}) ×${item.quantity} — ${formatINR(item.price * item.quantity)}`
+        `\u2022 ${item.name} (${item.variantLabel}) \u00D7${item.quantity} \u2014 ${formatINR(item.price * item.quantity)}`
       );
     }
   }
 
-  lines.push("", "🔔 Please contact customer and confirm delivery. Thank you!");
+  lines.push("", `${WA.bell} Please contact customer and confirm delivery. Thank you!`);
   return lines.join("\n");
 }
 
@@ -87,13 +143,13 @@ export function buildOrderWhatsAppMessage(payload: OrderNotifyPayload): string {
 
 export function getCustomerWhatsAppUrl(payload: OrderNotifyPayload): string {
   const phone = payload.phone.replace(/\D/g, "").slice(-10);
-  const text = encodeURIComponent(buildCustomerConfirmationMessage(payload));
-  return `https://wa.me/91${phone}?text=${text}`;
+  const text = buildCustomerConfirmationMessage(payload);
+  return buildWhatsAppSendUrl(`91${phone}`, text);
 }
 
 export function getMillAlertWhatsAppUrl(payload: OrderNotifyPayload): string {
-  const text = encodeURIComponent(buildMillAlertMessage(payload));
-  return `https://wa.me/${MILL.whatsapp}?text=${text}`;
+  const text = buildMillAlertMessage(payload);
+  return buildWhatsAppSendUrl(MILL.whatsapp, text);
 }
 
 export function getOrderWhatsAppUrl(payload: OrderNotifyPayload): string {

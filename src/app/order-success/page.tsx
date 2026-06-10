@@ -14,6 +14,8 @@ import {
   loadOrderForWhatsApp,
   WA_CUSTOMER_SENT_KEY,
   WA_MILL_SENT_KEY,
+  buildCustomerConfirmationMessage,
+  buildMillAlertMessage,
   type OrderNotifyPayload,
 } from "@/lib/whatsapp-order";
 
@@ -43,6 +45,9 @@ function OrderSuccessContent() {
 
   const customerWaUrl = getCustomerWhatsAppUrl(notifyPayload);
   const millWaUrl = getMillAlertWhatsAppUrl(notifyPayload);
+  const customerPreview = buildCustomerConfirmationMessage(notifyPayload);
+  const millPreview = buildMillAlertMessage(notifyPayload);
+  const productImageSrc = notifyPayload.items?.[0]?.image || IMAGES.logo;
 
   useEffect(() => {
     const customerAlready = sessionStorage.getItem(WA_CUSTOMER_SENT_KEY);
@@ -103,22 +108,25 @@ function OrderSuccessContent() {
             )}
           </div>
           <div className="flex gap-4 p-4">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-[#25d366]/40">
-              <Image src={IMAGES.logo} alt="" fill className="object-cover" sizes="64px" />
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl ring-2 ring-[#25d366]/40 shadow-md">
+              <Image src={productImageSrc} alt="" fill className="object-cover" sizes="80px" />
+            </div>
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-[#25d366]/30 -ml-2">
+              <Image src={IMAGES.logo} alt="" fill className="object-cover" sizes="56px" />
             </div>
             <div className="min-w-0 flex-1 text-left">
               <p className="text-xs font-bold text-stone-800">{MILL.fullName}</p>
-              <p className="mt-1 text-sm font-semibold text-[#2e7d32]">✅ Order Confirmed!</p>
+              <p className="mt-1 text-sm font-semibold text-[#2e7d32]">✅ Order Confirmed! 🎉</p>
               <p className="mt-1 text-xs text-stone-500">
-                WhatsApp confirmation → <strong>+91 {phone}</strong>
+                WhatsApp → <strong>+91 {phone}</strong>
               </p>
               <p className="mt-1 text-xs text-stone-600">
                 Order #{orderId} · {formatINR(total)}
               </p>
             </div>
           </div>
-          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#dcf8c6] px-3 py-2 text-left text-xs text-stone-700">
-            Dear customer, your order is confirmed. We will deliver from our Melur mill soon. 🌾
+          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#dcf8c6] px-3 py-2.5 text-left text-xs leading-relaxed text-stone-700 whitespace-pre-line">
+            {customerPreview}
           </div>
         </div>
       )}
@@ -136,22 +144,25 @@ function OrderSuccessContent() {
             )}
           </div>
           <div className="flex gap-4 p-4">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-[#e07b00]/40">
-              <Image src={IMAGES.logo} alt="" fill className="object-cover" sizes="64px" />
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl ring-2 ring-[#e07b00]/40 shadow-md">
+              <Image src={productImageSrc} alt="" fill className="object-cover" sizes="80px" />
+            </div>
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-[#e07b00]/30 -ml-2">
+              <Image src={IMAGES.logo} alt="" fill className="object-cover" sizes="56px" />
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <p className="text-xs font-bold text-[#e07b00]">🚨 NEW ORDER RECEIVED</p>
+              <p className="text-xs font-bold text-[#e07b00]">🚨 NEW ORDER RECEIVED 🔔</p>
               <p className="mt-1 text-sm font-semibold text-stone-800">{MILL.fullName}</p>
               <p className="mt-1 text-xs text-stone-500">
-                WhatsApp alert → <strong>{MILL.phoneDisplay}</strong>
+                WhatsApp → <strong>{MILL.phoneDisplay}</strong>
               </p>
               <p className="mt-1 text-xs text-stone-600">
                 Customer +91 {phone || "—"} · {formatINR(total)}
               </p>
             </div>
           </div>
-          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#fff3e0] px-3 py-2 text-left text-xs text-stone-700">
-            New order #{orderId} received — please confirm and arrange delivery from Melur mill.
+          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#fff3e0] px-3 py-2.5 text-left text-xs leading-relaxed text-stone-700 whitespace-pre-line">
+            {millPreview}
           </div>
         </div>
       )}
