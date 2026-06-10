@@ -263,7 +263,6 @@ export function Header() {
   const pathname = usePathname();
   const { itemCount, openDrawer, isHydrated } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [showDrop, setShowDrop] = useState(false);
   const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
@@ -277,8 +276,7 @@ export function Header() {
     setQuery((prev) => (prev.trim() === "" ? product.name : prev));
   }, [pathname]);
 
-  const closeMobileSearch = () => setMobileSearchOpen(false);
-  const searchActive = showDrop || mobileSearchOpen;
+  const searchActive = showDrop;
 
   return (
     <>
@@ -312,7 +310,7 @@ export function Header() {
               priority
               className="shrink-0 rounded-full object-cover ring-2 ring-[#f5a623]/40"
             />
-            <div className="hidden min-w-0 sm:block">
+            <div className="hidden min-w-0 md:block">
               <p className="font-serif text-lg font-bold leading-tight text-white" style={{ fontFamily: "var(--font-yeseva)" }}>
                 {MILL.name}
               </p>
@@ -340,22 +338,7 @@ export function Header() {
             <a href={`tel:${MILL.phone}`} className="font-semibold text-[#f5a623]">{MILL.phone}</a>
           </div>
 
-          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 md:ml-0">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileSearchOpen((v) => !v);
-                if (mobileOpen) setMobileOpen(false);
-              }}
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/30 text-white transition md:hidden ${
-                mobileSearchOpen ? "bg-white/25" : "bg-white/15 hover:bg-white/25"
-              }`}
-              aria-label="Search products"
-              aria-expanded={mobileSearchOpen}
-            >
-              <Search className="h-5 w-5" strokeWidth={2.25} />
-            </button>
-
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               onClick={openDrawer}
               className="relative flex shrink-0 items-center gap-2 rounded bg-[#e07b00] px-2.5 py-2 text-sm font-semibold text-white hover:bg-[#f5a623] sm:px-3.5"
@@ -372,10 +355,7 @@ export function Header() {
             <button
               type="button"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white hover:bg-white/10 lg:hidden"
-              onClick={() => {
-                setMobileOpen(!mobileOpen);
-                if (mobileSearchOpen) setMobileSearchOpen(false);
-              }}
+              onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
               {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -383,34 +363,20 @@ export function Header() {
           </div>
         </div>
 
-        {mobileSearchOpen && (
-          <div className="border-t border-white/10 bg-[#2e7d32] px-3 py-3 md:hidden">
-            <SearchBox
-              query={query}
-              setQuery={setQuery}
-              showDrop={showDrop}
-              setShowDrop={setShowDrop}
-              results={results}
-              onNavigate={closeMobileSearch}
-              variant="mobile"
-              autoFocus
-            />
-          </div>
-        )}
+        {/* Mobile search — always visible white bar */}
+        <div className="border-t border-white/15 px-3 py-2.5 md:hidden">
+          <SearchBox
+            query={query}
+            setQuery={setQuery}
+            showDrop={showDrop}
+            setShowDrop={setShowDrop}
+            results={results}
+            variant="mobile"
+          />
+        </div>
 
         {mobileOpen && (
           <nav className="border-t border-white/10 px-2 py-2 lg:hidden">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileOpen(false);
-                setMobileSearchOpen(true);
-              }}
-              className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-white hover:bg-white/5"
-            >
-              <Search className="h-4 w-4 text-[#f5a623]" />
-              Search products
-            </button>
             <NavLinks mobile onNavigate={() => setMobileOpen(false)} />
             <a href={`tel:${MILL.phone}`} className="mt-2 flex items-center gap-2 px-3 py-2 text-sm text-[#f5a623]">
               <Phone className="h-4 w-4" /> {MILL.phone}
