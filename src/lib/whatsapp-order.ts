@@ -13,7 +13,7 @@ export type OrderNotifyPayload = {
   items?: CartItem[];
 };
 
-/** Unicode escapes — reliable in WhatsApp pre-filled text (avoids encoding corruption) */
+/** Unicode escapes — reliable in WhatsApp pre-filled text */
 const WA = {
   rice: "\u{1F33E}",
   check: "\u2705",
@@ -24,10 +24,13 @@ const WA = {
   alert: "\u{1F6A8}",
   bolt: "\u26A1",
   bell: "\u{1F514}",
-  camera: "\u{1F4F7}",
   box: "\u{1F4E6}",
   truck: "\u{1F69A}",
+  money: "\u{1F4B0}",
+  cart: "\u{1F6D2}",
 } as const;
+
+const DIVIDER = "------------------------------";
 
 const MAX_ENCODED_TEXT_LEN = 1400;
 
@@ -37,9 +40,13 @@ export function toAbsoluteUrl(path: string): string {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-function primaryProductImage(items?: CartItem[]): string {
-  const first = items?.[0]?.image;
-  return toAbsoluteUrl(first || IMAGES.logo);
+export function getOrderImageUrls(payload: OrderNotifyPayload): {
+  logoUrl: string;
+  productUrl: string;
+} {
+  const logoUrl = toAbsoluteUrl(IMAGES.logo);
+  const productUrl = toAbsoluteUrl(payload.items?.[0]?.image || IMAGES.logo);
+  return { logoUrl, productUrl };
 }
 
 function shortDeliveryAddress(address: ShippingAddress): string {
@@ -54,6 +61,15 @@ function shortDeliveryAddress(address: ShippingAddress): string {
     .join(", ");
 }
 
+function formatItemsList(items: CartItem[], withPrice = false): string[] {
+  return items.map((item) => {
+    const line = `${item.name} (${item.variantLabel}) \u00D7 ${item.quantity}`;
+    return withPrice
+      ? `   \u2022 ${line} \u2014 ${formatINR(item.price * item.quantity)}`
+      : `   \u2022 ${line}`;
+  });
+}
+
 function buildWhatsAppSendUrl(phone: string, text: string): string {
   const digits = phone.replace(/\D/g, "");
   let body = text.normalize("NFC");
@@ -66,73 +82,70 @@ function buildWhatsAppSendUrl(phone: string, text: string): string {
 }
 
 export function buildCustomerConfirmationMessage(payload: OrderNotifyPayload): string {
-  const logoUrl = toAbsoluteUrl(IMAGES.logo);
-  const productImg = primaryProductImage(payload.items);
-
   const lines = [
-    `${WA.camera} *Mill Logo:* ${logoUrl}`,
-    `${WA.camera} *Your Rice:* ${productImg}`,
-    "",
     `${WA.rice} *${MILL.fullName}*`,
-    `${WA.check} *Order Confirmed!* ${WA.party}`,
+    DIVIDER,
+    `${WA.check} *ORDER CONFIRMED* ${WA.party}`,
     "",
-    `Dear customer, thank you for your order.`,
+    "Dear Customer,",
+    "",
+    "Thank you for ordering from our Melur rice mill!",
     "",
     `${WA.box} *Order ID:* #${payload.orderId}`,
-    `*Total Paid:* ${formatINR(payload.total)}`,
+    `${WA.money} *Total Paid:* ${formatINR(payload.total)}`,
     payload.paymentId ? `*Payment ID:* ${payload.paymentId}` : null,
-    "",
-    `${WA.truck} Your rice will be prepared at our Melur mill and delivered soon.`,
-    "",
-    `${WA.phone} Queries: ${MILL.phone}`,
-    `${WA.pin} ${MILL.address}, ${MILL.city}`,
   ].filter(Boolean) as string[];
 
   if (payload.items?.length) {
-    lines.push("", "*Your items:*");
-    for (const item of payload.items) {
-      lines.push(`\u2022 ${item.name} (${item.variantLabel}) \u00D7${item.quantity}`);
-    }
+    lines.push("", `${WA.cart} *Your Items:*`);
+    lines.push(...formatItemsList(payload.items));
   }
 
-  lines.push("", `\u2014 ${MILL.fullName}, Melur ${WA.pray}`);
+  lines.push(
+    "",
+    `${WA.truck} Your rice will be stone-milled at our Melur mill and delivered to you soon.`,
+    "",
+    `${WA.phone} *Call / WhatsApp:* ${MILL.phone}`,
+    `${WA.pin} *Mill Address:* ${MILL.address}, ${MILL.city} \u2013 ${MILL.pincode}`,
+    "",
+    DIVIDER,
+    `\u2014 ${MILL.fullName}, Melur ${WA.pray}`
+  );
+
   return lines.join("\n");
 }
 
 export function buildMillAlertMessage(payload: OrderNotifyPayload): string {
-  const logoUrl = toAbsoluteUrl(IMAGES.logo);
-  const productImg = primaryProductImage(payload.items);
-
   const lines = [
-    `${WA.camera} *Mill Logo:* ${logoUrl}`,
-    `${WA.camera} *Order Rice:* ${productImg}`,
-    "",
     `${WA.alert} *NEW ORDER RECEIVED* ${WA.bell}`,
     `${WA.rice} *${MILL.fullName}*`,
-    "",
-    `${WA.bolt} A new order has been placed \u2014 please confirm & arrange delivery.`,
+    DIVIDER,
+    `${WA.bolt} A new order has been placed. Please confirm and arrange delivery.`,
     "",
     `${WA.box} *Order ID:* #${payload.orderId}`,
-    `*Customer Mobile:* +91 ${payload.phone}`,
-    `*Order Total:* ${formatINR(payload.total)}`,
+    `${WA.phone} *Customer Mobile:* +91 ${payload.phone}`,
+    `${WA.money} *Order Total:* ${formatINR(payload.total)}`,
     payload.paymentId ? `*Payment ID:* ${payload.paymentId}` : null,
     payload.isDemo ? `*Mode:* Demo / Test order` : `*Payment:* ${WA.check} Paid online`,
   ].filter(Boolean) as string[];
 
   if (payload.address) {
-    lines.push("", `${WA.pin} *Deliver to:* ${shortDeliveryAddress(payload.address)}`);
+    lines.push("", `${WA.pin} *Deliver To:*`, `   ${shortDeliveryAddress(payload.address)}`);
   }
 
   if (payload.items?.length) {
-    lines.push("", "*Order items:*");
-    for (const item of payload.items) {
-      lines.push(
-        `\u2022 ${item.name} (${item.variantLabel}) \u00D7${item.quantity} \u2014 ${formatINR(item.price * item.quantity)}`
-      );
-    }
+    lines.push("", `${WA.cart} *Order Items:*`);
+    lines.push(...formatItemsList(payload.items, true));
   }
 
-  lines.push("", `${WA.bell} Please contact customer and confirm delivery. Thank you!`);
+  lines.push(
+    "",
+    `${WA.bell} Please contact the customer and confirm delivery.`,
+    "",
+    DIVIDER,
+    `\u2014 Mill Team Alert, Melur`
+  );
+
   return lines.join("\n");
 }
 

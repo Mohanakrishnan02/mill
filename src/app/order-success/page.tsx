@@ -33,6 +33,7 @@ function OrderSuccessContent() {
   const [customerSent, setCustomerSent] = useState(false);
   const [millSent, setMillSent] = useState(millAlertAuto);
   const [millAutoViaApi, setMillAutoViaApi] = useState(millAlertAuto);
+  const [customerAutoViaApi, setCustomerAutoViaApi] = useState(false);
   const [showCustomerCard, setShowCustomerCard] = useState(false);
   const [showMillCard, setShowMillCard] = useState(false);
 
@@ -56,14 +57,34 @@ function OrderSuccessContent() {
     const millAlready = sessionStorage.getItem(WA_MILL_SENT_KEY) || millAlertAuto;
 
     const t1 = setTimeout(() => setShowCustomerCard(true), 400);
-    const t2 = setTimeout(() => {
-      if (!customerAlready && phone) {
-        window.open(customerWaUrl, "_blank", "noopener,noreferrer");
-        sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
-        setCustomerSent(true);
-      }
-    }, 1200);
     const t3 = setTimeout(() => setShowMillCard(true), 1800);
+
+    const sendCustomerConfirmation = async () => {
+      if (customerAlready || !phone) return;
+      try {
+        const res = await fetch("/api/orders/notify-customer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(notifyPayload),
+        });
+        const data = await res.json();
+        if (data.sent) {
+          setCustomerSent(true);
+          setCustomerAutoViaApi(true);
+          sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
+          return;
+        }
+        if (data.fallbackUrl) {
+          window.open(data.fallbackUrl, "_blank", "noopener,noreferrer");
+          setCustomerSent(true);
+          sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
+        }
+      } catch {
+        window.open(customerWaUrl, "_blank", "noopener,noreferrer");
+        setCustomerSent(true);
+        sessionStorage.setItem(WA_CUSTOMER_SENT_KEY, "1");
+      }
+    };
 
     const sendMillAlert = async () => {
       if (millAlready) {
@@ -95,6 +116,7 @@ function OrderSuccessContent() {
       }
     };
 
+    const t2 = setTimeout(() => sendCustomerConfirmation(), 1200);
     const t4 = setTimeout(() => {
       if (!millAlertAuto) sendMillAlert();
       else sessionStorage.setItem(WA_MILL_SENT_KEY, "1");
@@ -130,7 +152,9 @@ function OrderSuccessContent() {
         <div className="wa-notify-slide mt-8 overflow-hidden rounded-2xl border border-[#25d366]/30 bg-gradient-to-br from-[#f0fff4] to-white shadow-lg">
           <div className="flex items-center gap-2 border-b border-[#25d366]/20 bg-[#25d366]/10 px-4 py-2">
             <MessageCircle className="h-4 w-4 text-[#25d366]" />
-            <p className="text-xs font-bold text-[#128C7E]">Confirmation sent to your mobile</p>
+            <p className="text-xs font-bold text-[#128C7E]">
+              {customerAutoViaApi ? "Confirmation auto-sent to your mobile" : "Confirmation sent to your mobile"}
+            </p>
             {customerSent && (
               <span className="ml-auto rounded-full bg-[#25d366] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
                 Sent ✓
