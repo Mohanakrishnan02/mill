@@ -288,16 +288,34 @@ export function Header() {
   const [showDrop, setShowDrop] = useState(false);
   const results = query.trim() ? searchProducts(query).slice(0, 6) : [];
 
-  // Fill search with product name when opening a product page directly (not while typing)
+  // Sync search with route: product pages show name; home clears search
   useEffect(() => {
+    if (pathname === "/") {
+      setQuery("");
+      setShowDrop(false);
+      return;
+    }
     const match = pathname.match(/^\/products\/([^/]+)$/);
-    if (!match) return;
+    if (!match) {
+      setShowDrop(false);
+      return;
+    }
     const product = getProductBySlug(match[1]);
     if (!product) return;
-    setQuery((prev) => (prev.trim() === "" ? product.name : prev));
+    setQuery(product.name);
+    setShowDrop(false);
   }, [pathname]);
 
   const searchActive = showDrop;
+
+  const goHome = () => {
+    setQuery("");
+    setShowDrop(false);
+    setMobileOpen(false);
+    if (pathname === "/") {
+      scrollToHome();
+    }
+  };
 
   return (
     <>
@@ -316,9 +334,9 @@ export function Header() {
           <Link
             href="/"
             onClick={(e) => {
+              goHome();
               if (pathname === "/") {
                 e.preventDefault();
-                scrollToHome();
               }
             }}
             className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5 md:flex-initial"
