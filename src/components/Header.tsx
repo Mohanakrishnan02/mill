@@ -168,13 +168,19 @@ function SearchBox({
   };
 
   const inputCls =
-    "header-search-field w-full rounded-lg border-0 bg-white py-2.5 pl-10 pr-4 text-sm text-stone-900 shadow-none outline-none ring-0 placeholder:text-stone-400";
+    "header-search-field w-full rounded-lg border-0 bg-white py-2.5 pl-10 pr-10 text-sm text-stone-900 shadow-none outline-none ring-0 placeholder:text-stone-400";
 
   const handleResultPick = (productName?: string) => {
     pickingResultRef.current = false;
     if (productName) setQuery(productName);
     onNavigate?.();
     setShowDrop(false);
+  };
+
+  const clearSearch = () => {
+    setQuery("");
+    setShowDrop(false);
+    inputRef.current?.focus();
   };
 
   return (
@@ -196,8 +202,12 @@ function SearchBox({
         onBlur={scheduleCloseDrop}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
-            setShowDrop(false);
-            inputRef.current?.blur();
+            if (query) {
+              clearSearch();
+            } else {
+              setShowDrop(false);
+              inputRef.current?.blur();
+            }
           }
           if (e.key === "Enter" && query.trim() && results.length > 0) {
             const first = results[0];
@@ -210,6 +220,17 @@ function SearchBox({
         className={inputCls}
         enterKeyHint="search"
       />
+      {query.trim().length > 0 && (
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={clearSearch}
+          className="absolute right-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-stone-500 hover:bg-stone-100 hover:text-stone-800"
+          aria-label="Clear search"
+        >
+          <X className="h-4 w-4" strokeWidth={2.5} />
+        </button>
+      )}
       {showDrop && query.trim() && (
         <div
           className={`absolute left-0 top-full z-[100] mt-1 w-full overflow-hidden rounded-md border border-stone-200 bg-white shadow-xl ${
