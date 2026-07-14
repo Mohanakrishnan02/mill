@@ -4,7 +4,7 @@ import { products } from "@/lib/products";
 export default function ProductsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-[#3A2A24]" style={{ fontFamily: "var(--font-yeseva)" }}>
+      <h1 className="text-2xl font-bold text-[#3D3428]" style={{ fontFamily: "var(--font-yeseva)" }}>
         Traditional Rice Varieties
       </h1>
       <p className="mt-1 text-stone-500">

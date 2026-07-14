@@ -249,7 +249,7 @@ export default function CheckoutPage() {
           orderId,
           address: [address.addressLine1, address.addressLine2, address.city, address.pincode].filter(Boolean).join(", "),
         },
-        theme: { color: "#E07A2F" },
+        theme: { color: "#D4A017" },
         handler: async (response: RazorpaySuccessResponse) => {
           const verifyRes = await fetch("/api/payment/verify", {
             method: "POST",
@@ -334,7 +334,7 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <p className="text-lg text-stone-600">Your cart is empty</p>
-        <Link href="/products" className="mt-4 inline-block rounded bg-[#E07A2F] px-6 py-2.5 text-sm font-bold text-white">
+        <Link href="/products" className="mt-4 inline-block rounded bg-[#D4A017] px-6 py-2.5 text-sm font-bold text-[#14261C]">
           Shop Rice Varieties
         </Link>
       </div>
@@ -343,7 +343,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-[#3A2A24]" style={{ fontFamily: "var(--font-yeseva)" }}>
+      <h1 className="text-2xl font-bold text-[#3D3428]" style={{ fontFamily: "var(--font-yeseva)" }}>
         Checkout
       </h1>
       <p className="mt-1 text-sm text-stone-500">Online payment only — No COD</p>
@@ -352,13 +352,13 @@ export default function CheckoutPage() {
       <div className="mt-6 flex items-center gap-2 text-xs font-semibold">
         {[1, 2, 3].map((n) => (
           <div key={n} className="flex items-center gap-2">
-            <span className={`flex h-6 w-6 items-center justify-center rounded-full ${step >= n ? "bg-[#7A2E3A] text-white" : "bg-stone-200 text-stone-500"}`}>
+            <span className={`flex h-6 w-6 items-center justify-center rounded-full ${step >= n ? "bg-[#2F6B3A] text-white" : "bg-stone-200 text-stone-500"}`}>
               {step > n ? "✓" : n}
             </span>
-            <span className={step >= n ? "text-[#7A2E3A]" : "text-stone-400"}>
+            <span className={step >= n ? "text-[#2F6B3A]" : "text-stone-400"}>
               {n === 1 ? "Address" : n === 2 ? "Payment" : "Confirm"}
             </span>
-            {n < 3 && <div className={`h-0.5 w-8 ${step > n ? "bg-[#7A2E3A]" : "bg-stone-200"}`} />}
+            {n < 3 && <div className={`h-0.5 w-8 ${step > n ? "bg-[#2F6B3A]" : "bg-stone-200"}`} />}
           </div>
         ))}
       </div>
@@ -368,7 +368,7 @@ export default function CheckoutPage() {
           {step === 1 && (
             <section className="rounded-lg border border-stone-200 bg-white p-5">
               <h2 className="font-bold text-stone-900">Delivery Address & Verification</h2>
-              <p className="mt-2 rounded border border-[#7A2E3A]/20 bg-[#F5EBE8] px-3 py-2 text-xs text-[#5C1F28]">
+              <p className="mt-2 rounded border border-[#2F6B3A]/20 bg-[#E8F5EE] px-3 py-2 text-xs text-[#1E4D2B]">
                 🚚 Delivered via <strong>Ekart Logistics</strong> for outstation & bulk orders from Melur.
                 Local orders ≤ {DELIVERY.maxKm} km delivered from our mill.
               </p>
@@ -377,7 +377,7 @@ export default function CheckoutPage() {
                   placeholder="First Name *"
                   value={address.fullName}
                   onChange={(e) => updateField("fullName", e.target.value)}
-                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A] sm:col-span-2"
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A] sm:col-span-2"
                 />
                 <div className="sm:col-span-2">
                   <div className="flex gap-2">
@@ -386,19 +386,19 @@ export default function CheckoutPage() {
                       value={address.phone}
                       readOnly={otpVerified}
                       onChange={(e) => updateField("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      className="flex-1 rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A]"
+                      className="flex-1 rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A]"
                     />
                     <button
                       type="button"
                       onClick={sendOtp}
                       disabled={address.phone.length !== 10 || otpVerified}
-                      className="rounded bg-[#7A2E3A] px-4 py-2 text-xs font-bold text-white disabled:bg-stone-300"
+                      className="rounded bg-[#2F6B3A] px-4 py-2 text-xs font-bold text-white disabled:bg-stone-300"
                     >
                       {otpSent ? "Resend OTP" : "Send OTP"}
                     </button>
                   </div>
                   {otpVerified && (
-                    <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#7A2E3A]/20 bg-[#F5EBE8] px-3 py-1 text-xs font-semibold text-[#7A2E3A]">
+                    <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#2F6B3A]/20 bg-[#E8F5EE] px-3 py-1 text-xs font-semibold text-[#2F6B3A]">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       Verified · +91 {address.phone}
                     </p>
@@ -409,7 +409,7 @@ export default function CheckoutPage() {
                   type="email"
                   value={address.email}
                   onChange={(e) => updateField("email", e.target.value)}
-                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A] sm:col-span-2"
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A] sm:col-span-2"
                 />
                 <div className="relative sm:col-span-2">
                   {googleMapsKey ? (
@@ -419,7 +419,7 @@ export default function CheckoutPage() {
                         value={address.addressLine1}
                         onChange={(v) => updateField("addressLine1", v)}
                         onPlaceSelect={handleGooglePlace}
-                        className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A]"
+                        className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A]"
                       />
                       <p className="mt-1 text-[10px] text-stone-400">
                         Select from Google Maps — pincode fills automatically
@@ -435,7 +435,7 @@ export default function CheckoutPage() {
                           searchAddress(e.target.value);
                         }}
                         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                        className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A]"
+                        className="w-full rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A]"
                       />
                       {showSuggestions && addrSuggestions.length > 0 && (
                         <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded border border-stone-200 bg-white shadow-lg">
@@ -443,7 +443,7 @@ export default function CheckoutPage() {
                             <button
                               key={i}
                               type="button"
-                              className="block w-full border-b border-stone-100 px-3 py-2 text-left text-xs hover:bg-[#FDE8D4] last:border-0"
+                              className="block w-full border-b border-stone-100 px-3 py-2 text-left text-xs hover:bg-[#F5E9C0] last:border-0"
                               onMouseDown={() => pickSuggestion(s)}
                             >
                               {s.display_name.split(",").slice(0, 4).join(", ")}
@@ -461,29 +461,29 @@ export default function CheckoutPage() {
                   placeholder="Landmark (optional)"
                   value={address.addressLine2}
                   onChange={(e) => updateField("addressLine2", e.target.value)}
-                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A] sm:col-span-2"
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A] sm:col-span-2"
                 />
                 <input
                   placeholder="City *"
                   value={address.city}
                   onChange={(e) => updateField("city", e.target.value)}
-                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A]"
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A]"
                 />
                 <input
                   placeholder="Pincode *"
                   value={address.pincode}
                   onChange={(e) => updateField("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#7A2E3A]"
+                  className="rounded border border-stone-200 px-3 py-2 text-sm outline-none focus:border-[#2F6B3A]"
                 />
               </div>
               {deliveryDistanceKm !== null && (
-                <div className="mt-4 rounded border border-stone-200 bg-[#FFFAF5] p-3 text-xs">
+                <div className="mt-4 rounded border border-stone-200 bg-[#FAF6EB] p-3 text-xs">
                   <div className="flex justify-between"><span>📍 Distance from mill</span><span>{deliveryDistanceKm.toFixed(1)} km</span></div>
                   <div className="mt-1 flex justify-between"><span>🚚 Delivery</span><span>{summary.delivery === 0 ? (summary.isOutstation ? "Contact us" : "FREE") : formatINR(summary.delivery)}</span></div>
                 </div>
               )}
               {summary.isOutstation && (
-                <p className="mt-3 rounded border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+                <p className="mt-3 rounded border border-[#D4A017]/40 bg-[#F5E9C0] px-2 py-1.5 text-xs text-[#1E4D2B]">
                   Beyond {DELIVERY.maxKm} km: minimum {DELIVERY.minKgBeyondMaxKm} kg required. You have {summary.totalKg} kg.
                 </p>
               )}
@@ -493,7 +493,7 @@ export default function CheckoutPage() {
                 </Link>
                 <button
                   onClick={() => validateStep1() && setStep(2)}
-                  className="flex-[2] rounded bg-[#7A2E3A] py-2.5 text-sm font-bold text-white"
+                  className="flex-[2] rounded bg-[#2F6B3A] py-2.5 text-sm font-bold text-white"
                 >
                   Continue →
                 </button>
@@ -504,10 +504,10 @@ export default function CheckoutPage() {
           {step === 2 && (
             <section className="rounded-lg border border-stone-200 bg-white p-5">
               <h2 className="font-bold text-stone-900">Payment Method</h2>
-              <p className="mt-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              <p className="mt-2 rounded border border-[#D4A017]/30 bg-[#F5E9C0] px-3 py-2 text-xs text-[#1E4D2B]">
                 <strong>No Cash on Delivery.</strong> Online payment only via UPI, Cards, or Net Banking.
               </p>
-              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-[#7A2E3A]/40 bg-[#F5EBE8] p-4">
+              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-[#2F6B3A]/40 bg-[#E8F5EE] p-4">
                 <input type="radio" checked readOnly className="mt-1" />
                 <div>
                   <div className="flex items-center gap-2 font-semibold">
@@ -521,7 +521,7 @@ export default function CheckoutPage() {
                 <button onClick={() => setStep(1)} className="flex-1 rounded border border-stone-200 py-2.5 text-sm font-bold">
                   ← Back
                 </button>
-                <button onClick={() => setStep(3)} className="flex-[2] rounded bg-[#7A2E3A] py-2.5 text-sm font-bold text-white">
+                <button onClick={() => setStep(3)} className="flex-[2] rounded bg-[#2F6B3A] py-2.5 text-sm font-bold text-white">
                   Review & Confirm →
                 </button>
               </div>
@@ -539,7 +539,7 @@ export default function CheckoutPage() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-4 space-y-1 rounded bg-[#FFFAF5] p-3 text-xs">
+              <div className="mt-4 space-y-1 rounded bg-[#FAF6EB] p-3 text-xs">
                 <p><strong>Deliver to:</strong> {[address.addressLine1, address.city, address.pincode].filter(Boolean).join(", ")}</p>
                 <p><strong>Mobile:</strong> +91 {address.phone} ✅</p>
                 <p><strong>Payment:</strong> Online (Razorpay)</p>
@@ -552,7 +552,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={handlePay}
                   disabled={loading}
-                  className="flex-[2] flex items-center justify-center gap-2 rounded bg-[#7A2E3A] py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                  className="flex-[2] flex items-center justify-center gap-2 rounded bg-[#2F6B3A] py-2.5 text-sm font-bold text-white disabled:opacity-60"
                 >
                   {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                   Pay {formatINR(summary.total)} Now →

@@ -174,16 +174,16 @@ function OrderSuccessContent() {
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:py-16">
       <div className="text-center">
-        <div className="order-success-pop mx-auto flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#7A2E3A] bg-[#F5EBE8]">
-          <CheckCircle className="h-9 w-9 text-[#7A2E3A]" />
+        <div className="order-success-pop mx-auto flex h-16 w-16 items-center justify-center rounded-full border-4 border-[#2F6B3A] bg-[#E8F5EE]">
+          <CheckCircle className="h-9 w-9 text-[#2F6B3A]" />
         </div>
-        <h1 className="mt-6 text-2xl font-bold text-[#7A2E3A]" style={{ fontFamily: "var(--font-yeseva)" }}>
+        <h1 className="mt-6 text-2xl font-bold text-[#2F6B3A]" style={{ fontFamily: "var(--font-yeseva)" }}>
           Order Placed! 🎉
         </h1>
         <p className="mt-2 text-sm text-stone-600">
           Thank you for ordering from <strong>{MILL.fullName}</strong>, Melur.
         </p>
-        <p className="mt-3 inline-block rounded bg-[#F5EBE8] px-4 py-2 text-lg font-extrabold tracking-wide text-[#7A2E3A]">
+        <p className="mt-3 inline-block rounded bg-[#E8F5EE] px-4 py-2 text-lg font-extrabold tracking-wide text-[#2F6B3A]">
           Order #{orderId}
         </p>
       </div>
@@ -215,7 +215,7 @@ function OrderSuccessContent() {
             </div>
             <div className="min-w-0 flex-1 text-left">
               <p className="text-xs font-bold text-stone-800">{MILL.fullName}</p>
-              <p className="mt-1 text-sm font-semibold text-[#7A2E3A]">✅ Order Confirmed! 🎉</p>
+              <p className="mt-1 text-sm font-semibold text-[#2F6B3A]">✅ Order Confirmed! 🎉</p>
               <p className="mt-1 text-xs text-stone-500">
                 WhatsApp → <strong>+91 {phone}</strong>
               </p>
@@ -232,10 +232,10 @@ function OrderSuccessContent() {
 
       {/* Mill team alert */}
       {showMillCard && (
-        <div className="wa-notify-slide mt-4 overflow-hidden rounded-2xl border border-[#E07A2F]/30 bg-gradient-to-br from-[#FFFAF5] to-white shadow-lg" style={{ animationDelay: "0.15s" }}>
-          <div className="flex items-center gap-2 border-b border-[#E07A2F]/20 bg-[#E07A2F]/10 px-4 py-2">
-            <Bell className="h-4 w-4 text-[#E07A2F] wa-bell-ring" />
-            <p className="text-xs font-bold text-[#E07A2F]">
+        <div className="wa-notify-slide mt-4 overflow-hidden rounded-2xl border border-[#D4A017]/30 bg-gradient-to-br from-[#FAF6EB] to-white shadow-lg" style={{ animationDelay: "0.15s" }}>
+          <div className="flex items-center gap-2 border-b border-[#D4A017]/20 bg-[#D4A017]/10 px-4 py-2">
+            <Bell className="h-4 w-4 text-[#D4A017] wa-bell-ring" />
+            <p className="text-xs font-bold text-[#D4A017]">
               {sending && !millAutoViaApi
                 ? "Sending alert to mill team…"
                 : millAutoViaApi
@@ -243,20 +243,20 @@ function OrderSuccessContent() {
                   : "Mill team alert"}
             </p>
             {millSent && (
-              <span className="ml-auto rounded-full bg-[#E07A2F] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
+              <span className="ml-auto rounded-full bg-[#D4A017] px-2 py-0.5 text-[10px] font-bold text-white wa-pulse-dot">
                 Alert ✓
               </span>
             )}
           </div>
           <div className="flex gap-4 p-4">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl ring-2 ring-[#E07A2F]/40 shadow-md">
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl ring-2 ring-[#D4A017]/40 shadow-md">
               <Image src={productImageSrc} alt="" fill className="object-cover" sizes="80px" />
             </div>
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-[#E07A2F]/30 -ml-2">
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-[#D4A017]/30 -ml-2">
               <Image src={IMAGES.logo} alt="" fill className="object-cover" sizes="56px" />
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <p className="text-xs font-bold text-[#E07A2F]">🚨 NEW ORDER RECEIVED 🔔</p>
+              <p className="text-xs font-bold text-[#D4A017]">🚨 NEW ORDER RECEIVED 🔔</p>
               <p className="mt-1 text-sm font-semibold text-stone-800">{MILL.fullName}</p>
               <p className="mt-1 text-xs text-stone-500">
                 {millAutoViaApi ? "Sent automatically" : "WhatsApp"} → <strong>{MILL.millAlertDisplay}</strong>
@@ -266,18 +266,18 @@ function OrderSuccessContent() {
               </p>
             </div>
           </div>
-          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#FDE8D4] px-3 py-2.5">
+          <div className="wa-msg-shimmer mx-4 mb-4 rounded-lg bg-[#F5E9C0] px-3 py-2.5">
             <WhatsAppTextPreview text={millPreview} />
           </div>
         </div>
       )}
 
       {(awb || tracking) && (
-        <div className="mt-6 rounded-lg border border-[#7A2E3A]/25 bg-[#F5EBE8] p-4 text-left text-sm">
-          <p className="font-bold text-[#7A2E3A]">🚚 Ekart Logistics</p>
+        <div className="mt-6 rounded-lg border border-[#2F6B3A]/25 bg-[#E8F5EE] p-4 text-left text-sm">
+          <p className="font-bold text-[#2F6B3A]">🚚 Ekart Logistics</p>
           {awb && <p className="mt-1 text-stone-600">AWB / Tracking: <strong>{awb}</strong></p>}
           {tracking && (
-            <a href={tracking} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs font-bold text-[#7A2E3A] hover:underline">
+            <a href={tracking} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs font-bold text-[#2F6B3A] hover:underline">
               Track your shipment →
             </a>
           )}
@@ -291,7 +291,7 @@ function OrderSuccessContent() {
         </div>
         <div className="mt-2 flex justify-between">
           <span className="text-stone-500">Payment</span>
-          <span className="font-bold text-[#7A2E3A]">{isDemo ? "Demo / Pending" : "Paid Online ✓"}</span>
+          <span className="font-bold text-[#2F6B3A]">{isDemo ? "Demo / Pending" : "Paid Online ✓"}</span>
         </div>
         {paymentId && (
           <div className="mt-2 flex justify-between">
@@ -313,7 +313,7 @@ function OrderSuccessContent() {
           </p>
         )}
         {millAutoViaApi && (
-          <p className="rounded-lg border border-[#E07A2F]/30 bg-[#FFFAF5] py-2.5 text-center text-xs font-semibold text-[#E07A2F]">
+          <p className="rounded-lg border border-[#D4A017]/30 bg-[#FAF6EB] py-2.5 text-center text-xs font-semibold text-[#D4A017]">
             Mill alert auto-sent to {MILL.millAlertDisplay}
           </p>
         )}
@@ -323,11 +323,11 @@ function OrderSuccessContent() {
           </a>
         )}
         {!sending && !millAutoViaApi && (
-          <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border border-[#E07A2F] bg-white py-2.5 text-sm font-semibold text-[#E07A2F]">
+          <a href={millWaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded border border-[#D4A017] bg-white py-2.5 text-sm font-semibold text-[#D4A017]">
             Manual: Send mill alert to {MILL.millAlertDisplay}
           </a>
         )}
-        <Link href="/products" className="rounded bg-[#E07A2F] py-3 text-center text-sm font-bold text-white">
+        <Link href="/products" className="rounded bg-[#D4A017] py-3 text-center text-sm font-bold text-[#14261C]">
           Continue Shopping
         </Link>
         <Link href="/" className="rounded border border-stone-200 py-2.5 text-center text-sm font-semibold text-stone-700">

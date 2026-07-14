@@ -20,7 +20,7 @@ export function PriceSummary({ summary, itemCount = 0 }: PriceSummaryProps) {
           <dd>{formatINR(summary.subtotal)}</dd>
         </div>
         {summary.promoDiscount > 0 && (
-          <div className="flex justify-between text-[#7A2E3A]">
+          <div className="flex justify-between text-[#2F6B3A]">
             <dt>Discount ({DELIVERY.discountPercent}%)</dt>
             <dd>− {formatINR(summary.promoDiscount)}</dd>
           </div>
@@ -31,9 +31,9 @@ export function PriceSummary({ summary, itemCount = 0 }: PriceSummaryProps) {
             {summary.deliveryDistanceKm === null ? (
               <span className="text-stone-500">After address</span>
             ) : summary.isOutstation ? (
-              <span className="text-amber-700">Contact us</span>
+              <span className="text-[#B8860B]">Contact us</span>
             ) : summary.delivery === 0 ? (
-              <span className="font-semibold text-[#7A2E3A]">FREE</span>
+              <span className="font-semibold text-[#2F6B3A]">FREE</span>
             ) : (
               formatINR(summary.delivery)
             )}
@@ -50,11 +50,11 @@ export function PriceSummary({ summary, itemCount = 0 }: PriceSummaryProps) {
         </div>
       </dl>
       {summary.isOutstation && (
-        <p className="mt-3 rounded border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+        <p className="mt-3 rounded border border-[#D4A017]/40 bg-[#F5E9C0] px-2 py-1.5 text-xs text-[#1E4D2B]">
           Beyond {DELIVERY.maxKm} km: minimum {DELIVERY.minKgBeyondMaxKm} kg required. You have {summary.totalKg} kg.
         </p>
       )}
-      <p className="mt-3 rounded border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] text-amber-800">
+      <p className="mt-3 rounded border border-[#D4A017]/30 bg-[#F5E9C0] px-2 py-1.5 text-[11px] text-[#1E4D2B]">
         No Cash on Delivery. Online payment only via UPI / Cards / Net Banking.
       </p>
     </div>

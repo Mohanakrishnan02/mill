@@ -20,11 +20,11 @@ export default function TrackOrderPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
       <div className="text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#7A2E3A]/10">
-          <Truck className="h-7 w-7 text-[#7A2E3A]" />
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#2F6B3A]/10">
+          <Truck className="h-7 w-7 text-[#2F6B3A]" />
         </div>
         <h1
-          className="mt-4 text-2xl font-bold text-[#3A2A24]"
+          className="mt-4 text-2xl font-bold text-[#3D3428]"
           style={{ fontFamily: "var(--font-yeseva)" }}
         >
           Track Your Order
@@ -41,27 +41,27 @@ export default function TrackOrderPage() {
           value={awb}
           onChange={(e) => setAwb(e.target.value.toUpperCase())}
           placeholder="Enter your tracking ID"
-          className="mt-2 w-full rounded-lg border border-stone-200 px-4 py-3 text-sm font-mono outline-none focus:border-[#7A2E3A]"
+          className="mt-2 w-full rounded-lg border border-stone-200 px-4 py-3 text-sm font-mono outline-none focus:border-[#2F6B3A]"
         />
         <button
           type="button"
           onClick={() => openEkartTrack(awb)}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#7A2E3A] py-3 text-sm font-bold text-white hover:bg-[#5C1F28]"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#2F6B3A] py-3 text-sm font-bold text-white hover:bg-[#1E4D2B]"
         >
           <ExternalLink className="h-4 w-4" />
           Track on Ekart Logistics
         </button>
 
-        <div className="mt-6 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4">
-          <p className="text-xs font-bold text-amber-900">Demo — Try with sample tracking ID</p>
-          <p className="mt-1 text-xs text-amber-800">
+        <div className="mt-6 rounded-lg border border-dashed border-[#D4A017]/50 bg-[#F5E9C0] p-4">
+          <p className="text-xs font-bold text-[#1E4D2B]">Demo — Try with sample tracking ID</p>
+          <p className="mt-1 text-xs text-[#3D3428]">
             Use <code className="rounded bg-white px-1.5 py-0.5 font-mono">{DEMO_AWB}</code> to
             preview the Ekart tracking flow.
           </p>
           <button
             type="button"
             onClick={() => openEkartTrack(DEMO_AWB)}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-[#7A2E3A] bg-white py-2.5 text-xs font-bold text-[#7A2E3A] hover:bg-[#F5EBE8]"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-[#2F6B3A] bg-white py-2.5 text-xs font-bold text-[#2F6B3A] hover:bg-[#E8F5EE]"
           >
             <Package className="h-4 w-4" />
             Demo Track — {DEMO_AWB}
@@ -75,7 +75,7 @@ export default function TrackOrderPage() {
       </p>
 
       <div className="mt-6 text-center">
-        <Link href="/" className="text-sm font-semibold text-[#7A2E3A] hover:underline">
+        <Link href="/" className="text-sm font-semibold text-[#2F6B3A] hover:underline">
           ← Back to Home
         </Link>
       </div>

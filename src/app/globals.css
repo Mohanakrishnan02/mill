@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  /* Heritage maroon & saffron — South Indian rice mill */
-  --mill-primary: #7a2e3a;
-  --mill-primary-dark: #5c1f28;
-  --mill-primary-light: #9e4a56;
-  --mill-accent: #e07a2f;
-  --mill-accent-light: #f5a962;
-  --mill-accent-soft: #fde8d4;
-  --mill-accent-hover: #c96924;
-  --mill-earth: #3a2a24;
-  --mill-surface: #fffaf5;
-  --mill-surface-warm: #f5ebe0;
-  --mill-ink: #2c2018;
-  --mill-dark: #2a1418;
-  --mill-dark-elevated: #3d1f26;
-  --mill-success-light: #f5ebe8;
+  /* Paddy green & mustard yellow — rice field harvest */
+  --mill-primary: #2f6b3a;
+  --mill-primary-dark: #1e4d2b;
+  --mill-primary-light: #4a8b57;
+  --mill-accent: #d4a017;
+  --mill-accent-light: #e8c547;
+  --mill-accent-soft: #f5e9c0;
+  --mill-accent-hover: #b8860b;
+  --mill-earth: #3d3428;
+  --mill-surface: #faf6eb;
+  --mill-surface-warm: #f5edd8;
+  --mill-ink: #1f2a1c;
+  --mill-dark: #14261c;
+  --mill-dark-elevated: #1b3328;
+  --mill-success-light: #e8f5ee;
   /* legacy aliases */
   --mill-gold: var(--mill-accent);
   --mill-gold-light: var(--mill-accent-light);
@@ -116,8 +116,8 @@ body {
   to { opacity: 1; transform: translateX(0); }
 }
 @keyframes offerCtaPulse {
-  0%, 100% { box-shadow: 0 4px 14px rgba(224, 122, 47, 0.35); }
-  50% { box-shadow: 0 4px 22px rgba(224, 122, 47, 0.55); }
+  0%, 100% { box-shadow: 0 4px 14px rgba(212, 160, 23, 0.35); }
+  50% { box-shadow: 0 4px 22px rgba(212, 160, 23, 0.55); }
 }
 @keyframes offerSlideIn {
   from { opacity: 0; transform: translateX(12px); }
@@ -140,7 +140,7 @@ body {
   width: 6px;
   height: 14px;
   border-radius: 50%;
-  background: linear-gradient(#F5A962, #E07A2F);
+  background: linear-gradient(#E8C547, #D4A017);
   animation: offerGrainFloat 5s linear infinite;
 }
 .offer-row { animation: offerRowIn 0.45s ease both; }
@@ -173,8 +173,8 @@ body {
   to { transform: scaleY(1); }
 }
 @keyframes journeyDotPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 169, 98, 0.5); }
-  50% { box-shadow: 0 0 0 8px rgba(245, 169, 98, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 197, 71, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(232, 197, 71, 0); }
 }
 @keyframes journeyBadgePop {
   0%, 100% { transform: scale(1); }
@@ -199,7 +199,7 @@ body {
 .journey-stat-card { transition: transform 0.3s ease, border-color 0.3s ease; }
 .journey-stat-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(245, 169, 98, 0.35);
+  border-color: rgba(232, 197, 71, 0.35);
 }
 .journey-step-card { transition: transform 0.35s ease, box-shadow 0.35s ease; }
 .journey-step-card:hover {
@@ -212,11 +212,11 @@ body {
   width: 5px;
   height: 12px;
   border-radius: 50%;
-  background: linear-gradient(#F5A962, #E07A2F);
+  background: linear-gradient(#E8C547, #D4A017);
   animation: journeyGrainFloat linear infinite;
 }
 .journey-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(245, 169, 98, 0.12), transparent);
+  background: linear-gradient(90deg, transparent, rgba(232, 197, 71, 0.12), transparent);
   animation: journeyShimmer 3s ease-in-out infinite;
 }
 .journey-video-strip video { filter: brightness(0.85); }
@@ -227,9 +227,9 @@ body {
   50% { opacity: 0.5; transform: translateX(-50%) scale(1.8); }
 }
 @keyframes journeySpotlight {
-  0% { box-shadow: inset 0 0 0 0 rgba(245, 169, 98, 0); }
-  15% { box-shadow: inset 0 0 0 4px rgba(245, 169, 98, 0.85), 0 0 48px rgba(245, 169, 98, 0.35); }
-  100% { box-shadow: inset 0 0 0 0 rgba(245, 169, 98, 0); }
+  0% { box-shadow: inset 0 0 0 0 rgba(232, 197, 71, 0); }
+  15% { box-shadow: inset 0 0 0 4px rgba(232, 197, 71, 0.85), 0 0 48px rgba(232, 197, 71, 0.35); }
+  100% { box-shadow: inset 0 0 0 0 rgba(232, 197, 71, 0); }
 }
 @keyframes journeySpotlightBanner {
   0% { opacity: 0; transform: translateY(-8px); }
@@ -251,13 +251,13 @@ body {
   transform: translateX(-50%);
   padding: 0.5rem 1.25rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #E07A2F, #F5A962);
-  color: #2A1418;
+  background: linear-gradient(135deg, #D4A017, #E8C547);
+  color: #14261C;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(224, 122, 47, 0.45);
+  box-shadow: 0 8px 24px rgba(212, 160, 23, 0.45);
   pointer-events: none;
 }
 
@@ -295,11 +295,11 @@ body {
 
 .animate-float { animation: float 5s ease-in-out infinite; }
 .hero-glow-ring {
-  background: radial-gradient(circle, rgba(245,169,98,0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(232,197,71,0.4) 0%, transparent 70%);
   animation: heroGlowRing 4s ease-in-out infinite;
 }
 .hero-mesh {
-  background: linear-gradient(135deg, rgba(122,46,58,0.35), rgba(224,122,47,0.18), rgba(122,46,58,0.35));
+  background: linear-gradient(135deg, rgba(47,107,58,0.35), rgba(212,160,23,0.18), rgba(47,107,58,0.35));
   background-size: 200% 200%;
   animation: heroMesh 8s ease infinite;
 }
@@ -309,7 +309,7 @@ body {
   width: 4px;
   height: 10px;
   border-radius: 50%;
-  background: linear-gradient(#F5A962, #E07A2F);
+  background: linear-gradient(#E8C547, #D4A017);
   animation: heroGrainParticle linear infinite;
 }
 .hero-stagger .hero-item {
@@ -325,7 +325,7 @@ body {
 .hero-stagger .hero-item:nth-child(7) { animation-delay: 0.7s; }
 .stat-pop { animation: statPop 3s ease-in-out infinite; }
 .btn-shimmer {
-  background-image: linear-gradient(110deg, #E07A2F 45%, #F5C078 50%, #E07A2F 55%);
+  background-image: linear-gradient(110deg, #D4A017 45%, #F0D78C 50%, #D4A017 55%);
   background-size: 200% 100%;
   animation: btnShimmer 3s linear infinite;
 }
@@ -340,13 +340,13 @@ body {
   background-image:
     radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent),
     radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(2px 2px at 50% 50%, rgba(245,169,98,0.5), transparent),
+    radial-gradient(2px 2px at 50% 50%, rgba(232,197,71,0.5), transparent),
     radial-gradient(1px 1px at 80% 20%, rgba(255,255,255,0.7), transparent),
     radial-gradient(1.5px 1.5px at 90% 60%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 70% 40%, rgba(245,169,98,0.4), transparent);
+    radial-gradient(1px 1px at 70% 40%, rgba(232,197,71,0.4), transparent);
   animation: annapurnaSparkle 4s ease-in-out infinite;
 }
-.annapurna-frame { background: linear-gradient(135deg, #2A1418, #2A1418); }
+.annapurna-frame { background: linear-gradient(135deg, #14261C, #14261C); }
 
 .legacy-gen-sepia { filter: sepia(0.35) saturate(0.9); }
 @keyframes legacyGenArrow {

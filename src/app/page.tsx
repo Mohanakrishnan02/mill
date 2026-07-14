@@ -11,7 +11,7 @@ export default function HomePage() {
 
       {/* Info band */}
       <RevealOnScroll>
-        <section className="bg-[#7A2E3A] py-4 text-white">
+        <section className="bg-[#2F6B3A] py-4 text-white">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 sm:grid-cols-4 sm:px-6">
             {[
               { t: `Free Delivery ≤${DELIVERY.freeKm} km`, d: `₹${DELIVERY.ratePerKm}/km beyond · up to ${DELIVERY.maxKm} km` },
@@ -36,8 +36,8 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <RevealOnScroll>
           <div className="border-b-2 border-stone-200 pb-3">
-            <h2 className="text-xl font-bold text-[#3A2A24]" style={{ fontFamily: "var(--font-yeseva)" }}>
-              Traditional Rice Varieties <span className="text-[#E07A2F]">— Direct from Mill</span>
+            <h2 className="text-xl font-bold text-[#3D3428]" style={{ fontFamily: "var(--font-yeseva)" }}>
+              Traditional Rice Varieties <span className="text-[#D4A017]">— Direct from Mill</span>
             </h2>
             <p className="mt-1 text-sm text-stone-500">
               Featured: JGL, Akshaya & Ponni Boiled · Click → for full catalog

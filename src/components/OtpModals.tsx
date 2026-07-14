@@ -93,7 +93,7 @@ export function OtpEntryModal({ open, phone, demoOtp, onClose, onSubmit }: OtpEn
           Enter the 6-digit code sent to <strong>+91 {phone}</strong>
         </p>
 
-        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-900">
+        <div className="mt-4 rounded-lg border border-[#D4A017]/30 bg-[#F5E9C0] px-3 py-2 text-center text-xs text-[#1E4D2B]">
           Demo OTP: <strong className="text-sm tracking-widest">{demoOtp}</strong>
         </div>
 
@@ -108,7 +108,7 @@ export function OtpEntryModal({ open, phone, demoOtp, onClose, onSubmit }: OtpEn
               value={digit}
               onChange={(e) => updateDigit(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className="h-11 w-10 rounded-lg border border-stone-300 text-center text-lg font-bold text-stone-900 outline-none focus:border-[#7A2E3A] focus:ring-2 focus:ring-[#7A2E3A]/20 sm:h-12 sm:w-11"
+              className="h-11 w-10 rounded-lg border border-stone-300 text-center text-lg font-bold text-stone-900 outline-none focus:border-[#2F6B3A] focus:ring-2 focus:ring-[#2F6B3A]/20 sm:h-12 sm:w-11"
               aria-label={`OTP digit ${i + 1}`}
             />
           ))}
@@ -119,7 +119,7 @@ export function OtpEntryModal({ open, phone, demoOtp, onClose, onSubmit }: OtpEn
         <button
           type="button"
           onClick={handleSubmit}
-          className="mt-5 w-full rounded-lg bg-[#7A2E3A] py-2.5 text-sm font-bold text-white hover:bg-[#5C1F28]"
+          className="mt-5 w-full rounded-lg bg-[#2F6B3A] py-2.5 text-sm font-bold text-white hover:bg-[#1E4D2B]"
         >
           Submit OTP
         </button>
@@ -147,10 +147,10 @@ export function OtpSuccessModal({ open, phone, onClose }: OtpSuccessModalProps) 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="otp-modal-overlay absolute inset-0 bg-black/40" />
       <div className="otp-success-pop relative w-full max-w-xs rounded-2xl bg-white p-6 text-center shadow-xl">
-        <div className="otp-check-pop mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#7A2E3A]">
+        <div className="otp-check-pop mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#2F6B3A]">
           <CheckCircle2 className="h-8 w-8 text-white" strokeWidth={2.5} />
         </div>
-        <h3 className="mt-4 text-base font-bold text-[#7A2E3A]">OTP Verified!</h3>
+        <h3 className="mt-4 text-base font-bold text-[#2F6B3A]">OTP Verified!</h3>
         <p className="mt-1 text-sm text-stone-600">
           +91 {phone} is confirmed
         </p>

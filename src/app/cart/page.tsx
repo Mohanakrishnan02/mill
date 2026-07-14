@@ -27,7 +27,7 @@ export default function CartPage() {
         </p>
         <Link
           href="/products"
-          className="mt-6 inline-block rounded bg-[#E07A2F] px-8 py-3 text-sm font-bold text-white hover:bg-[#F5A962]"
+          className="mt-6 inline-block rounded bg-[#D4A017] px-8 py-3 text-sm font-bold text-[#14261C] hover:bg-[#E8C547]"
         >
           Shop Rice Varieties
         </Link>
@@ -76,7 +76,7 @@ export default function CartPage() {
             <PriceSummary summary={summary} />
             <Link
               href="/checkout"
-              className="block w-full rounded bg-[#E07A2F] py-3.5 text-center text-sm font-extrabold text-white hover:bg-[#F5A962]"
+              className="block w-full rounded bg-[#D4A017] py-3.5 text-center text-sm font-extrabold text-[#14261C] hover:bg-[#E8C547]"
             >
               PROCEED TO CHECKOUT →
             </Link>

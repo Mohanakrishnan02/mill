@@ -38,7 +38,7 @@ export function BottomNav() {
             <button
               key="cart"
               onClick={openDrawer}
-              className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[#E07A2F]"
+              className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[#D4A017]"
             >
               <Icon className="h-5 w-5" />
               {isHydrated && itemCount > 0 && (
@@ -74,7 +74,7 @@ export function BottomNav() {
                 scrollToSection("contact");
               }
             }}
-            className={`flex flex-1 flex-col items-center gap-0.5 py-2 ${active ? "text-[#7A2E3A]" : "text-stone-500"}`}
+            className={`flex flex-1 flex-col items-center gap-0.5 py-2 ${active ? "text-[#2F6B3A]" : "text-stone-500"}`}
           >
             <Icon className="h-5 w-5" />
             <span className="text-[10px] font-semibold">{item.label}</span>

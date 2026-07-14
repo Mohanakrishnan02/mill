@@ -113,14 +113,14 @@ export function JourneySection() {
         className={`relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20 ${hero.visible ? "journey-fade-up" : "opacity-0"}`}
       >
         <div className="mx-auto max-w-3xl text-center">
-          <span className="journey-badge-pop inline-flex items-center gap-2 rounded-full border border-[#F5A962]/40 bg-[#F5A962]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#F5A962]">
+          <span className="journey-badge-pop inline-flex items-center gap-2 rounded-full border border-[#E8C547]/40 bg-[#E8C547]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#E8C547]">
             🌾 Our Journey · எங்கள் பயணம்
           </span>
           <h2
             className="mt-5 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl"
             style={{ fontFamily: "var(--font-yeseva)" }}
           >
-            <span className="text-[#F5A962]">
+            <span className="text-[#E8C547]">
               <AnimatedCounter target={JOURNEY.yearsExperience} suffix="+" active={hero.visible} />
             </span>{" "}
             Years of
@@ -128,7 +128,7 @@ export function JourneySection() {
             <em className="not-italic text-white">Traditional Rice Milling</em>
           </h2>
           <p
-            className="mt-3 text-lg text-[#F5A962]/90"
+            className="mt-3 text-lg text-[#E8C547]/90"
             style={{ fontFamily: "var(--font-tamil)" }}
           >
             {JOURNEY.yearsExperience} ஆண்டுகள் பாரம்பரிய நெல் அரைப்பு அனுபவம்
@@ -156,7 +156,7 @@ export function JourneySection() {
               style={{ animationDelay: `${0.15 + i * 0.1}s` }}
             >
               <p
-                className="text-3xl font-bold text-[#F5A962] sm:text-4xl"
+                className="text-3xl font-bold text-[#E8C547] sm:text-4xl"
                 style={{ fontFamily: "var(--font-yeseva)" }}
               >
                 <AnimatedCounter target={stat.value} suffix={stat.suffix} active={hero.visible} />
@@ -188,10 +188,10 @@ export function JourneySection() {
               className="text-2xl font-bold"
               style={{ fontFamily: "var(--font-yeseva)" }}
             >
-              From Father to Son — <span className="text-[#F5A962]">Every Grain</span>
+              From Father to Son — <span className="text-[#E8C547]">Every Grain</span>
             </h3>
             <p
-              className="text-base text-[#F5A962]/90"
+              className="text-base text-[#E8C547]/90"
               style={{ fontFamily: "var(--font-tamil)" }}
             >
               தந்தையிடமிருந்து மகன் வரை — தலைமுறை பாரம்பரியம்
@@ -229,7 +229,7 @@ export function JourneySection() {
                   className={`flex gap-3 text-sm ${story.visible ? "journey-slide-in" : "opacity-0"}`}
                   style={{ animationDelay: `${0.2 + i * 0.12}s` }}
                 >
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E07A2F] text-[10px]">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#D4A017] text-[10px]">
                     ✓
                   </span>
                   <div>
@@ -259,12 +259,12 @@ export function JourneySection() {
               className="text-xl font-bold sm:text-2xl"
               style={{ fontFamily: "var(--font-yeseva)" }}
             >
-              Our Milestones · <span className="text-[#F5A962]">முக்கிய நிகழ்வுகள்</span>
+              Our Milestones · <span className="text-[#E8C547]">முக்கிய நிகழ்வுகள்</span>
             </h3>
           </div>
           <div className="relative mt-10">
             <div
-              className={`absolute left-4 top-0 hidden h-full w-0.5 bg-gradient-to-b from-[#E07A2F] via-[#F5A962] to-[#7A2E3A] sm:left-1/2 sm:block sm:-translate-x-px ${timeline.visible ? "journey-line-grow" : "opacity-0"}`}
+              className={`absolute left-4 top-0 hidden h-full w-0.5 bg-gradient-to-b from-[#D4A017] via-[#E8C547] to-[#2F6B3A] sm:left-1/2 sm:block sm:-translate-x-px ${timeline.visible ? "journey-line-grow" : "opacity-0"}`}
             />
             <div className="space-y-8">
               {journeyMilestones.map((m, i) => (
@@ -276,12 +276,12 @@ export function JourneySection() {
                   <div
                     className={`${i % 2 === 0 ? "sm:text-right sm:pr-10" : "sm:order-2 sm:pl-10"}`}
                   >
-                    <span className="inline-block rounded-full bg-[#E07A2F] px-3 py-1 text-xs font-bold">
+                    <span className="inline-block rounded-full bg-[#D4A017] px-3 py-1 text-xs font-bold">
                       {m.year}
                     </span>
                     <h4 className="mt-2 text-lg font-bold">{m.titleEn}</h4>
                     <p
-                      className="text-sm text-[#F5A962]/80"
+                      className="text-sm text-[#E8C547]/80"
                       style={{ fontFamily: "var(--font-tamil)" }}
                     >
                       {m.titleTa}
@@ -299,7 +299,7 @@ export function JourneySection() {
                     aria-hidden
                   />
                   <div
-                    className={`absolute left-4 top-3 hidden h-3 w-3 -translate-x-1/2 rounded-full border-2 border-[#F5A962] bg-[#0a1a08] sm:left-1/2 sm:block ${timeline.visible ? "journey-dot-pulse" : ""}`}
+                    className={`absolute left-4 top-3 hidden h-3 w-3 -translate-x-1/2 rounded-full border-2 border-[#E8C547] bg-[#0a1a08] sm:left-1/2 sm:block ${timeline.visible ? "journey-dot-pulse" : ""}`}
                     style={{ animationDelay: `${i * 0.2}s` }}
                   />
                 </div>
@@ -342,7 +342,7 @@ export function JourneySection() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#E07A2F] text-sm font-bold shadow-lg">
+                <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#D4A017] text-sm font-bold shadow-lg">
                   {i + 1}
                 </span>
                 <span className="absolute right-3 top-3 text-2xl drop-shadow-lg">{step.icon}</span>
@@ -350,7 +350,7 @@ export function JourneySection() {
               <div className="p-4">
                 <h4 className="font-bold text-white">{step.titleEn}</h4>
                 <p
-                  className="text-sm text-[#F5A962]/90"
+                  className="text-sm text-[#E8C547]/90"
                   style={{ fontFamily: "var(--font-tamil)" }}
                 >
                   {step.titleTa}
@@ -383,7 +383,7 @@ export function JourneySection() {
                 className="text-xl font-bold sm:text-2xl"
                 style={{ fontFamily: "var(--font-yeseva)" }}
               >
-                Pure Rice. Pure Trust. · <span className="text-[#F5A962]">தூய அரிசி. தூய நம்பிக்கை.</span>
+                Pure Rice. Pure Trust. · <span className="text-[#E8C547]">தூய அரிசி. தூய நம்பிக்கை.</span>
               </p>
               <p
                 className="mt-2 text-sm text-white/70"

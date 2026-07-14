@@ -72,11 +72,11 @@ function NavLink({
   const pathname = usePathname();
 
   const desktopCls = active
-    ? "bg-[#F5A962] text-[#2A1418] shadow-md shadow-[#F5A962]/30 font-bold"
+    ? "bg-[#E8C547] text-[#14261C] shadow-md shadow-[#E8C547]/30 font-bold"
     : "text-white/90 hover:bg-white/10 hover:text-white";
 
   const mobileCls = active
-    ? "bg-[#F5A962]/20 text-[#F5A962] font-bold border-l-2 border-[#F5A962]"
+    ? "bg-[#E8C547]/20 text-[#E8C547] font-bold border-l-2 border-[#E8C547]"
     : "text-white hover:bg-white/5";
 
   const className = mobile
@@ -226,14 +226,14 @@ function SearchBox({
               <Link
                 key={p.id}
                 href={`/products/${p.slug}`}
-                className="flex items-center gap-3 border-b border-stone-100 p-2.5 hover:bg-[#FDE8D4] active:bg-[#F5EBE0] last:border-0"
+                className="flex items-center gap-3 border-b border-stone-100 p-2.5 hover:bg-[#F5E9C0] active:bg-[#F5EDD8] last:border-0"
                 onPointerDown={(e) => {
                   e.preventDefault();
                   pickingResultRef.current = true;
                 }}
                 onClick={() => handleResultPick(p.name)}
               >
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#FFFAF5]">
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#FAF6EB]">
                   <ProductImage
                     src={p.image}
                     alt={p.name}
@@ -246,7 +246,7 @@ function SearchBox({
                   <p className="truncate text-xs text-stone-500" style={{ fontFamily: "var(--font-tamil)" }}>
                     {p.tamil}
                   </p>
-                  <p className="text-xs font-bold text-[#E07A2F]">
+                  <p className="text-xs font-bold text-[#D4A017]">
                     from ₹{Math.min(...p.variants.map((v) => v.price))}
                   </p>
                 </div>
@@ -280,16 +280,16 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-[#5C1F28] py-1.5 text-center text-xs text-white/90">
+      <div className="bg-[#1E4D2B] py-1.5 text-center text-xs text-white/90">
         📍 {MILL.address}, {MILL.city} – {MILL.pincode} &nbsp;|&nbsp;
-        <a href={`tel:${MILL.phone}`} className="font-semibold text-[#F5A962]">
+        <a href={`tel:${MILL.phone}`} className="font-semibold text-[#E8C547]">
           📞 {MILL.phone}
         </a>
         &nbsp;|&nbsp; {MILL.hours} &nbsp;|&nbsp; Delivery ≤{25} km
       </div>
 
       <header
-        className={`sticky top-0 bg-[#7A2E3A] shadow-md ${searchActive ? "z-50" : "z-40"}`}
+        className={`sticky top-0 bg-[#2F6B3A] shadow-md ${searchActive ? "z-50" : "z-40"}`}
       >
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-6">
           <Link
@@ -308,7 +308,7 @@ export function Header() {
               width={44}
               height={44}
               priority
-              className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-[#F5A962]/40 sm:h-11 sm:w-11"
+              className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-[#E8C547]/40 sm:h-11 sm:w-11"
             />
             <div className="min-w-0">
               <p
@@ -340,13 +340,13 @@ export function Header() {
 
           <div className="ml-auto hidden flex-col text-right text-xs text-white/75 sm:flex">
             <span>Call / WhatsApp</span>
-            <a href={`tel:${MILL.phone}`} className="font-semibold text-[#F5A962]">{MILL.phone}</a>
+            <a href={`tel:${MILL.phone}`} className="font-semibold text-[#E8C547]">{MILL.phone}</a>
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               onClick={openDrawer}
-              className="relative flex shrink-0 items-center gap-2 rounded bg-[#E07A2F] px-2.5 py-2 text-sm font-semibold text-white hover:bg-[#F5A962] sm:px-3.5"
+              className="relative flex shrink-0 items-center gap-2 rounded bg-[#D4A017] px-2.5 py-2 text-sm font-semibold text-[#14261C] hover:bg-[#E8C547] sm:px-3.5"
             >
               <ShoppingCart className="h-4 w-4" />
               <span className="hidden sm:inline">Cart</span>
@@ -383,7 +383,7 @@ export function Header() {
         {mobileOpen && (
           <nav className="border-t border-white/10 px-2 py-2 lg:hidden">
             <NavLinks mobile onNavigate={() => setMobileOpen(false)} />
-            <a href={`tel:${MILL.phone}`} className="mt-2 flex items-center gap-2 px-3 py-2 text-sm text-[#F5A962]">
+            <a href={`tel:${MILL.phone}`} className="mt-2 flex items-center gap-2 px-3 py-2 text-sm text-[#E8C547]">
               <Phone className="h-4 w-4" /> {MILL.phone}
             </a>
           </nav>

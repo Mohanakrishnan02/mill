@@ -19,13 +19,13 @@ const offers = [
     icon: Percent,
     title: `${DELIVERY.discountPercent}% Online Discount`,
     desc: "Applied automatically at checkout on every order",
-    accent: "from-[#E07A2F] to-[#F5A962]",
+    accent: "from-[#D4A017] to-[#E8C547]",
   },
   {
     icon: Package,
     title: "Bulk 25 kg Packs",
     desc: "Best per-kg price — ideal for families & monthly stock",
-    accent: "from-[#3A2A24] to-[#8b5e3c]",
+    accent: "from-[#3D3428] to-[#8b5e3c]",
   },
   {
     icon: Sparkles,
@@ -95,7 +95,7 @@ export function OfferPopup() {
         className={`offer-modal relative w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl ${closing ? "offer-modal-out" : "offer-modal-in"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#7A2E3A] via-[#388e3c] to-[#1b5e20] px-5 pb-8 pt-5 text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#2F6B3A] via-[#388e3c] to-[#1b5e20] px-5 pb-8 pt-5 text-white">
           <div className="offer-shimmer absolute inset-0 opacity-30" aria-hidden />
           <button
             onClick={dismiss}
@@ -104,7 +104,7 @@ export function OfferPopup() {
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="offer-badge-pop relative inline-flex items-center gap-1.5 rounded-full border border-[#F5A962]/40 bg-black/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#F5A962]">
+          <div className="offer-badge-pop relative inline-flex items-center gap-1.5 rounded-full border border-[#E8C547]/40 bg-black/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#E8C547]">
             <span className="offer-spark">✦</span> Limited Time
           </div>
           <h2 className="relative mt-3 text-2xl font-bold leading-tight" style={{ fontFamily: "var(--font-yeseva)" }}>
@@ -114,7 +114,7 @@ export function OfferPopup() {
         </div>
 
         <div className="relative -mt-5 mx-4">
-          <div className="offer-featured overflow-hidden rounded-xl border-2 border-[#F5A962] bg-gradient-to-br from-[#fff8e1] to-white p-4 pb-8 shadow-lg">
+          <div className="offer-featured overflow-hidden rounded-xl border-2 border-[#E8C547] bg-gradient-to-br from-[#fff8e1] to-white p-4 pb-8 shadow-lg">
             <div className="relative h-[52px]">
               {offers.map((offer, i) => {
                 const Icon = offer.icon;
@@ -127,7 +127,7 @@ export function OfferPopup() {
                       <Icon className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="text-sm font-extrabold text-[#3A2A24]">{offer.title}</p>
+                      <p className="text-sm font-extrabold text-[#3D3428]">{offer.title}</p>
                       <p className="text-[11px] leading-snug text-stone-500">{offer.desc}</p>
                     </div>
                   </div>
@@ -138,7 +138,7 @@ export function OfferPopup() {
               {offers.map((_, i) => (
                 <span
                   key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${i === activeSlide ? "w-5 bg-[#E07A2F]" : "w-1.5 bg-stone-300"}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${i === activeSlide ? "w-5 bg-[#D4A017]" : "w-1.5 bg-stone-300"}`}
                 />
               ))}
             </div>
@@ -151,10 +151,10 @@ export function OfferPopup() {
             return (
               <li
                 key={offer.title}
-                className="offer-row flex items-center gap-2.5 rounded-lg border border-stone-100 bg-[#FFFAF5] px-3 py-2"
+                className="offer-row flex items-center gap-2.5 rounded-lg border border-stone-100 bg-[#FAF6EB] px-3 py-2"
                 style={{ animationDelay: `${0.15 + i * 0.08}s` }}
               >
-                <Icon className="h-4 w-4 shrink-0 text-[#E07A2F]" />
+                <Icon className="h-4 w-4 shrink-0 text-[#D4A017]" />
                 <span className="text-xs font-semibold text-stone-700">{offer.title}</span>
               </li>
             );
@@ -165,7 +165,7 @@ export function OfferPopup() {
           <Link
             href="/products"
             onClick={dismiss}
-            className="offer-cta block w-full rounded-lg bg-gradient-to-r from-[#E07A2F] to-[#F5A962] py-3 text-center text-sm font-extrabold text-white shadow-md"
+            className="offer-cta block w-full rounded-lg bg-gradient-to-r from-[#D4A017] to-[#E8C547] py-3 text-center text-sm font-extrabold text-white shadow-md"
           >
             🛒 Shop & Grab Offers
           </Link>
