@@ -350,12 +350,33 @@ export default function CheckoutPage() {
           name: address.fullName,
           email: address.email || "",
           contact: address.phone,
+          method: "upi",
         },
         notes: {
           orderId,
           address: [address.addressLine1, address.addressLine2, address.city, address.pincode].filter(Boolean).join(", "),
         },
         theme: { color: "#D4A017" },
+        // Put UPI first so GPay / PhonePe appear at the top of Checkout
+        config: {
+          display: {
+            blocks: {
+              upi_block: {
+                name: "Pay using UPI (GPay / PhonePe / Paytm)",
+                instruments: [
+                  {
+                    method: "upi",
+                    flows: ["collect", "intent", "qr"],
+                  },
+                ],
+              },
+            },
+            sequence: ["block.upi_block"],
+            preferences: {
+              show_default_blocks: true,
+            },
+          },
+        },
         handler: async (response: RazorpaySuccessResponse) => {
           const verifyRes = await fetch("/api/payment/verify", {
             method: "POST",
@@ -639,7 +660,11 @@ export default function CheckoutPage() {
                         UPI / Cards / Net Banking (Razorpay)
                       </div>
                       <p className="mt-1 text-xs text-stone-500">
-                        Instant online payment. Free test keys from razorpay.com when you&apos;re ready.
+                        UPI shows first (GPay / PhonePe), then cards &amp; netbanking. In Test Mode use UPI ID{" "}
+                        <strong>success@razorpay</strong>.
+                      </p>
+                      <p className="mt-1 text-[10px] text-stone-400">
+                        If UPI is missing: Razorpay Dashboard → Account &amp; Settings → Payment Methods → enable UPI (Test Mode).
                       </p>
                     </div>
                   </button>

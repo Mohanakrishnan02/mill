@@ -9,8 +9,26 @@ interface RazorpayOptions {
     name?: string;
     email?: string;
     contact?: string;
+    method?: string;
   };
+  notes?: Record<string, string>;
   theme?: { color?: string };
+  /** Prefer opening Checkout on this method (e.g. upi) */
+  method?: string | Record<string, boolean>;
+  config?: {
+    display?: {
+      blocks?: Record<
+        string,
+        {
+          name: string;
+          instruments: Array<{ method: string; flows?: string[]; apps?: string[] }>;
+        }
+      >;
+      sequence?: string[];
+      preferences?: { show_default_blocks?: boolean };
+      hide?: Array<{ method: string }>;
+    };
+  };
   handler: (response: RazorpaySuccessResponse) => void;
   modal?: { ondismiss?: () => void };
 }
