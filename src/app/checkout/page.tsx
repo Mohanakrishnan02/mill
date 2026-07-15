@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CreditCard, CheckCircle2, Loader2 } from "lucide-react";
+import { CreditCard, CheckCircle2, Loader2, Smartphone } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { PriceSummary } from "@/components/PriceSummary";
 import { loadRazorpayScript } from "@/lib/razorpay-client";
 import { formatINR } from "@/lib/format";
 import { MILL, DELIVERY } from "@/lib/mill-config";
+import { buildUpiPayUrl, buildUpiQrImageUrl } from "@/lib/payment";
 import { distanceFromMill } from "@/lib/shipping";
 import { reverseGeocodePincode } from "@/lib/geocode";
 import { GoogleAddressInput } from "@/components/GoogleAddressInput";
@@ -18,6 +19,7 @@ import { OtpEntryModal, OtpSuccessModal } from "@/components/OtpModals";
 import type { RazorpaySuccessResponse } from "@/types/razorpay";
 
 type NominatimResult = { display_name: string; lat: string; lon: string };
+type PayMode = "razorpay" | "upi" | "free";
 
 const emptyAddress: ShippingAddress = {
   fullName: "",
@@ -45,6 +47,24 @@ export default function CheckoutPage() {
   const [addrSuggestions, setAddrSuggestions] = useState<NominatimResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const addrTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [payMode, setPayMode] = useState<PayMode>("free");
+  const [upiAvailable, setUpiAvailable] = useState(false);
+  const [razorpayAvailable, setRazorpayAvailable] = useState(false);
+  const [upiPayUrl, setUpiPayUrl] = useState<string | null>(null);
+  const [pendingOrderId, setPendingOrderId] = useState("");
+
+  useEffect(() => {
+    fetch("/api/payment/status")
+      .then((r) => r.json())
+      .then((data) => {
+        setRazorpayAvailable(Boolean(data.razorpay));
+        setUpiAvailable(Boolean(data.upi));
+        setPayMode((data.mode as PayMode) || "free");
+      })
+      .catch(() => {
+        setPayMode("free");
+      });
+  }, []);
 
   const updateField = (field: keyof ShippingAddress, value: string) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
@@ -208,15 +228,87 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePay = async () => {
+  const completeOrder = async (
+    orderId: string,
+    paymentId?: string,
+    isDemoOrder = false
+  ) => {
+    const fulfillment = await finalizeOrder(orderId, paymentId, isDemoOrder);
+    saveOrderForWhatsApp({
+      orderId,
+      total: summary.total,
+      phone: address.phone,
+      paymentId,
+      isDemo: isDemoOrder,
+      address,
+      items,
+    });
+    clearCart();
+    setDeliveryDistanceKm(null);
+    const params = new URLSearchParams({
+      total: String(summary.total),
+      orderId,
+      phone: address.phone,
+    });
+    if (paymentId) params.set("paymentId", paymentId);
+    if (isDemoOrder) params.set("demo", "1");
+    if (fulfillment.awb) params.set("awb", fulfillment.awb);
+    if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
+    if (fulfillment.customerConfirmViaApi) params.set("customerViaApi", "1");
+    if (fulfillment.millAlertViaApi) params.set("millViaApi", "1");
+    router.push(`/order-success?${params.toString()}`);
+  };
+
+  const handleFreeConfirm = async () => {
     if (items.length === 0) return;
     setLoading(true);
     setError("");
+    try {
+      const orderId = pendingOrderId || "JV" + Date.now().toString().slice(-8).toUpperCase();
+      await completeOrder(orderId, `FREE-${orderId}`, true);
+    } catch {
+      setError("Could not place order. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const startUpiPayment = () => {
+    const orderId = "JV" + Date.now().toString().slice(-8).toUpperCase();
+    const url = buildUpiPayUrl({
+      amount: summary.total,
+      orderId,
+      note: `Rice order ${orderId}`,
+    });
+    if (!url) {
+      setError("UPI ID not configured. Use free checkout or add NEXT_PUBLIC_UPI_ID.");
+      return;
+    }
+    setPendingOrderId(orderId);
+    setUpiPayUrl(url);
+    // Open UPI app on mobile
+    window.location.href = url;
+  };
+
+  const handlePay = async () => {
+    if (items.length === 0) return;
+    setError("");
+
+    if (payMode === "free") {
+      await handleFreeConfirm();
+      return;
+    }
+
+    if (payMode === "upi") {
+      startUpiPayment();
+      return;
+    }
+
+    setLoading(true);
     try {
       const loaded = await loadRazorpayScript();
       if (!loaded) {
-        setError("Failed to load payment gateway.");
+        setError("Failed to load payment gateway. Try Free Checkout below.");
         return;
       }
 
@@ -228,6 +320,11 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Could not initiate payment");
+        return;
+      }
+
+      if (data.mode === "free") {
+        await completeOrder("JV" + Date.now().toString().slice(-8).toUpperCase(), undefined, true);
         return;
       }
 
@@ -258,28 +355,7 @@ export default function CheckoutPage() {
           });
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.success) {
-            const fulfillment = await finalizeOrder(orderId, response.razorpay_payment_id);
-            saveOrderForWhatsApp({
-              orderId,
-              total: summary.total,
-              phone: address.phone,
-              paymentId: response.razorpay_payment_id,
-              address,
-              items,
-            });
-            clearCart();
-            setDeliveryDistanceKm(null);
-            const params = new URLSearchParams({
-              total: String(summary.total),
-              paymentId: response.razorpay_payment_id,
-              orderId,
-              phone: address.phone,
-            });
-            if (fulfillment.awb) params.set("awb", fulfillment.awb);
-            if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
-            if (fulfillment.customerConfirmViaApi) params.set("customerViaApi", "1");
-            if (fulfillment.millAlertViaApi) params.set("millViaApi", "1");
-            router.push(`/order-success?${params.toString()}`);
+            await completeOrder(orderId, response.razorpay_payment_id, false);
           } else {
             setError("Payment verification failed. Call " + MILL.phone + " if amount was deducted.");
           }
@@ -301,29 +377,7 @@ export default function CheckoutPage() {
   };
 
   const handleDemoConfirm = async () => {
-    const orderId = "JV" + Date.now().toString().slice(-8).toUpperCase();
-    const fulfillment = await finalizeOrder(orderId, undefined, true);
-    saveOrderForWhatsApp({
-      orderId,
-      total: summary.total,
-      phone: address.phone,
-      isDemo: true,
-      address,
-      items,
-    });
-    clearCart();
-    setDeliveryDistanceKm(null);
-    const params = new URLSearchParams({
-      total: String(summary.total),
-      orderId,
-      phone: address.phone,
-      demo: "1",
-    });
-    if (fulfillment.awb) params.set("awb", fulfillment.awb);
-    if (fulfillment.trackingUrl) params.set("tracking", fulfillment.trackingUrl);
-    if (fulfillment.customerConfirmViaApi) params.set("customerViaApi", "1");
-    if (fulfillment.millAlertViaApi) params.set("millViaApi", "1");
-    router.push(`/order-success?${params.toString()}`);
+    await handleFreeConfirm();
   };
 
   if (!isHydrated) {
@@ -505,18 +559,91 @@ export default function CheckoutPage() {
             <section className="rounded-lg border border-stone-200 bg-white p-5">
               <h2 className="font-bold text-stone-900">Payment Method</h2>
               <p className="mt-2 rounded border border-[#D4A017]/30 bg-[#F5E9C0] px-3 py-2 text-xs text-[#1E4D2B]">
-                <strong>No Cash on Delivery.</strong> Online payment only via UPI, Cards, or Net Banking.
+                <strong>No Cash on Delivery.</strong> Choose a free online option below.
               </p>
-              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-[#2F6B3A]/40 bg-[#E8F5EE] p-4">
-                <input type="radio" checked readOnly className="mt-1" />
-                <div>
-                  <div className="flex items-center gap-2 font-semibold">
-                    <CreditCard className="h-4 w-4" />
-                    UPI / Cards / Net Banking
-                  </div>
-                  <p className="mt-1 text-xs text-stone-500">PhonePe, GPay, Paytm, all major cards — via Razorpay</p>
-                </div>
-              </label>
+
+              <div className="mt-4 space-y-3">
+                {!razorpayAvailable && (
+                  <button
+                    type="button"
+                    onClick={() => setPayMode("free")}
+                    className={`flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 text-left ${
+                      payMode === "free"
+                        ? "border-[#2F6B3A] bg-[#E8F5EE]"
+                        : "border-stone-200 hover:border-[#2F6B3A]/40"
+                    }`}
+                  >
+                    <input type="radio" checked={payMode === "free"} readOnly className="mt-1" />
+                    <div>
+                      <div className="font-semibold text-stone-900">Free Checkout (recommended now)</div>
+                      <p className="mt-1 text-xs text-stone-500">
+                        Place order now — mill confirms payment on WhatsApp / call. No gateway fees.
+                      </p>
+                    </div>
+                  </button>
+                )}
+
+                {upiAvailable && (
+                  <button
+                    type="button"
+                    onClick={() => setPayMode("upi")}
+                    className={`flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 text-left ${
+                      payMode === "upi"
+                        ? "border-[#2F6B3A] bg-[#E8F5EE]"
+                        : "border-stone-200 hover:border-[#2F6B3A]/40"
+                    }`}
+                  >
+                    <input type="radio" checked={payMode === "upi"} readOnly className="mt-1" />
+                    <div>
+                      <div className="flex items-center gap-2 font-semibold">
+                        <Smartphone className="h-4 w-4" />
+                        Free UPI (GPay / PhonePe / Paytm)
+                      </div>
+                      <p className="mt-1 text-xs text-stone-500">
+                        Opens your UPI app — no Razorpay charges. Tap &quot;I&apos;ve paid&quot; after payment.
+                      </p>
+                    </div>
+                  </button>
+                )}
+
+                {razorpayAvailable ? (
+                  <button
+                    type="button"
+                    onClick={() => setPayMode("razorpay")}
+                    className={`flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 text-left ${
+                      payMode === "razorpay"
+                        ? "border-[#2F6B3A] bg-[#E8F5EE]"
+                        : "border-stone-200 hover:border-[#2F6B3A]/40"
+                    }`}
+                  >
+                    <input type="radio" checked={payMode === "razorpay"} readOnly className="mt-1" />
+                    <div>
+                      <div className="flex items-center gap-2 font-semibold">
+                        <CreditCard className="h-4 w-4" />
+                        UPI / Cards / Net Banking (Razorpay)
+                      </div>
+                      <p className="mt-1 text-xs text-stone-500">
+                        Instant online payment. Free test keys from razorpay.com when you&apos;re ready.
+                      </p>
+                    </div>
+                  </button>
+                ) : (
+                  <p className="rounded border border-dashed border-stone-300 bg-stone-50 px-3 py-2 text-[11px] text-stone-500">
+                    Tip: Free Razorpay test account at{" "}
+                    <a
+                      href="https://dashboard.razorpay.com/signup"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-[#2F6B3A] underline"
+                    >
+                      dashboard.razorpay.com
+                    </a>{" "}
+                    — add <code className="rounded bg-white px-1">RAZORPAY_KEY_ID</code> +{" "}
+                    <code className="rounded bg-white px-1">RAZORPAY_KEY_SECRET</code> on Vercel later.
+                  </p>
+                )}
+              </div>
+
               <div className="mt-4 flex gap-2">
                 <button onClick={() => setStep(1)} className="flex-1 rounded border border-stone-200 py-2.5 text-sm font-bold">
                   ← Back
@@ -542,29 +669,73 @@ export default function CheckoutPage() {
               <div className="mt-4 space-y-1 rounded bg-[#FAF6EB] p-3 text-xs">
                 <p><strong>Deliver to:</strong> {[address.addressLine1, address.city, address.pincode].filter(Boolean).join(", ")}</p>
                 <p><strong>Mobile:</strong> +91 {address.phone} ✅</p>
-                <p><strong>Payment:</strong> Online (Razorpay)</p>
+                <p>
+                  <strong>Payment:</strong>{" "}
+                  {payMode === "razorpay"
+                    ? "Razorpay (UPI / Cards)"
+                    : payMode === "upi"
+                      ? "Free UPI"
+                      : "Free checkout (confirm with mill)"}
+                </p>
               </div>
+
+              {upiPayUrl && payMode === "upi" && (
+                <div className="mt-4 rounded-lg border border-[#2F6B3A]/25 bg-[#E8F5EE] p-4 text-center">
+                  <p className="text-sm font-bold text-[#1E4D2B]">Scan / open UPI to pay {formatINR(summary.total)}</p>
+                  <p className="mt-1 text-xs text-stone-600">Order {pendingOrderId}</p>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={buildUpiQrImageUrl(upiPayUrl)}
+                    alt="UPI QR"
+                    className="mx-auto mt-3 h-44 w-44 rounded-lg border border-white bg-white p-2 shadow-sm"
+                  />
+                  <a
+                    href={upiPayUrl}
+                    className="mt-3 inline-flex rounded bg-[#2F6B3A] px-4 py-2 text-xs font-bold text-white"
+                  >
+                    Open UPI App
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleFreeConfirm}
+                    disabled={loading}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded border-2 border-[#2F6B3A] bg-white py-2.5 text-sm font-bold text-[#2F6B3A] disabled:opacity-60"
+                  >
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                    I&apos;ve paid — Confirm Order
+                  </button>
+                </div>
+              )}
+
               {error && <p className="mt-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
               <div className="mt-4 flex gap-2">
                 <button onClick={() => setStep(2)} className="flex-1 rounded border border-stone-200 py-2.5 text-sm font-bold">
                   ← Back
                 </button>
-                <button
-                  onClick={handlePay}
-                  disabled={loading}
-                  className="flex-[2] flex items-center justify-center gap-2 rounded bg-[#2F6B3A] py-2.5 text-sm font-bold text-white disabled:opacity-60"
-                >
-                  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Pay {formatINR(summary.total)} Now →
-                </button>
+                {!(upiPayUrl && payMode === "upi") && (
+                  <button
+                    onClick={handlePay}
+                    disabled={loading}
+                    className="flex-[2] flex items-center justify-center gap-2 rounded bg-[#2F6B3A] py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                  >
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {payMode === "free"
+                      ? `Place Order ${formatINR(summary.total)} →`
+                      : payMode === "upi"
+                        ? `Pay ${formatINR(summary.total)} via UPI →`
+                        : `Pay ${formatINR(summary.total)} Now →`}
+                  </button>
+                )}
               </div>
-              <button
-                type="button"
-                onClick={handleDemoConfirm}
-                className="mt-3 w-full rounded border border-dashed border-stone-300 py-2 text-xs text-stone-500 hover:bg-stone-50"
-              >
-                Demo: Confirm without Razorpay (for testing)
-              </button>
+              {payMode !== "free" && (
+                <button
+                  type="button"
+                  onClick={handleDemoConfirm}
+                  className="mt-3 w-full rounded border border-dashed border-stone-300 py-2 text-xs text-stone-500 hover:bg-stone-50"
+                >
+                  Or use Free Checkout (confirm without card / UPI app)
+                </button>
+              )}
             </section>
           )}
         </div>

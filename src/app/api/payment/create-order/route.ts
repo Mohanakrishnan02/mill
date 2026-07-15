@@ -1,25 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
+import { isRazorpayConfigured } from "@/lib/payment";
 
 export async function POST(request: NextRequest) {
   try {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-    if (!keyId || !keySecret) {
-      return NextResponse.json(
-        { error: "Payment gateway not configured. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET." },
-        { status: 503 }
-      );
-    }
-
     const { amount } = await request.json();
 
     if (!amount || amount < 100) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
-    const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+    // Free mode — no Razorpay keys on server (works for demo / offline / UPI confirm)
+    if (!isRazorpayConfigured(keyId, keySecret)) {
+      return NextResponse.json({
+        mode: "free",
+        orderId: `free_${Date.now()}`,
+        amount: Math.round(amount),
+        currency: "INR",
+        message: "Free checkout — no payment gateway required",
+      });
+    }
+
+    const razorpay = new Razorpay({ key_id: keyId!, key_secret: keySecret! });
 
     const order = await razorpay.orders.create({
       amount: Math.round(amount),
@@ -28,6 +32,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
+      mode: "razorpay",
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
