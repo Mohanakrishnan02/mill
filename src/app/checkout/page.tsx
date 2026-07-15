@@ -27,7 +27,7 @@ const emptyAddress: ShippingAddress = {
   email: "",
   addressLine1: "",
   addressLine2: "",
-  city: "Madurai",
+  city: "",
   state: "Tamil Nadu",
   pincode: "",
 };
@@ -184,6 +184,15 @@ export default function CheckoutPage() {
     }
     return true;
   };
+
+  const canContinueStep1 =
+    address.fullName.trim().length > 0 &&
+    /^\d{10}$/.test(address.phone) &&
+    otpVerified &&
+    address.addressLine1.trim().length > 0 &&
+    address.city.trim().length > 0 &&
+    /^\d{6}$/.test(address.pincode) &&
+    !(summary.isOutstation && summary.totalKg < DELIVERY.minKgBeyondMaxKm);
 
   const finalizeOrder = async (
     orderId: string,
@@ -546,12 +555,19 @@ export default function CheckoutPage() {
                   ← Back to Cart
                 </Link>
                 <button
+                  type="button"
+                  disabled={!canContinueStep1}
                   onClick={() => validateStep1() && setStep(2)}
-                  className="flex-[2] rounded bg-[#2F6B3A] py-2.5 text-sm font-bold text-white"
+                  className="flex-[2] rounded bg-[#2F6B3A] py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
                 >
                   Continue →
                 </button>
               </div>
+              {!canContinueStep1 && (
+                <p className="mt-2 text-center text-[11px] text-stone-500">
+                  Fill name, verify mobile OTP, address, city &amp; pincode to continue
+                </p>
+              )}
             </section>
           )}
 
