@@ -13,7 +13,7 @@ export async function GET() {
     upi: Boolean(upiId),
     upiId: upiId || null,
     upiName: getUpiPayeeName(),
-    /** Primary method shown on checkout */
-    mode: razorpay ? "razorpay" : upiId ? "upi" : "free",
+    /** Prefer Free UPI when configured; else Razorpay; else free checkout */
+    mode: upiId ? "upi" : razorpay ? "razorpay" : "free",
   });
 }

@@ -600,26 +600,6 @@ export default function CheckoutPage() {
               </p>
 
               <div className="mt-4 space-y-3">
-                {!razorpayAvailable && (
-                  <button
-                    type="button"
-                    onClick={() => setPayMode("free")}
-                    className={`flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 text-left ${
-                      payMode === "free"
-                        ? "border-[#2F6B3A] bg-[#E8F5EE]"
-                        : "border-stone-200 hover:border-[#2F6B3A]/40"
-                    }`}
-                  >
-                    <input type="radio" checked={payMode === "free"} readOnly className="mt-1" />
-                    <div>
-                      <div className="font-semibold text-stone-900">Free Checkout (recommended now)</div>
-                      <p className="mt-1 text-xs text-stone-500">
-                        Place order now — mill confirms payment on WhatsApp / call. No gateway fees.
-                      </p>
-                    </div>
-                  </button>
-                )}
-
                 {upiAvailable && (
                   <button
                     type="button"
@@ -633,11 +613,31 @@ export default function CheckoutPage() {
                     <input type="radio" checked={payMode === "upi"} readOnly className="mt-1" />
                     <div>
                       <div className="flex items-center gap-2 font-semibold">
-                        <Smartphone className="h-4 w-4" />
-                        Free UPI (GPay / PhonePe / Paytm)
+                        <Smartphone className="h-4 w-4 text-[#2F6B3A]" />
+                        Free UPI (GPay / PhonePe / Paytm) — Recommended
                       </div>
                       <p className="mt-1 text-xs text-stone-500">
-                        Opens your UPI app — no Razorpay charges. Tap &quot;I&apos;ve paid&quot; after payment.
+                        Pay to <strong>massmohan202021-4@okicici</strong> — scan QR or open UPI app, then tap I&apos;ve paid.
+                      </p>
+                    </div>
+                  </button>
+                )}
+
+                {!razorpayAvailable && (
+                  <button
+                    type="button"
+                    onClick={() => setPayMode("free")}
+                    className={`flex w-full cursor-pointer items-start gap-3 rounded-lg border p-4 text-left ${
+                      payMode === "free"
+                        ? "border-[#2F6B3A] bg-[#E8F5EE]"
+                        : "border-stone-200 hover:border-[#2F6B3A]/40"
+                    }`}
+                  >
+                    <input type="radio" checked={payMode === "free"} readOnly className="mt-1" />
+                    <div>
+                      <div className="font-semibold text-stone-900">Free Checkout</div>
+                      <p className="mt-1 text-xs text-stone-500">
+                        Place order now — mill confirms payment on WhatsApp / call.
                       </p>
                     </div>
                   </button>
@@ -657,14 +657,10 @@ export default function CheckoutPage() {
                     <div>
                       <div className="flex items-center gap-2 font-semibold">
                         <CreditCard className="h-4 w-4" />
-                        UPI / Cards / Net Banking (Razorpay)
+                        Cards / Net Banking (Razorpay Test)
                       </div>
                       <p className="mt-1 text-xs text-stone-500">
-                        UPI shows first (GPay / PhonePe), then cards &amp; netbanking. In Test Mode use UPI ID{" "}
-                        <strong>success@razorpay</strong>.
-                      </p>
-                      <p className="mt-1 text-[10px] text-stone-400">
-                        If UPI is missing: Razorpay Dashboard → Account &amp; Settings → Payment Methods → enable UPI (Test Mode).
+                        For testing cards now. Razorpay UPI not available until account activation.
                       </p>
                     </div>
                   </button>
