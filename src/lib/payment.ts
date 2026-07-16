@@ -35,3 +35,17 @@ export function buildUpiPayUrl(opts: {
 export function buildUpiQrImageUrl(upiPayUrl: string, size = 220): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(upiPayUrl)}`;
 }
+
+export function buildUpiAppUrl(
+  upiPayUrl: string,
+  app: "gpay" | "phonepe" | "paytm" | "bhim"
+): string {
+  const query = upiPayUrl.replace(/^upi:\/\/pay\?/, "");
+  const schemes = {
+    gpay: "tez://upi/pay",
+    phonepe: "phonepe://pay",
+    paytm: "paytmmp://pay",
+    bhim: "bhim://upi/pay",
+  } as const;
+  return `${schemes[app]}?${query}`;
+}

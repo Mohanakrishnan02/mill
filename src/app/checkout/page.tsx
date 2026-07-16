@@ -9,7 +9,7 @@ import { PriceSummary } from "@/components/PriceSummary";
 import { loadRazorpayScript } from "@/lib/razorpay-client";
 import { formatINR } from "@/lib/format";
 import { MILL, DELIVERY } from "@/lib/mill-config";
-import { buildUpiPayUrl, buildUpiQrImageUrl } from "@/lib/payment";
+import { buildUpiPayUrl, buildUpiQrImageUrl, buildUpiAppUrl } from "@/lib/payment";
 import { distanceFromMill } from "@/lib/shipping";
 import { reverseGeocodePincode } from "@/lib/geocode";
 import { GoogleAddressInput } from "@/components/GoogleAddressInput";
@@ -52,6 +52,7 @@ export default function CheckoutPage() {
   const [razorpayAvailable, setRazorpayAvailable] = useState(false);
   const [upiPayUrl, setUpiPayUrl] = useState<string | null>(null);
   const [pendingOrderId, setPendingOrderId] = useState("");
+  const [payerUpiId, setPayerUpiId] = useState("");
 
   useEffect(() => {
     fetch("/api/payment/status")
@@ -133,6 +134,7 @@ export default function CheckoutPage() {
   };
 
   const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const upiIdValid = /^[a-zA-Z0-9._-]{2,100}@[a-zA-Z]{2,}$/i.test(payerUpiId.trim());
 
   const sendOtp = () => {
     if (!/^\d{10}$/.test(address.phone)) {
@@ -274,7 +276,9 @@ export default function CheckoutPage() {
     setError("");
     try {
       const orderId = pendingOrderId || "JV" + Date.now().toString().slice(-8).toUpperCase();
-      await completeOrder(orderId, `FREE-${orderId}`, true);
+      const paymentRef =
+        payMode === "upi" && upiIdValid ? `UPI-${payerUpiId.trim()}` : `FREE-${orderId}`;
+      await completeOrder(orderId, paymentRef, true);
     } catch {
       setError("Could not place order. Please try again.");
     } finally {
@@ -297,6 +301,24 @@ export default function CheckoutPage() {
     setUpiPayUrl(url);
     // Open UPI app on mobile
     window.location.href = url;
+  };
+
+  const openSpecificUpiApp = (app: "gpay" | "phonepe" | "paytm" | "bhim") => {
+    if (!upiPayUrl) {
+      startUpiPayment();
+      return;
+    }
+    window.location.href = buildUpiAppUrl(upiPayUrl, app);
+  };
+
+  const requestViaEnteredUpi = () => {
+    if (!upiIdValid) {
+      setError("Enter a valid UPI ID (example: name@okicici)");
+      return;
+    }
+    // Generic website collect requests to arbitrary UPI IDs are deprecated by NPCI.
+    // We store the entered UPI ID as payer reference and open UPI intent with billed amount.
+    startUpiPayment();
   };
 
   const handlePay = async () => {
@@ -732,6 +754,38 @@ export default function CheckoutPage() {
                   >
                     Open UPI App
                   </a>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    <button type="button" onClick={() => openSpecificUpiApp("gpay")} className="rounded border border-stone-200 bg-white px-2 py-2 font-semibold">
+                      GPay
+                    </button>
+                    <button type="button" onClick={() => openSpecificUpiApp("phonepe")} className="rounded border border-stone-200 bg-white px-2 py-2 font-semibold">
+                      PhonePe
+                    </button>
+                    <button type="button" onClick={() => openSpecificUpiApp("paytm")} className="rounded border border-stone-200 bg-white px-2 py-2 font-semibold">
+                      Paytm
+                    </button>
+                    <button type="button" onClick={() => openSpecificUpiApp("bhim")} className="rounded border border-stone-200 bg-white px-2 py-2 font-semibold">
+                      BHIM
+                    </button>
+                  </div>
+                  <div className="mt-3 rounded border border-stone-200 bg-white p-3 text-left">
+                    <p className="text-[11px] font-semibold text-stone-700">Website flow: Enter customer UPI ID</p>
+                    <input
+                      value={payerUpiId}
+                      onChange={(e) => setPayerUpiId(e.target.value.trim())}
+                      placeholder="example@okicici"
+                      className="mt-2 w-full rounded border border-stone-300 px-2 py-2 text-xs outline-none focus:border-[#2F6B3A]"
+                    />
+                    <button
+                      type="button"
+                      onClick={requestViaEnteredUpi}
+                      className="mt-2 w-full rounded bg-[#2F6B3A] py-2 text-xs font-bold text-white disabled:bg-stone-300"
+                      disabled={!upiIdValid}
+                    >
+                      Submit & send payment request
+                    </button>
+                    <p className="mt-1 text-[10px] text-stone-500">Entered UPI ID is saved as payer reference for this order.</p>
+                  </div>
                   <button
                     type="button"
                     onClick={handleFreeConfirm}
